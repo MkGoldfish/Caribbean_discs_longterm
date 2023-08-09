@@ -10,13 +10,8 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "C:/Users/Maaike/Documents/Github/Caribbean_discs_longterm")
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r libaries}
+## Load relevant libraries
+```{r libaries, echo = F}
 library(devtools)
 library(phyloseq)
 library(grid)
@@ -24,10 +19,25 @@ library(tidyverse)
 library(vegan)
 library(rmarkdown)
 library(knitr)
-library(patchwork)
 library(microbiome)
-library("ggsci")
+```
 
+## Load data
+```{r load data, echo= F}
+tax <- as.matrix(read.delim('../Data/representative_seq_set_tax_assignments.txt', row.names = 1, na.strings = c(" ")))
+tax <- tax_table(tax)
+otu <- read.delim('../Data/asvTable.txt', row.names = 1)
+otu <- otu %>%  select(-taxonomy) %>% as.matrix() 
+otu <- otu_table(otu, taxa_are_rows = T)
+map <- sample_data(read.delim('../Data/Metadata_EUX_Discs.txt', row.names = 1, na.strings = c("")))
+```
+
+```{r Create phyloseq object and check}
+physeq_object = merge_phyloseq(otu, tax, map)
+summarize_phyloseq(physeq_object) 
+
+source("basic_info_physeq_object.R")
+basic_info_physeq_object(physeq_object)
 ```
 
 ## Including Plots
