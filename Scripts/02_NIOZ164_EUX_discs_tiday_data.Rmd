@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "C:/Users/Maaike/Documents/Github/Caribbean_discs_longterm")
 ```
 
-## Load relevant libraries
+# Load relevant libraries
 ```{r libaries, echo = F}
 library(devtools)
 library(phyloseq)
@@ -22,7 +22,7 @@ library(knitr)
 library(microbiome)
 ```
 
-## Load data
+# Load data
 ```{r load data, echo= F}
 tax <- as.matrix(read.delim('../Data/representative_seq_set_tax_assignments.txt', row.names = 1, na.strings = c(" ")))
 tax <- tax_table(tax)
@@ -32,6 +32,7 @@ otu <- otu_table(otu, taxa_are_rows = T)
 map <- sample_data(read.delim('../Data/Metadata_EUX_Discs.txt', row.names = 1, na.strings = c("")))
 ```
 
+# Create and check phyloseq
 ```{r Create phyloseq object and check}
 physeq_object = merge_phyloseq(otu, tax, map)
 summarize_phyloseq(physeq_object) 
