@@ -49,5 +49,7 @@ po/*~
 rsconnect/
 
 #specicic folders
-.Plots/
+.Plots
+.Processed-Data/
+.Analysis/
 
