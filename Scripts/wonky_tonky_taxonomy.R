@@ -12,7 +12,7 @@ wonky_tonky_taxonomy <- function(physeq_object){
   get_taxa_unique(physeq_object, "Phylum")
   phyla_after <- length(get_taxa_unique(physeq_object,"Phylum")) 
   present_phyla <- get_taxa_unique(physeq_object,"Phylum") %>% sort(decreasing = FALSE) %>% 
-                  write.csv( "../Analysis/Found_phyla.csv" )
+                  write.csv( "../Analysis/Found_phyla.txt")
   
   order_before <- length(get_taxa_unique(physeq_object,"Order"))
   physeq_object <- subset_taxa(physeq_object, !Order%in% c(" Chloroplast", "Chloroplast", "chloroplast", " chloroplast"))

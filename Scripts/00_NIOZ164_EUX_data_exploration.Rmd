@@ -1,5 +1,5 @@
 ---
-title: "Curation and exploration data NIOZ164, Discs EUX"
+title: "Exploration data NIOZ164, Discs EUX"
 author: Maaike Goudriaan, MMB, NIOZ
 output: html_document
 date: "2023-08-09"
@@ -11,12 +11,14 @@ Here we focus on analysis of 16S amplicon data, from amplified DNA extracted fro
 #Set-up markdown file and analysis environment
 ```{r setup, include = TRUE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
 ## What dir are we in and which files are there
 ```{r check-wd, r files in prject folder, results='hide'}
 getwd()
 print(dir()) 
+
 ``` 
 
 ## Load relevant libraries
@@ -30,6 +32,10 @@ library(rmarkdown)
 library(knitr)
 library(microbiome)
 library(ggplot2)
+library(ggpubr)
+library(ggh4x)
+library(ggrepel)
+
 ```
 
 ## Load data
@@ -42,13 +48,11 @@ otu <- otu_table(otu, taxa_are_rows = T)
 map <- read.delim('../Data/Metadata_EUX_Discs.txt', row.names = 1, na.strings = c(""))
 
 # Add extra combi columns to the map metadata matirx
-Location_Habitat <- str_c(map$Location, "_", map$Habitat)
-map <- map %>%
-  add_column(Location_Habitat, .before ="Polymer") %>% 
-  sample_data()
+map$Location_Habitat <- str_c(map$Location, "_", map$Habitat)
+
+map <- sample_data(map) 
 
 ```
-
 # Create and check phyloseq
 Total nr of reads in phyloseq 11,715,865
 Lowest taxa sum is 0
@@ -60,7 +64,24 @@ summarize_phyloseq(physeq_object)
 
 source("basic_info_physeq_object.R")
 basic_info_physeq_object(physeq_object)
+
+#store physeq object for later
+saveRDS(physeq_object, "../Analysis/NIOZ164_physeq_object.rds")
 ```
+## Visualizing the read abundance per sample plot
+```{r abundance plot}
+sample_sums <- sample_sums(physeq_object)
+sample_sums_df <- data.frame(sum = sample_sums) %>% rownames_to_column("Sample_ID") %>% arrange(Sample_ID)
+Sample_description <- data.frame(map) %>% rownames_to_column("Sample_ID") %>% arrange(Sample_ID)
+sample_sums_df$Description <- Sample_description$Description
+ggplot(sample_sums_df, aes(x = Description, y = sum)) +
+  geom_bar(stat = "identity", fill = "blue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Sample", y = "Sum of Counts", title = "Sample Sums of Phyloseq Object")
+
+``` 
+There is clearly a difference in readnumbers per sample. CBW19_B has low read abundance. 
+2NTC are low, 1 is a but higher. 
 
 ## How much of each rank do we have, and how much is NA?
 ```{r calculations, results='hide', message=FALSE}
@@ -77,24 +98,109 @@ get_taxa_unique(physeq_object, "Family")
 subset_taxa(physeq_object, Family == "NA") %>% summarize_phyloseq()
 get_taxa_unique(physeq_object, "Family")
 subset_taxa(physeq_object, Genus == "NA") %>% summarize_phyloseq()
+
 ```
-#### Kingdom level: 
+### Kingdom level: 
 - Total Eukaryotic reads = 905
-- Total Archaeal reads = 127564
+- Total Archaeal reads = 127,564
 - Total NA reads = 541
 
-#### Other levels
+### Other levels
 - Phylum level NA reads = 49,876
 - Order level NA = 852,155
 - Family level NA = 2,073,772
 - Genus level NA = 5,103,930
 
+## Turn absolute abundance data to a tidy tibble for rarefaction
+```{r store make tibble,  results='hide', message=FALSE}
+source("tidy_tibble_maker.R")
+physeq_object <- subset_samples(physeq_object, Polymer!= "Unknown" | Polymer!=  "NA")
+tidy_physeq_abs <- tidy_tibble_maker(physeq_object)
+# write.csv(tidy_physeq_abs, '../Processed-Data/NIOZ165_EUX_discs_abs_data_unfiltered.csv')
+
+```
+
+# Rarefaction 
+```{r Rarefaction curves, results = 'hold', message=FALSE}
+colnames(tidy_physeq_abs)
+rownames(tidy_physeq_abs)
+ASV.abs <-  tidy_physeq_abs%>%  select(Sample, Description, OTU, Abundance, Location, Habitat, Polymer, Location_Habitat) %>%
+  distinct() 
+head(ASV.abs)
+#Adjust the number of significant digets to get from vegan in rarefactions
+old <- options(pillar.sigfig = 8)
+options(old)
+
+# Transform count table to get samples per row and ASV per column
+# Not per se necessary, but this means we can use standard MARGIN in transfromation and ordination
+ASV.ABS_df1<- ASV.abs %>% select(Sample, OTU, Abundance)  %>% mutate(across(c(OTU),factor)) %>% 
+  pivot_wider(names_from = OTU, values_from = Abundance, values_fill = 0) %>% replace(is.na(.), 0)  %>% 
+  arrange(Sample) %>% column_to_rownames(var = "Sample") %>% as.data.frame()
+str(ASV.ABS_df1)
+rownames(ASV.ABS_df1)
+colnames(ASV.ABS_df1)
+
+# Select the metadata we need for plotting
+meta_df1 <- ASV.abs %>% select(Sample, Description, OTU, Abundance, Location, Habitat, Polymer, Location_Habitat)  %>%
+  mutate(across(c(OTU),factor)) %>% 
+  pivot_wider(names_from = OTU, values_from = Abundance, values_fill = 0) %>% replace(is.na(.), 0)  %>% 
+  arrange(Sample) %>% column_to_rownames(var = "Sample") %>% as.data.frame() %>% select(Location, Habitat, Polymer, Location_Habitat)
+rownames(meta_df1)
+colnames(meta_df1)
+
+# Find the lowest amount of sequences in all samples with this
+# Can be used for rarefaction depth
+min_seqs_1 <- ASV.abs%>%
+  group_by(Sample) %>%
+  summarize(n_seqs = sum(Abundance))  %>%
+  summarize(min = min(n_seqs)) %>%
+  pull(min)
+
+#Remove the first column frpm the df for rarefaction 
+ASV.ABS.df1 <- ASV.ABS_df1[,-1]
+
+# Create the rarefaction curves for individual samples
+# steps of 250 is high enough resolution for now
+samples.rarecurve <- vegan::rarecurve(ASV.ABS.df1, step = 250) 
+str(samples.rarecurve)
+
+# Since it is a list of lists, with this piece of code we can turn it into a df for plotting
+samp.rare.data <- map_dfr(samples.rarecurve[-99], bind_rows) %>% 
+  bind_cols(meta_df1[-c(99),], Sample = rownames(ASV.ABS_df1[-c(99),])) %>% 
+  pivot_longer(-c("Sample", "Location", "Habitat", "Polymer", "Location_Habitat" )) %>% 
+  drop_na() %>%
+  mutate(n_seqs = as.numeric(str_replace(name, "N", ""))) %>% 
+  select(-name)
+
+head(samp.rare.data)
+colnames(samp.rare.data)
+
+# We add an extra column with samplenames to be used for the label
+# Group by Sample and make sure there is only a label for the last value of the sample
+samp.rare.data <- samp.rare.data %>% group_by(Sample) %>% mutate(label = if_else(value == max(value), as.character(Polymer), NA_character_))
+
+rareplot.1 <- ggplot(samp.rare.data, aes(x = n_seqs, y = value, group = Sample)) +
+  geom_line(aes(color = Polymer), linewidth = 1.5) +
+  # xlim(0, 50000) +
+  # geom_vline(xintercept = 10916, color="black", linewidth = 1) + 
+  facet_grid(.~ Location_Habitat) +
+  geom_label_repel(aes(label = label, color = Polymer), nudge_x = 1, nudge_y = -0.5, na.rm = T) +
+  # scale_colour_manual() +
+  xlab("# of sequences") + ylab("# of ASVs") +
+  theme_classic()
+
+rareplot.1
+
+```
+
 ## Turn data to RA and store as a tidy tibble
 ```{r store unfiltered data,  results='hide', message=FALSE}
-source("tidy_psmelt.R")
-physeq_prefilt <- transform_sample_counts(physeq_object,function(x) x / sum(x) )
+source("tidy_tibble_maker.R")
+physeq_prefilt <- transform_sample_counts(physeq_object, function(x) x / sum(x) )
+#Save physeq for later
+saveRDS(physeq_prefilt, "../Analysis/NIOZ164_physeq_object_RA_data.rds")
 tidy_physeq_prefilt <- tidy_tibble_maker(physeq_prefilt)
-# write.csv(tidy_physeq_prefilt, '../Processed-Data/NIOZ165_EUX_discs_RA_data_unfiltered.csv')
+write.csv(tidy_physeq_prefilt, '../Processed-Data/NIOZ165_EUX_discs_RA_data_unfiltered.csv')
 ```
 
 # Check and correct taxonomy
@@ -118,29 +224,23 @@ for (i in 1:nrow(taxo)) {
 # re-define as tax table object
 taxo <- tax_table(as.matrix(taxo))
 # merge updated taxonomy
-physeq_filtered <- merge_phyloseq(physeq_object@otu_table, taxo, map) 
+physeq_tax_correct <- merge_phyloseq(physeq_object@otu_table, taxo, map) 
 
-```
-## check physeq object
-```{r check, results='hide', message=FALSE}
 # check the physeq object
 source("basic_info_physeq_object.R")
-basic_info_physeq_object(physeq_filtered)
-summarize_phyloseq(physeq_filtered)
+basic_info_physeq_object(physeq_tax_correct)
+summarize_phyloseq(physeq_tax_correct)
+
+#Save physeq for later
+saveRDS(physeq_tax_correct, "../Analysis/NIOZ164_physeq_object_RA_data_Tax_correct.rds")
+
 ```
 
-# Visualizing the raw data
+## check physeq object
+```{r check, results='hide', message=FALSE}
 
-## Read abundance per sample plot
-```{r abundance plot}
-sample_sums <- sample_sums(physeq_object)
-sample_sums_df <- data.frame(sample = map$Description, sum = sample_sums)
-ggplot(sample_sums_df, aes(x = sample, y = sum)) +
-  geom_bar(stat = "identity", fill = "blue") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(x = "Sample", y = "Sum of Counts", title = "Sample Sums of Phyloseq Object")
-``` 
 
+```
 
 ##Prevalence plots
 ```{r prevalence plot}
@@ -163,7 +263,6 @@ microbiome::plot_taxa_prevalence(physeq_CC, "Phylum") +
   theme(legend.position = "none") +  
   labs(title = "Prevalence Prokaryotic Phyla Crooks Castle")
 
-
 ```
 
 # Alpha Diversity
@@ -176,20 +275,5 @@ head(Alpha.EUX )
 
 ```
 
-## Transform data and store as a tidy tibble
-Data is transformed to RA for plotting of commuity, and hellinger and rclr transformed for statistical analysis
-```{r, store filtered data,  results='hide', message=FALSE}
-source("tidy_psmelt.R")
-physeq_filtered_ra <- transform_sample_counts(physeq_filtered,function(x) x / sum(x) )
-tidy_RA_filtered <- tidy_tibble_maker(physeq_filtered_ra)
-write.csv(tidy_RA_filtered, '../Processed-Data/NIOZ165_EUX_discs_RA_data_filtered.csv')
 
-physeq_filtered_hell <- microbiome::transform(physeq_filtered, 'hellinger' )
-tidy_hell_filtered <- tidy_tibble_maker(physeq_filtered_hell)
-write.csv(tidy_hell_filtered, '../Processed-Data/NIOZ165_EUX_discs_sqrt_RA_data_filtered.csv')
-
-physeq_filtered_rclr <- microbiome::transform(physeq_filtered, 'rclr' )
-tidy_rclr_filtered <- tidy_tibble_maker(physeq_filtered_rclr)
-write.csv(tidy_rclr_filtered, '../Processed-Data/NIOZ165_EUX_discs_rclr_data_filtered.csv')
-```
 

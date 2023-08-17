@@ -144,30 +144,6 @@ basic_info_physeq_object(physeq_filtered)
 summarize_phyloseq(physeq_filtered)
 ```
 
-# Prevalence plots
-```{r prevalence plot}
-microbiome::plot_taxa_prevalence(physeq_filtered, "Phylum") + 
-  theme(legend.position = "none") +  
-  labs(title = "Prevalence Prokaryotic Phyla")
-
-#subset physeq
-physeq_CC <- subset_samples(physeq_filtered, Location == "Crooks_Castle")
-physeq_CB <- subset_samples(physeq_filtered, Location == "Charles_Brown")
-
-physeq_Pel <- subset_samples(physeq_filtered, Habitat == "Pelagic")
-physeq_Ben <- subset_samples(physeq_filtered, Habitat == "Benthic")
-
-microbiome::plot_taxa_prevalence(physeq_CB, "Phylum") + 
-  theme(legend.position = "none") +  
-  labs(title = "Prevalence Prokaryotic Phyla Charles Brown")
-
-microbiome::plot_taxa_prevalence(physeq_CC, "Phylum") + 
-  theme(legend.position = "none") +  
-  labs(title = "Prevalence Prokaryotic Phyla Crooks Castle")
-
-
-```
-
 
 ## Transform data and store as a tidy tibble
 Data is transformed to RA for plotting of commuity, and hellinger and rclr transformed for statistical analysis
