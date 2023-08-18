@@ -49,6 +49,7 @@ map <- read.delim('../Data/Metadata_EUX_Discs.txt', row.names = 1, na.strings = 
 
 # Add extra combi columns to the map metadata matirx
 map$Location_Habitat <- str_c(map$Location, "_", map$Habitat)
+map$Polymer_Treatment <- str_c(map$Polymer, "_", map$Treatment)
 
 map <- sample_data(map) 
 
@@ -81,7 +82,7 @@ ggplot(sample_sums_df, aes(x = Description, y = sum)) +
 
 ``` 
 There is clearly a difference in readnumbers per sample. CBW19_B has low read abundance. 
-2NTC are low, 1 is a but higher. 
+2NTC are low, 1 is a bit high. 
 
 ## How much of each rank do we have, and how much is NA?
 ```{r calculations, results='hide', message=FALSE}
@@ -90,13 +91,13 @@ subset_taxa(physeq_object, Kingdom == "Eukaryota") %>% summarize_phyloseq()
 subset_taxa(physeq_object, Kingdom == "Archaea") %>% summarize_phyloseq()
 subset_taxa(physeq_object, Kingdom == "NA") %>% summarize_phyloseq()
 
-get_taxa_unique(physeq_object, "Phylum")
+get_taxa_unique(physeq_object, "Phylum") %>% sort()
 subset_taxa(physeq_object, Phylum == "NA") %>% summarize_phyloseq()
-get_taxa_unique(physeq_object, "Order")
+get_taxa_unique(physeq_object, "Order") %>% sort()
 subset_taxa(physeq_object, Order == "NA") %>% summarize_phyloseq()
-get_taxa_unique(physeq_object, "Family")
+get_taxa_unique(physeq_object, "Family") %>% sort()
 subset_taxa(physeq_object, Family == "NA") %>% summarize_phyloseq()
-get_taxa_unique(physeq_object, "Family")
+get_taxa_unique(physeq_object, "Family") %>% sort()
 subset_taxa(physeq_object, Genus == "NA") %>% summarize_phyloseq()
 
 ```
@@ -114,17 +115,17 @@ subset_taxa(physeq_object, Genus == "NA") %>% summarize_phyloseq()
 ## Turn absolute abundance data to a tidy tibble for rarefaction
 ```{r store make tibble,  results='hide', message=FALSE}
 source("tidy_tibble_maker.R")
-physeq_object <- subset_samples(physeq_object, Polymer!= "Unknown" | Polymer!=  "NA")
+physeq_object <- subset_samples(physeq_object, Polymer!= "Unknown" | Habitat!=  "Unknown")
 tidy_physeq_abs <- tidy_tibble_maker(physeq_object)
 # write.csv(tidy_physeq_abs, '../Processed-Data/NIOZ165_EUX_discs_abs_data_unfiltered.csv')
 
 ```
 
 # Rarefaction 
-```{r Rarefaction curves, results = 'hold', message=FALSE}
+```{r Rarefaction curves, message=FALSE, results='hold'}
 colnames(tidy_physeq_abs)
 rownames(tidy_physeq_abs)
-ASV.abs <-  tidy_physeq_abs%>%  select(Sample, Description, OTU, Abundance, Location, Habitat, Polymer, Location_Habitat) %>%
+ASV.abs <-  tidy_physeq_abs%>%  select(Sample, Description, OTU, Abundance, Location, Habitat, Polymer, Treatment, Location_Habitat, Polymer_Treatment) %>%
   distinct() 
 head(ASV.abs)
 #Adjust the number of significant digets to get from vegan in rarefactions
@@ -141,10 +142,10 @@ rownames(ASV.ABS_df1)
 colnames(ASV.ABS_df1)
 
 # Select the metadata we need for plotting
-meta_df1 <- ASV.abs %>% select(Sample, Description, OTU, Abundance, Location, Habitat, Polymer, Location_Habitat)  %>%
+meta_df1 <- ASV.abs %>% select(Sample, Description, OTU, Abundance, Location, Habitat, Polymer, Treatment)  %>%
   mutate(across(c(OTU),factor)) %>% 
   pivot_wider(names_from = OTU, values_from = Abundance, values_fill = 0) %>% replace(is.na(.), 0)  %>% 
-  arrange(Sample) %>% column_to_rownames(var = "Sample") %>% as.data.frame() %>% select(Location, Habitat, Polymer, Location_Habitat)
+  arrange(Sample) %>% column_to_rownames(var = "Sample") %>% as.data.frame() %>% select(Location, Habitat, Polymer, Treatment)
 rownames(meta_df1)
 colnames(meta_df1)
 
@@ -166,8 +167,8 @@ str(samples.rarecurve)
 
 # Since it is a list of lists, with this piece of code we can turn it into a df for plotting
 samp.rare.data <- map_dfr(samples.rarecurve[-99], bind_rows) %>% 
-  bind_cols(meta_df1[-c(99),], Sample = rownames(ASV.ABS_df1[-c(99),])) %>% 
-  pivot_longer(-c("Sample", "Location", "Habitat", "Polymer", "Location_Habitat" )) %>% 
+  bind_cols(meta_df1[-c(99),], Sample = rownames(ASV.ABS_df1[-c(99),]))  %>% 
+  pivot_longer(-c("Sample", "Location", "Habitat", "Polymer", "Treatment")) %>% 
   drop_na() %>%
   mutate(n_seqs = as.numeric(str_replace(name, "N", ""))) %>% 
   select(-name)
@@ -180,11 +181,11 @@ colnames(samp.rare.data)
 samp.rare.data <- samp.rare.data %>% group_by(Sample) %>% mutate(label = if_else(value == max(value), as.character(Polymer), NA_character_))
 
 rareplot.1 <- ggplot(samp.rare.data, aes(x = n_seqs, y = value, group = Sample)) +
-  geom_line(aes(color = Polymer), linewidth = 1.5) +
-  # xlim(0, 50000) +
+  geom_line(aes(color = Treatment), linewidth = 1) +
+  xlim(0, 250000) +
   # geom_vline(xintercept = 10916, color="black", linewidth = 1) + 
-  facet_grid(.~ Location_Habitat) +
-  geom_label_repel(aes(label = label, color = Polymer), nudge_x = 1, nudge_y = -0.5, na.rm = T) +
+  facet_grid(~ Location + Habitat) +
+  geom_label_repel(aes(label = label, color = Treatment), nudge_x = 1, nudge_y = -0.5, na.rm = T) +
   # scale_colour_manual() +
   xlab("# of sequences") + ylab("# of ASVs") +
   theme_classic()
@@ -193,7 +194,7 @@ rareplot.1
 
 ```
 
-## Turn data to RA and store as a tidy tibble
+# Turn data to RA and store as a tidy tibble
 ```{r store unfiltered data,  results='hide', message=FALSE}
 source("tidy_tibble_maker.R")
 physeq_prefilt <- transform_sample_counts(physeq_object, function(x) x / sum(x) )
@@ -236,15 +237,21 @@ saveRDS(physeq_tax_correct, "../Analysis/NIOZ164_physeq_object_RA_data_Tax_corre
 
 ```
 
-## check physeq object
+## Check amounts of unassigned
 ```{r check, results='hide', message=FALSE}
 
 
 ```
 
-##Prevalence plots
+# Barplots on Kingdom, Phyla, Order level
+What do we find in negative controls, do we need to filter/clean this?
+```{r}
+
+```
+
+#Prevalence plots
 ```{r prevalence plot}
-microbiome::plot_taxa_prevalence(physeq_filtered, "Phylum") + 
+microbiome::plot_taxa_prevalence(physeq_tax_correct, "Phylum") + 
   theme(legend.position = "none") +  
   labs(title = "Prevalence Prokaryotic Phyla")
 
@@ -264,16 +271,3 @@ microbiome::plot_taxa_prevalence(physeq_CC, "Phylum") +
   labs(title = "Prevalence Prokaryotic Phyla Crooks Castle")
 
 ```
-
-# Alpha Diversity
-```{r alpha diversity, results='hold'}
-Alpha.EUX <- phyloseq::estimate_richness(physeq_object, measures=c("Observed", "Simpson", "Shannon", "Chao1") )
-Alpha.EUX  <- Alpha.EUX  %>% cbind(data.frame(physeq_object@sam_data)) 
-Alpha.EUX$InputFileName <- NULL
-Alpha.EUX <- Alpha.EUX %>% rownames_to_column(var = "Sample") %>% column_to_rownames(var = "Description")
-head(Alpha.EUX )
-
-```
-
-
-
