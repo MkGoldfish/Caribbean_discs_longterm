@@ -194,10 +194,15 @@ rareplot.1
 
 ```
 
-# Turn data to RA and store as a tidy tibble
-```{r store unfiltered data,  results='hide', message=FALSE}
+# Turn data to RA
+```{r turn to RA,  results='hide', message=FALSE}
 source("tidy_tibble_maker.R")
 physeq_prefilt <- transform_sample_counts(physeq_object, function(x) x / sum(x) )
+
+```
+
+## Store the RA data
+```{r store unfiltered data,  results='hide', message=FALSE}
 #Save physeq for later
 saveRDS(physeq_prefilt, "../Analysis/NIOZ164_physeq_object_RA_data.rds")
 tidy_physeq_prefilt <- tidy_tibble_maker(physeq_prefilt)
@@ -231,9 +236,10 @@ physeq_tax_correct <- merge_phyloseq(physeq_object@otu_table, taxo, map)
 source("basic_info_physeq_object.R")
 basic_info_physeq_object(physeq_tax_correct)
 summarize_phyloseq(physeq_tax_correct)
+physeq_tax_correct_RA <- transform_sample_counts(physeq_tax_correct, function(x) x / sum(x) )
 
 #Save physeq for later
-saveRDS(physeq_tax_correct, "../Analysis/NIOZ164_physeq_object_RA_data_Tax_correct.rds")
+saveRDS(physeq_tax_correct_RA, "../Analysis/NIOZ164_physeq_object_RA_data_Tax_correct.rds")
 
 ```
 
@@ -246,7 +252,8 @@ saveRDS(physeq_tax_correct, "../Analysis/NIOZ164_physeq_object_RA_data_Tax_corre
 # Barplots on Kingdom, Phyla, Order level
 What do we find in negative controls, do we need to filter/clean this?
 ```{r}
-
+bar_phylum <- plot_bar(physeq_tax_correct_RA, "Phylum", fill = "Phylum", facet_grid = Habiat ~ Location)
+bar_phylum
 ```
 
 #Prevalence plots
