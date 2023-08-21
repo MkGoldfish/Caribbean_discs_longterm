@@ -22,7 +22,7 @@ print(dir())
 ``` 
 
 ## Load relevant libraries
-```{r libaries, results='hold', message=FALSE}
+```{r libaries, warning=FALSE,message=FALSE,error=FALSE, results='hide',fig.keep='all'}
 library(devtools)
 library(phyloseq)
 library(grid)
@@ -63,14 +63,19 @@ Mean taxa sum is 148.7767
 physeq_object = merge_phyloseq(otu, tax, map)
 summarize_phyloseq(physeq_object) 
 
-source("basic_info_physeq_object.R")
-basic_info_physeq_object(physeq_object)
 
 #store physeq object for later
 saveRDS(physeq_object, "../Analysis/NIOZ164_physeq_object.rds")
 ```
+
+```{r basic info physeq, echo=FALSE,warning=FALSE,message=FALSE,error=FALSE, results='hide',fig.keep='all'}
+source("basic_info_physeq_object.R")
+basic_info_physeq_object(physeq_object)
+
+```
+
 ## Visualizing the read abundance per sample plot
-```{r abundance plot}
+```{r abundance plot, results='hold', message=FALSE}
 sample_sums <- sample_sums(physeq_object)
 sample_sums_df <- data.frame(sum = sample_sums) %>% rownames_to_column("Sample_ID") %>% arrange(Sample_ID)
 Sample_description <- data.frame(map) %>% rownames_to_column("Sample_ID") %>% arrange(Sample_ID)
@@ -115,7 +120,7 @@ subset_taxa(physeq_object, Genus == "NA") %>% summarize_phyloseq()
 ## Turn absolute abundance data to a tidy tibble for rarefaction
 ```{r store make tibble,  results='hide', message=FALSE}
 source("tidy_tibble_maker.R")
-physeq_object <- subset_samples(physeq_object, Polymer!= "Unknown" | Habitat!=  "Unknown")
+physeq_object <- subset_samples(physeq_object, Location != "NC")
 tidy_physeq_abs <- tidy_tibble_maker(physeq_object)
 # write.csv(tidy_physeq_abs, '../Processed-Data/NIOZ165_EUX_discs_abs_data_unfiltered.csv')
 
@@ -233,27 +238,67 @@ taxo <- tax_table(as.matrix(taxo))
 physeq_tax_correct <- merge_phyloseq(physeq_object@otu_table, taxo, map) 
 
 # check the physeq object
-source("basic_info_physeq_object.R")
-basic_info_physeq_object(physeq_tax_correct)
 summarize_phyloseq(physeq_tax_correct)
+
+```
+
+```{r basic info physeq, echo=FALSE,warning=FALSE,message=FALSE,error=FALSE, results='hide',fig.keep='all'}
+source("basic_info_physeq_object.R")
+basic_info_physeq_object(physeq_object)
+
+```
+
+##Turn correctec data to RA
+```{r}
 physeq_tax_correct_RA <- transform_sample_counts(physeq_tax_correct, function(x) x / sum(x) )
 
 #Save physeq for later
 saveRDS(physeq_tax_correct_RA, "../Analysis/NIOZ164_physeq_object_RA_data_Tax_correct.rds")
-
 ```
 
-## Check amounts of unassigned
-```{r check, results='hide', message=FALSE}
+## Check amounts of unassigned/removed taxa
+```{r check, results='hold', message=FALSE}
+Phyl <- subset_taxa(physeq_tax_correct, Phylum == "unassigned" )
+#unassigned Phyla
+summarize_phyloseq(Phyl)
+mean(taxa_sums(Phyl))
+sd(taxa_sums(Phyl))
 
+Order <- subset_taxa(physeq_tax_correct, Order == "unassigned" )
+#unassigned Orders
+summarize_phyloseq(Order)
+mean(taxa_sums(Order))
+sd(taxa_sums(Order))
+
+Family <- subset_taxa(physeq_tax_correct, Family == "unassigned" )
+#unassigned Family
+summarize_phyloseq(Family)
+mean(taxa_sums(Family))
+sd(taxa_sums(Family))
+
+Genus <- subset_taxa(physeq_tax_correct, Genus == "unassigned" )
+#unassigned Genus
+summarize_phyloseq(Genus)
+mean(taxa_sums(Genus))
+sd(taxa_sums(Genus))
 
 ```
 
 # Barplots on Kingdom, Phyla, Order level
 What do we find in negative controls, do we need to filter/clean this?
-```{r}
-bar_phylum <- plot_bar(physeq_tax_correct_RA, "Phylum", fill = "Phylum", facet_grid = Habiat ~ Location)
+```{r barplots, results='hold', message=FALSE}
+
+
+physeq_tax_correct_RA <- readRDS("../Analysis/NIOZ164_physeq_object_RA_data_Tax_correct.rds")
+physeq_plot <- subset_samples(physeq_tax_correct_RA , Phase %in% c('Disc', 'Wild'))
+physeq_plot_p <- prune_samples(sample_sums(physeq_plot) > 0.05, physeq_plot)
+summarize_phyloseq(physeq_plot_p)
+
+bar_phylum <- plot_bar(physeq_plot_p, "Phylum", fill = "Phylum", facet_grid =  ~ Location)
 bar_phylum
+
+bar_order <- plot_bar(physeq_plot_p, "Order", fill = "Order", facet_grid =  ~ Location)
+bar_order
 ```
 
 #Prevalence plots
@@ -263,11 +308,11 @@ microbiome::plot_taxa_prevalence(physeq_tax_correct, "Phylum") +
   labs(title = "Prevalence Prokaryotic Phyla")
 
 #subset physeq
-physeq_CC <- subset_samples(physeq_filtered, Location == "Crooks_Castle")
-physeq_CB <- subset_samples(physeq_filtered, Location == "Charles_Brown")
+physeq_CC <- subset_samples(physeq_tax_correct, Location == "Crooks_Castle")
+physeq_CB <- subset_samples(physeq_tax_correct, Location == "Charles_Brown")
 
-physeq_Pel <- subset_samples(physeq_filtered, Habitat == "Pelagic")
-physeq_Ben <- subset_samples(physeq_filtered, Habitat == "Benthic")
+physeq_Pel <- subset_samples(physeq_tax_correct, Habitat == "Pelagic")
+physeq_Ben <- subset_samples(physeq_tax_correct, Habitat == "Benthic")
 
 microbiome::plot_taxa_prevalence(physeq_CB, "Phylum") + 
   theme(legend.position = "none") +  
