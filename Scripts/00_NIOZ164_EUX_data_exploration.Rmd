@@ -5,7 +5,7 @@ output: html_document
 date: "2023-08-09"
 ---
 # Purpose
-NIOZ164 was an illumina sequencing lane consisting of different samplesets. 
+NIOZ164 is an illumina sequencing lane consisting of different samplesets. 
 Here we focus on analysis of 16S amplicon data, from amplified DNA extracted from discs covered in polymer films that were incubated at 2 different locations in 2 different waterdepths (seafloor and watercolumn) in coastal Caribbean waters close to the island of St. EUstatius. THe tested polymers were PE, PP, PS, PEt and Nylon, PE-13C and PP-13C. Of each polymere there was an UV pretreated and a non-treated version. 
 
 #Set-up markdown file and analysis environment
@@ -60,7 +60,7 @@ Lowest taxa sum is 0
 Highest taxa sum is 402463
 Mean taxa sum is 148.7767
 ```{r Create phyloseq object and check, results='hold', message=FALSE}
-physeq_object = merge_phyloseq(otu, tax, map)
+physeq_object = phyloseq::merge_phyloseq(otu, tax, map)
 summarize_phyloseq(physeq_object) 
 
 
@@ -122,7 +122,7 @@ subset_taxa(physeq_object, Genus == "NA") %>% summarize_phyloseq()
 source("tidy_tibble_maker.R")
 physeq_object <- subset_samples(physeq_object, Location != "NC")
 tidy_physeq_abs <- tidy_tibble_maker(physeq_object)
-# write.csv(tidy_physeq_abs, '../Processed-Data/NIOZ165_EUX_discs_abs_data_unfiltered.csv')
+write.csv(tidy_physeq_abs, '../Processed-Data/NIOZ165_EUX_discs_abs_data_unfiltered.csv')
 
 ```
 

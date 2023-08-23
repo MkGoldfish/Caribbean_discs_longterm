@@ -26,7 +26,7 @@ NIOZ164.2.9	515F.Golay47.926R.BC48.fasta	CCS19_PS_UV	Crooks_Castle	Benthic	PS	12
 NIOZ164.2.10	515F.Golay49.926R.BC50.fasta	CCS19_PET	Crooks_Castle	Benthic	PET	12C	Hetero	no_UV	Incubation	Disc
 NIOZ164.2.11	515F.Golay51.926R.BC52.fasta	CCS19_PET_UV	Crooks_Castle	Benthic	PET	12C	Hetero	UV	Incubation	Disc
 NIOZ164.2.12	515F.Golay53.926R.BC54.fasta	CCS19_Nyl	Crooks_Castle	Benthic	Nyl	12C	Hetero	no_UV	Incubation	Disc
-NIOZ164.2.13	515F.Golay55.926R.BC56.fasta	CCS19_Nyl _UV	Crooks_Castle	Benthic	Nyl	12C	Hetero	UV	Incubation	Disc
+NIOZ164.2.13	515F.Golay55.926R.BC56.fasta	CCS19_Nyl_UV	Crooks_Castle	Benthic	Nyl	12C	Hetero	UV	Incubation	Disc
 NIOZ164.2.14	515F.Golay57.926R.BC58.fasta	CCS19_B	Crooks_Castle	Benthic	B	12C	NA	NA 	Incubation	Disc
 NIOZ164.3.1	515F.Golay59.926R.BC60.fasta	CBW19_PE	Charles_Brown	Pelagic	PE	12C	Carbon	no_UV	Incubation	Disc
 NIOZ164.3.2	515F.Golay61.926R.BC62.fasta	CBW19_PE_UV	Charles_Brown	Pelagic	PE	12C	Carbon	UV	Incubation	Disc
