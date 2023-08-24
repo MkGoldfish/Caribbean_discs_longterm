@@ -215,26 +215,29 @@ Shannon.Discs  <- add_slide(Shannon.Discs )
 Shannon.Discs<- ph_with(x = Shannon.Discs, editable_graph,location = ph_location_type(type = "body") )
 print(Chao1.Discs , target = "../Reports/Shannon.NIOZ164.pptx")
 
+# ## Summarize alpha diversity indices in average and SD----------------------------------
+# # First pito dataframe into long format
+# Alpha.Discs.long <- Alpha.Discs  %>% select(!se.chao1) %>%  pivot_longer(cols = c("Observed", "Chao1", "Shannon", "Simpson"), names_to = "Diversity_Index", 
+#                                                                          values_to = "Value")
+# head(Alpha.Discs.long)
+# #load needed formula
+# source("summarySE.R")
+# 
+# # Summarize and calculate avg and SD
+# # Define groups per which you want to have the mean and SD and you want to keep for plotting
+# Alpha.Discs.long.c <-  summarySE(Alpha.Discs.long, measurevar="Value", groupvars=c("Location", "Habitat","Polymer", "Isotope", "Backbone", "Treatment", 
+#                                                                                    "Location_Habitat", "Diversity_Index"))
+# # Select richness and diversity seperately for plotting
+# Richness.long.c <- Alpha.Discs.long.c %>% filter(Diversity_Index %in% c("Observed", "Chao1"))
+# Diversity.long.c <- Alpha.Discs.long.c %>% filter(Diversity_Index %in% c("Shannon", "Simpson"))
 
-# Make final point - errobar plots ------------------------------------------------------
+# Make final boxplot plots -------------------------------------------------------------
+### 1. Alpha diversity for habitats per location                                    ----
+### 2. Incubation only - Alpha diversity for treatments per habitat/location        ----
+### 3. Incubation only - Alpha diversity for 12C/13C PE/PP per habitat and location ----
+#%#----------------------------------------------------------------------------------#%#
 
-## Summarize alpha diversity indices in average and SD ----------------------------------
-# First pito dataframe into long format
-Alpha.Discs.long <- Alpha.Discs  %>% select(!se.chao1) %>%  pivot_longer(cols = c("Observed", "Chao1", "Shannon", "Simpson"), names_to = "Diversity_Index", 
-                                                                         values_to = "Value")
-head(Alpha.Discs.long)
-#load needed formula
-source("summarySE.R")
-
-# Summarize and calculate avg and SD
-# Define groups per which you want to have the mean and SD and you want to keep for plotting
-Alpha.Discs.long.c <-  summarySE(Alpha.Discs.long, measurevar="Value", groupvars=c("Location", "Habitat","Polymer", "Isotope", "Backbone", "Treatment", 
-                                                                                   "Location_Habitat", "Diversity_Index"))
-# Select richness and diversity seperately for plotting
-Richness.long.c <- Alpha.Discs.long.c %>% filter(Diversity_Index %in% c("Observed", "Chao1"))
-Diversity.long.c <- Alpha.Discs.long.c %>% filter(Diversity_Index %in% c("Shannon", "Simpson"))
-
-## Observed/Chao1?? --------------------------------------------------------------------
+## Observed ----------------------------------------------------------------------------
 Chao1 <- ggplot(chao1.c,         #Pick data to plot
                 aes(x=interaction(Material, category), y = Chao1, fill = Material, color = Material)) + #Pick factors to use
   geom_errorbar(aes(ymin=Chao1-se, ymax=Chao1+se, width=.3)) +
@@ -262,7 +265,35 @@ Chao1 <- ggplot(chao1.c,         #Pick data to plot
 
 Chao1
 
-## Simpson --------------------------------------------------------------------
+## Chao1 -----------------------------------------------------------------------------
+Chao1 <- ggplot(chao1.c,         #Pick data to plot
+                aes(x=interaction(Material, category), y = Chao1, fill = Material, color = Material)) + #Pick factors to use
+  geom_errorbar(aes(ymin=Chao1-se, ymax=Chao1+se, width=.3)) +
+  geom_point(size = 4) +
+  facet_nested( ~ timepoint + treatment) +
+  guides( x = "axis_nested") +
+  theme_pubclean()+
+  theme(legend.position = "top",
+        legend.key = element_rect(fill = "white", colour = "white"),
+        axis.text.x=element_text(size = 15, angle = 60, hjust = 1), 
+        axis.text.y=element_text(size= 15), 
+        legend.text=element_text(size = 15),
+        legend.title = element_text(size=15, face = "bold"),
+        axis.title.y = element_text(size= 20),
+        strip.text.x = element_text(size = 17),
+        panel.border = element_rect(color = "grey90", fill = NA),
+        panel.grid.major.y = element_line(color = "grey90", linetype = 3),
+        panel.grid.major.x = element_blank(),
+        ggh4x.axis.nestline.x = element_line(linetype = c(6,1), linewidth = 1, color = c("black", "darkgrey")),
+        ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5)) +
+  scale_colour_manual(values = Pal.plast) +
+  scale_fill_manual(values = Pal.plast) +
+  xlab("") +
+  labs( title = "", color = "Polymers", fill = "Polymers")
+
+Chao1
+
+## Simpson --------------------------------------------------------------------------
 Simpson <- ggplot(Simpson.c,         #Pick data to plot
                   aes(x=interaction(Material, category), y = Simpson, fill = Material, color = Material)) + #Pick factors to use
   geom_errorbar(aes(ymin=Simpson-se, ymax=Simpson+se, width=.3)) +
@@ -289,7 +320,7 @@ Simpson <- ggplot(Simpson.c,         #Pick data to plot
   ylab("Gini-Simpson Index") +
   labs( title = "", color = "Polymers", fill = "Polymers")
 
-## Shannon --------------------------------------------------------------------
+## Shannon -------------------------------------------------------------------------
 
 Shannon <- ggplot(Shannon.c,         #Pick data to plot
                   aes(x=interaction(Material, category), y = Shannon, fill = Material, color = Material)) + #Pick factors to use
@@ -319,7 +350,7 @@ Shannon <- ggplot(Shannon.c,         #Pick data to plot
 
 Shannon
 
-## Combine panels with cowplot 
+## Combine panels with cowplot -------------------------------------------------- 
 legend.a <- get_legend(Shannon+
                          theme(legend.direction = "horizontal",
                                legend.title.align = 0.5))
