@@ -1,6 +1,6 @@
 ##%#####################################################################################%##
-# NIOZ164 Statia Discs - Alpha Diversity                                              #####                                            
-# Author: Maaike Goudriaan, NIOZ, MMB                                                     #
+#NIOZ164 Statia Discs - Alpha Diversity                                              #####                                            
+#Author: Maaike Goudriaan, NIOZ, MMB                                                     #
 #                                                                                         #
 # Purpose:                                                                                # 
 # NIOZ164 is an illumina sequencing lane consisting of different samplesets.              # 
