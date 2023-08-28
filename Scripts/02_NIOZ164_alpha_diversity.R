@@ -63,11 +63,12 @@ Alpha.Discs   <- Alpha.Div %>% cbind(data.frame(physeq_object@sam_data))
 # add new factors combined column
 Alpha.Discs$Method_Phase <- str_c(Alpha.Discs$Method, "_", Alpha.Discs$Phase)
 Alpha.Discs$Backbone_Isotope <- str_c(Alpha.Discs$Backbone, "_", Alpha.Discs$Isotope)
+Alpha.Discs <- Alpha.Discs %>%  mutate(Polymer_Isotope = if_else(Polymer %in% c("PE", "PP"), paste(Polymer, Isotope, sep = "-"), Polymer))
 
 #remove unecessary columns and rows
 Alpha.Discs$InputFileName <- NULL
 #We want to focus only on the discs themselfs and the collected polymers for the alpha diversity
-Alpha.Discs <- Alpha.Discs %>%  filter( !Polymer %in% c("B", "NA") & Habitat != "Unknown")
+Alpha.Discs <- Alpha.Discs %>%  filter( !Polymer %in% c("NA") & Habitat != "Unknown")
 unique(Alpha.Discs$Polymer)
 unique(Alpha.Discs$Habitat)
 unique(Alpha.Discs$Method)
@@ -233,17 +234,13 @@ print(Chao1.Discs , target = "../Reports/Shannon.NIOZ164.pptx")
 
 # Make final boxplot plots -------------------------------------------------------------
 ### 1. Alpha diversity for habitats per location                                    ----
-### 2. Incubation only - Alpha diversity for treatments per habitat/location        ----
-### 3. Incubation only - Alpha diversity for 12C/13C PE/PP per habitat and location ----
 #%#----------------------------------------------------------------------------------#%#
 
 ## Observed ----------------------------------------------------------------------------
-Chao1 <- ggplot(chao1.c,         #Pick data to plot
-                aes(x=interaction(Material, category), y = Chao1, fill = Material, color = Material)) + #Pick factors to use
-  geom_errorbar(aes(ymin=Chao1-se, ymax=Chao1+se, width=.3)) +
-  geom_point(size = 4) +
-  facet_nested( ~ timepoint + treatment) +
-  guides( x = "axis_nested") +
+Observed <- ggplot(Alpha.Discs,         #Pick data to plot
+                aes(x= Location, y = Observed, color = Location)) + #Pick factors to use
+ geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
+  geom_point( position = "jitter", size = 3, alpha = 0.8) +
   theme_pubclean()+
   theme(legend.position = "top",
         legend.key = element_rect(fill = "white", colour = "white"),
@@ -258,20 +255,18 @@ Chao1 <- ggplot(chao1.c,         #Pick data to plot
         panel.grid.major.x = element_blank(),
         ggh4x.axis.nestline.x = element_line(linetype = c(6,1), linewidth = 1, color = c("black", "darkgrey")),
         ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5)) +
-  scale_colour_manual(values = Pal.plast) +
-  scale_fill_manual(values = Pal.plast) +
+  scale_colour_manual(values = rev(Pal.plast)) +
+  scale_fill_manual(values = rev(Pal.plast)) +
   xlab("") +
-  labs( title = "", color = "Polymers", fill = "Polymers")
+  labs( title = "", color = "Location")
 
-Chao1
+Observed
 
 ## Chao1 -----------------------------------------------------------------------------
-Chao1 <- ggplot(chao1.c,         #Pick data to plot
-                aes(x=interaction(Material, category), y = Chao1, fill = Material, color = Material)) + #Pick factors to use
-  geom_errorbar(aes(ymin=Chao1-se, ymax=Chao1+se, width=.3)) +
-  geom_point(size = 4) +
-  facet_nested( ~ timepoint + treatment) +
-  guides( x = "axis_nested") +
+Chao1 <- ggplot(Alpha.Discs,         #Pick data to plot
+                aes(x= Location, y = Chao1, color = Location)) + #Pick factors to use
+  geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
+  geom_point( position = "jitter", size = 3, alpha = 0.8) +
   theme_pubclean()+
   theme(legend.position = "top",
         legend.key = element_rect(fill = "white", colour = "white"),
@@ -286,20 +281,18 @@ Chao1 <- ggplot(chao1.c,         #Pick data to plot
         panel.grid.major.x = element_blank(),
         ggh4x.axis.nestline.x = element_line(linetype = c(6,1), linewidth = 1, color = c("black", "darkgrey")),
         ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5)) +
-  scale_colour_manual(values = Pal.plast) +
-  scale_fill_manual(values = Pal.plast) +
+  scale_colour_manual(values = rev(Pal.plast)) +
+  scale_fill_manual(values = rev(Pal.plast)) +
   xlab("") +
-  labs( title = "", color = "Polymers", fill = "Polymers")
+  labs( title = "", color = "Location")
 
 Chao1
 
 ## Simpson --------------------------------------------------------------------------
-Simpson <- ggplot(Simpson.c,         #Pick data to plot
-                  aes(x=interaction(Material, category), y = Simpson, fill = Material, color = Material)) + #Pick factors to use
-  geom_errorbar(aes(ymin=Simpson-se, ymax=Simpson+se, width=.3)) +
-  geom_point(size = 4) +
-  facet_nested( ~ timepoint + treatment) +
-  guides( x = "axis_nested") +
+Simpson <- ggplot(Alpha.Discs,         #Pick data to plot
+                  aes(x= Location, y = Simpson, color = Location)) + #Pick factors to use
+  geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
+  geom_point( position = "jitter", size = 3, alpha = 0.8) +
   theme_pubclean()+
   theme(legend.position = "top",
         legend.key = element_rect(fill = "white", colour = "white"),
@@ -314,27 +307,26 @@ Simpson <- ggplot(Simpson.c,         #Pick data to plot
         panel.grid.major.x = element_blank(),
         ggh4x.axis.nestline.x = element_line(linetype = c(6,1), linewidth = 1, color = c("black", "darkgrey")),
         ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5)) +
-  scale_colour_manual(values = Pal.plast) +
-  scale_fill_manual(values = Pal.plast) +
+  scale_colour_manual(values = rev(Pal.plast)) +
+  scale_fill_manual(values = rev(Pal.plast)) +
   xlab("") +
-  ylab("Gini-Simpson Index") +
-  labs( title = "", color = "Polymers", fill = "Polymers")
+  labs( title = "", color = "Location")
+
+Simpson
 
 ## Shannon -------------------------------------------------------------------------
 
-Shannon <- ggplot(Shannon.c,         #Pick data to plot
-                  aes(x=interaction(Material, category), y = Shannon, fill = Material, color = Material)) + #Pick factors to use
-  geom_errorbar(aes(ymin=Shannon-se, ymax=Shannon+se, width=.3)) +
-  geom_point(size = 4) +
-  facet_nested( ~ timepoint + treatment) +
-  guides( x = "axis_nested") +
+Shannon <- ggplot(Alpha.Discs,         #Pick data to plot
+                  aes(x= Location, y = Shannon, color = Location)) + #Pick factors to use
+  geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
+  geom_point( position = "jitter", size = 3, alpha = 0.8) +
   theme_pubclean()+
-  theme(legend.position = "bottom",
+  theme(legend.position = "top",
         legend.key = element_rect(fill = "white", colour = "white"),
         axis.text.x=element_text(size = 15, angle = 60, hjust = 1), 
         axis.text.y=element_text(size= 15), 
         legend.text=element_text(size = 15),
-        legend.title = element_text(size=18),
+        legend.title = element_text(size=15, face = "bold"),
         axis.title.y = element_text(size= 20),
         strip.text.x = element_text(size = 17),
         panel.border = element_rect(color = "grey90", fill = NA),
@@ -342,11 +334,10 @@ Shannon <- ggplot(Shannon.c,         #Pick data to plot
         panel.grid.major.x = element_blank(),
         ggh4x.axis.nestline.x = element_line(linetype = c(6,1), linewidth = 1, color = c("black", "darkgrey")),
         ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5)) +
-  scale_colour_manual(values = Pal.plast) +
-  scale_fill_manual(values = Pal.plast) +
+  scale_colour_manual(values = rev(Pal.plast)) +
+  scale_fill_manual(values = rev(Pal.plast)) +
   xlab("") +
-  ylab("Shannon index") +
-  labs( title = "", color = "Polymers", fill = "Polymers")
+  labs( title = "", color = "Location")
 
 Shannon
 
@@ -355,14 +346,152 @@ legend.a <- get_legend(Shannon+
                          theme(legend.direction = "horizontal",
                                legend.title.align = 0.5))
 
-
-
-plot_grid(Chao1 + theme(legend.position ="none"),
+plot_grid(Observed + theme(legend.position ="none"),
+          Chao1 + theme(legend.position ="none"),
           Simpson + theme(legend.position ="none"),
-          Shannon, 
+          Shannon + theme(legend.position ="none"),
+          legend.a,
           ncol = 2,
-          nrow = 2,
+          nrow = 3,
           align = 'v',
           axis = "l",
-          rel_heights = c(1,1.1),
+          rel_heights = c(1,1,0.1),
           rel_widths = c(1,1))
+
+
+# Make final boxplot plots -------------------------------------------------------------
+### 2. Incubation only - Alpha diversity for treatments per habitat/location        ----
+### 3. Incubation only - Alpha diversity for 12C/13C PE/PP per habitat and location ----                          
+#%#----------------------------------------------------------------------------------#%#
+
+#Here we only want to focus on the discs
+Alpha.Discs.inc <- Alpha.Discs %>%  filter( Habitat %in% c("Benthic", "Pelagic")) %>%  filter( Polymer != "B")
+unique(Alpha.Discs.inc$Polymer)
+unique(Alpha.Discs.inc$Habitat)
+unique(Alpha.Discs.inc$Method)
+colnames(Alpha.Discs.inc)
+
+Alpha.Discs.isotopes <- Alpha.Discs %>%  filter( Polymer %in% c("PE", "PP"))
+colnames(Alpha.Discs.isotopes)
+
+## Observed ----------------------------------------------------------------------------
+Observed <- ggplot(Alpha.Discs.inc,          #Pick data to plot
+                aes(x = Backbone, y = Observed,  color = Backbone)) + #Pick factors to use
+  geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
+  geom_point( position = "jitter", size = 3, alpha = 0.8) +
+  facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
+             switch = 'y') +
+  scale_y_continuous(position = 'right') +
+  theme_pubclean()+
+  theme(axis.text.x=element_text(size = 12, angle = 60, hjust = 1), 
+        axis.text.y=element_text(size= 12), 
+        legend.text=element_text(size = 12),
+        legend.title = element_text(size=15, face = "bold"),
+        axis.title.x = element_text(size=15),
+        axis.title.y = element_text(size=15),
+        strip.text.x = element_text(size = 13),
+        plot.title = element_blank(),
+        panel.border = element_rect(color = "grey90", fill = NA),
+        panel.grid.major.y = element_line(color = "grey90", linetype = 3),
+        panel.grid.major.x = element_blank()) +
+  guides(alpha = "none") +
+  scale_colour_manual(values = pal.time) +
+  scale_fill_manual(values = pal.time) 
+
+Observed
+
+## Chao1 ----------------------------------------------------------------------------
+Chao1 <- ggplot(Alpha.Discs.inc,          #Pick data to plot
+                   aes(x = Backbone, y = Chao1,  color =  Backbone)) + #Pick factors to use
+  geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
+  geom_point( position = "jitter", size = 3, alpha = 0.8) +
+  facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
+             switch = 'y') +
+  scale_y_continuous(position = 'right') +
+  theme_pubclean()+
+  theme(axis.text.x=element_text(size = 12, angle = 60, hjust = 1), 
+        axis.text.y=element_text(size= 12), 
+        legend.text=element_text(size = 12),
+        legend.title = element_text(size=15, face = "bold"),
+        axis.title.x = element_text(size=15),
+        axis.title.y = element_text(size=15),
+        strip.text.x = element_text(size = 13),
+        plot.title = element_blank(),
+        panel.border = element_rect(color = "grey90", fill = NA),
+        panel.grid.major.y = element_line(color = "grey90", linetype = 3),
+        panel.grid.major.x = element_blank()) +
+  guides(alpha = "none") +
+  scale_colour_manual(values = pal.time) +
+  scale_fill_manual(values = pal.time) 
+
+Chao1
+
+## Simpson ----------------------------------------------------------------------------
+Simpson <- ggplot(Alpha.Discs.inc,          #Pick data to plot
+                aes(x =  Backbone, y = Simpson,  color =  Backbone)) + #Pick factors to use
+  geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
+  geom_point( position = "jitter", size = 3, alpha = 0.8) +
+  facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
+             switch = 'y') +
+  scale_y_continuous(position = 'right') +
+  theme_pubclean()+
+  theme(axis.text.x=element_text(size = 12, angle = 60, hjust = 1), 
+        axis.text.y=element_text(size= 12), 
+        legend.text=element_text(size = 12),
+        legend.title = element_text(size=15, face = "bold"),
+        axis.title.x = element_text(size=15),
+        axis.title.y = element_text(size=15),
+        strip.text.x = element_text(size = 13),
+        plot.title = element_blank(),
+        panel.border = element_rect(color = "grey90", fill = NA),
+        panel.grid.major.y = element_line(color = "grey90", linetype = 3),
+        panel.grid.major.x = element_blank()) +
+  guides(alpha = "none") +
+  scale_colour_manual(values = pal.time) +
+  scale_fill_manual(values = pal.time)  
+
+Simpson
+
+## Shannon ----------------------------------------------------------------------------
+Shannon <- ggplot(Alpha.Discs.inc,          #Pick data to plot
+                  aes(x =  Backbone, y = Shannon,  color =  Backbone)) + #Pick factors to use
+  geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
+  geom_point( position = "jitter", size = 3, alpha = 0.8) +
+  facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
+             switch = 'y') +
+  scale_y_continuous(position = 'right') +
+  theme_pubclean()+
+  theme(axis.text.x=element_text(size = 12, angle = 60, hjust = 1), 
+        axis.text.y=element_text(size= 12), 
+        legend.text=element_text(size = 12),
+        legend.title = element_text(size=15, face = "bold"),
+        axis.title.x = element_text(size=15),
+        axis.title.y = element_text(size=15),
+        strip.text.x = element_text(size = 13),
+        plot.title = element_blank(),
+        panel.border = element_rect(color = "grey90", fill = NA),
+        panel.grid.major.y = element_line(color = "grey90", linetype = 3),
+        panel.grid.major.x = element_blank()) +
+  guides(alpha = "none") +
+  scale_colour_manual(values = pal.time) +
+  scale_fill_manual(values = pal.time) 
+
+Shannon
+
+## Combine panels with cowplot -------------------------------------------------- 
+legend.a <- get_legend(Shannon+
+                         theme(legend.direction = "horizontal",
+                               legend.title.align = 0.5))
+
+plot_grid(Observed + theme(legend.position ="none"),
+          Chao1 + theme(legend.position ="none"),
+          Simpson + theme(legend.position ="none"),
+          Shannon + theme(legend.position ="none"),
+          legend.a,
+          ncol = 2,
+          nrow = 3,
+          align = 'v',
+          axis = "l",
+          rel_heights = c(1,1,0.1),
+          rel_widths = c(1,1))
+
