@@ -33,8 +33,8 @@ library(microbiome)
 
 ## Load data
 ```{r load data, results='hold', message=FALSE}
-# tax <- as.matrix(read.delim('../Data/representative_seq_set_tax_assignments.txt', row.names = 1, na.strings = c(" ")))
-# tax <- tax_table(tax)
+tax <- as.matrix(read.delim('../Data/representative_seq_set_tax_assignments.txt', row.names = 1, na.strings = c(" ")))
+tax <- tax_table(tax)
 otu <- read.delim('../Data/asvTable.txt', row.names = 1)
 otu <- otu %>%  select(-taxonomy) %>% as.matrix()
 otu <- otu_table(otu, taxa_are_rows = T)
