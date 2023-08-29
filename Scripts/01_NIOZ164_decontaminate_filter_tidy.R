@@ -100,7 +100,7 @@ write.table(OTU.removed, "../Analysis/microDecon/NIOZ164_ASVs_removed.txt")
 write.table(Diff.Sum, "../Analysis/microDecon/NIOZ164_removed_reads_per_group_sum.txt")
 write.table(Mean, "../Analysis/microDecon/NIOZ164_removed_reads_per_group_avg.txt")
 
-# After filtering, curation w phyloseq package -------------------------------------------------
+# After filtering, curation with phyloseq package ----------------------------------------------
 ## Correct taxonomy table ----------------------------------------------------------------------
 source("wonky_tonky_taxonomy.R")
 wonky_tonky_taxonomy(physeq_object)
@@ -179,7 +179,6 @@ tidy_decont_pruned <- tidy_tibble_maker(physeq_pruned)
 tidy_decont_RA <- tidy_decont_pruned  %>% group_by(Description) %>% mutate(Sample_rel_abund = Abundance / sum(Abundance)) %>% #relative abundance of each otu per sample
   mutate(Sample_st_dev = sd(Sample_rel_abund)) %>% 
   ungroup() %>% 
-  
   
   #_Kingdom_section__#
   group_by(Description, Kingdom) %>% 
