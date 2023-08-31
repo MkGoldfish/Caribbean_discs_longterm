@@ -68,7 +68,7 @@ summarize_phyloseq(physeq_object)
 saveRDS(physeq_object, "../Analysis/NIOZ164_physeq_object.rds")
 ```
 
-```{r basic info physeq, echo=FALSE,warning=FALSE,message=FALSE,error=FALSE, results='hide',fig.keep='all'}
+```{r basic info physeq raw, echo=FALSE,warning=FALSE,message=FALSE,error=FALSE, results='hide',fig.keep='all'}
 source("basic_info_physeq_object.R")
 basic_info_physeq_object(physeq_object)
 
@@ -242,7 +242,7 @@ summarize_phyloseq(physeq_tax_correct)
 
 ```
 
-```{r basic info physeq, echo=FALSE,warning=FALSE,message=FALSE,error=FALSE, results='hide',fig.keep='all'}
+```{r basic info physeq post-filtering, echo=FALSE,warning=FALSE,message=FALSE,error=FALSE, results='hide',fig.keep='all'}
 source("basic_info_physeq_object.R")
 basic_info_physeq_object(physeq_object)
 

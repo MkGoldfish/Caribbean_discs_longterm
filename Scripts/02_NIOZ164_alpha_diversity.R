@@ -22,7 +22,6 @@ setwd("C:/Users/mgoudriaan/Documents/GitHub/Caribbean_discs_longterm/Scripts")
 # Load libraries -------------------------------------------------------------------------
 library(devtools)
 library(phyloseq)
-library(grid)
 library(tidyverse)
 library(vegan)
 library(microbiome)
@@ -34,7 +33,7 @@ library(rvg)
 library(officer)
 
 # Import data ----------------------------------------------------------------------------
-physeq_object <- readRDS("../Analysis/NIOZ164_physeq_object.rds")
+physeq_object <- readRDS("../Analysis/NIOZ164_physeq_object_decontamed.rds")
 
 # Colors for plotting --------------------------------------------------------------------
 pal_isme <- c("#006d77", "#ffddd2", "#00C49A", "#e29578", "#83c5be")
@@ -369,8 +368,8 @@ Alpha.Discs.isotopes <- Alpha.Discs %>%  filter( Polymer %in% c("PE", "PP"))
 colnames(Alpha.Discs.isotopes)
 
 ## Observed ----------------------------------------------------------------------------
-Observed <- ggplot(Alpha.Discs.inc,          #Pick data to plot
-                aes(x = Backbone, y = Observed,  color = Backbone)) + #Pick factors to use
+Observed <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
+                aes(x = Isotope, y = Observed,  color = Isotope)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
@@ -389,14 +388,14 @@ Observed <- ggplot(Alpha.Discs.inc,          #Pick data to plot
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) +
   guides(alpha = "none") +
-  scale_colour_manual(values = pal.time) +
-  scale_fill_manual(values = pal.time) 
+  scale_colour_manual(values = colors_M1) +
+  scale_fill_manual(values = colors_M1) 
 
 Observed
 
 ## Chao1 ----------------------------------------------------------------------------
-Chao1 <- ggplot(Alpha.Discs.inc,          #Pick data to plot
-                   aes(x = Backbone, y = Chao1,  color =  Backbone)) + #Pick factors to use
+Chao1 <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
+                   aes(x = Isotope, y = Chao1,  color =  Isotope)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
@@ -415,14 +414,14 @@ Chao1 <- ggplot(Alpha.Discs.inc,          #Pick data to plot
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) +
   guides(alpha = "none") +
-  scale_colour_manual(values = pal.time) +
-  scale_fill_manual(values = pal.time) 
+  scale_colour_manual(values = colors_M1) +
+  scale_fill_manual(values = colors_M1) 
 
 Chao1
 
 ## Simpson ----------------------------------------------------------------------------
-Simpson <- ggplot(Alpha.Discs.inc,          #Pick data to plot
-                aes(x =  Backbone, y = Simpson,  color =  Backbone)) + #Pick factors to use
+Simpson <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
+                aes(x =  Isotope, y = Simpson,  color =  Isotope)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
@@ -441,14 +440,14 @@ Simpson <- ggplot(Alpha.Discs.inc,          #Pick data to plot
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) +
   guides(alpha = "none") +
-  scale_colour_manual(values = pal.time) +
-  scale_fill_manual(values = pal.time)  
+  scale_colour_manual(values = colors_M1) +
+  scale_fill_manual(values = colors_M1)  
 
 Simpson
 
 ## Shannon ----------------------------------------------------------------------------
-Shannon <- ggplot(Alpha.Discs.inc,          #Pick data to plot
-                  aes(x =  Backbone, y = Shannon,  color =  Backbone)) + #Pick factors to use
+Shannon <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
+                  aes(x =  Isotope, y = Shannon,  color =  Isotope)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
@@ -467,8 +466,8 @@ Shannon <- ggplot(Alpha.Discs.inc,          #Pick data to plot
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) +
   guides(alpha = "none") +
-  scale_colour_manual(values = pal.time) +
-  scale_fill_manual(values = pal.time) 
+  scale_colour_manual(values = colors_M1) +
+  scale_fill_manual(values = colors_M1) 
 
 Shannon
 

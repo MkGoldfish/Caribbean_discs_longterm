@@ -63,18 +63,18 @@ physeq_object <- readRDS("../Analysis/NIOZ164_physeq_object.rds")
 "Lowest taxa sum is 0"
 "Highest taxa sum is 402463"
 
-```{r Create phyloseq object and check, results='hold', message=FALSE}
+```{r Create phyloseq object and check, results='hide', message=FALSE}
 source("basic_info_physeq_object.R")
 basic_info_physeq_object(physeq_object)
 ```
 # Check and correct taxonomy
 First, pruning to get rid of ASVs with less then 20 reads in total, 
-After, scheck if this leaves samples with only 1 ASV and remove these
+After, check if this leaves samples with only 1 ASV and remove these
 Wonky_tonky_taxonomy removes ASVs unassigned on Kingdom and Phylum level, and removes Chloroplast and mitochondria.
 After, we apply a loop on the taxonomy table to redefine "weird" taxonomy into a single communstring unassigned
 ```{r correct and filter,results='hold', message=FALSE}
-physeq_pruned<- prune_taxa(taxa_sums(physeq_object) > 20, physeq_object) 
-physeq_pruned <- prune_samples(sample_sums(physeq_pruned) >1, physeq_object)
+physeq_pruned<- prune_taxa(taxa_sums(physeq_object) > 1, physeq_object) 
+# physeq_pruned <- prune_samples(sample_sums(physeq_pruned) > 1, physeq_object)
 summarize_phyloseq(physeq_pruned)
 
 source("wonky_tonky_taxonomy.R")
@@ -94,7 +94,7 @@ for (i in 1:nrow(taxo)) {
 # re-define as tax table object
 taxo <- tax_table(as.matrix(taxo))
 # merge updated taxonomy
-physeq_filtered <- merge_phyloseq(physeq_object@otu_table, taxo, map) 
+physeq_filtered <- merge_phyloseq(physeq_object@otu_table, taxo, map1) 
 
 ```
 
@@ -160,7 +160,7 @@ write.csv(tidy_rclr_filtered, '../Processed-Data/NIOZ165_EUX_discs_rclr_data_fil
 ```
 
 ## Calculate the relative abundance per Taxonomic level per
-```{r calculate RA in tibble}
+```{r calculate RA in tibble, results='hide'}
 tidy_RA <- tidy_filtered  %>% group_by(Description) %>% mutate(Sample_rel_abund = Abundance / sum(Abundance)) %>% #relative abundance of each otu per sample
   mutate(Sample_st_dev = sd(Sample_rel_abund)) %>% 
   ungroup() %>% 
