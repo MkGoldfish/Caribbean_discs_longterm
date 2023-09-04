@@ -41,10 +41,22 @@ Pal.plast <- c("#DDCC77","#117733", "#AA4499", "#88CCEE", "#332288" )
 pal.time <- c("#44AA99", "#882255")
 pal.uv <- c("#999933", "#CC6677")
 
-colors_M1 <- c("#004e64", "#ecc8af", "#F2AF29", "#436436", "#00a5cf", 
-               "#c18c5d", "#5f0f40", "#DC602E", "#495867", "#A29F15", 
-               "#570000", "#FFF5B2", "#20221B", "#9fffcb", "#c08497", 
-               "#8D6346", "#FF4B3E", "#149911", "#472d30")
+colors_location <- c("#FF6DB6FF" , "#004949FF",  "#66A61E")
+# CB, CC, Zeelandia
+  
+colors_habitats <- c("#FF8E32FF", "#51C3CCFF")
+    # Benthic, Pelagic
+    
+colors location_habitat <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
+# CB_P, CB_B, CC_P, CB_B, Zeelandia
+      
+colors_polymers_isotopes <- c("#A6CEE3", "#1F78B4","#E5C494" ,"#A6761D" ,
+                                    "#7570B3" , "#E31A1C", "#E6AB02", "#1B9E77")
+
+# PE;PE-13C;PP;PP-13C;PS;PET;Nylon;Blanco
+      
+colors_treatment <- c("#DDCC77","#332288") 
+# UV, noUV
 
 # Calculate alpha diversity indices -----------------------------------------------------
 Alpha.Div <- phyloseq::estimate_richness(physeq_object, measures=c("Observed", "Simpson", "Shannon", "Chao1") )
@@ -368,8 +380,8 @@ Alpha.Discs.isotopes <- Alpha.Discs %>%  filter( Polymer %in% c("PE", "PP"))
 colnames(Alpha.Discs.isotopes)
 
 ## Observed ----------------------------------------------------------------------------
-Observed <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
-                aes(x = Isotope, y = Observed,  color = Isotope)) + #Pick factors to use
+Observed <- ggplot(Alpha.Discs.inc,          #Pick data to plot
+                aes(x = Treatment, y = Observed,  color = Treatment)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
@@ -388,14 +400,14 @@ Observed <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) +
   guides(alpha = "none") +
-  scale_colour_manual(values = colors_M1) +
-  scale_fill_manual(values = colors_M1) 
+  scale_colour_manual(values = pal.uv) +
+  scale_fill_manual(values = pal.uv) 
 
 Observed
 
 ## Chao1 ----------------------------------------------------------------------------
-Chao1 <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
-                   aes(x = Isotope, y = Chao1,  color =  Isotope)) + #Pick factors to use
+Chao1 <- ggplot(Alpha.Discs.inc,          #Pick data to plot
+                   aes(x = Treatment, y = Chao1,  color =  Treatment)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
@@ -414,14 +426,14 @@ Chao1 <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) +
   guides(alpha = "none") +
-  scale_colour_manual(values = colors_M1) +
-  scale_fill_manual(values = colors_M1) 
+  scale_colour_manual(values = pal.uv) +
+  scale_fill_manual(values = pal.uv) 
 
 Chao1
 
 ## Simpson ----------------------------------------------------------------------------
-Simpson <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
-                aes(x =  Isotope, y = Simpson,  color =  Isotope)) + #Pick factors to use
+Simpson <- ggplot(Alpha.Discs.inc,          #Pick data to plot
+                aes(x =  Treatment, y = Simpson,  color =  Treatment)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
@@ -440,14 +452,13 @@ Simpson <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) +
   guides(alpha = "none") +
-  scale_colour_manual(values = colors_M1) +
-  scale_fill_manual(values = colors_M1)  
-
+  scale_colour_manual(values = pal.uv) +
+  scale_fill_manual(values = pal.uv) 
 Simpson
 
 ## Shannon ----------------------------------------------------------------------------
-Shannon <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
-                  aes(x =  Isotope, y = Shannon,  color =  Isotope)) + #Pick factors to use
+Shannon <- ggplot(Alpha.Discs.inc,          #Pick data to plot
+                  aes(x =  Treatment, y = Shannon,  color =  Treatment)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
@@ -466,8 +477,8 @@ Shannon <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) +
   guides(alpha = "none") +
-  scale_colour_manual(values = colors_M1) +
-  scale_fill_manual(values = colors_M1) 
+  scale_colour_manual(values = pal.uv) +
+  scale_fill_manual(values = pal.uv) 
 
 Shannon
 

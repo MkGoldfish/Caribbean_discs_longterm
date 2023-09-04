@@ -3,8 +3,8 @@
 wonky_tonky_taxonomy <- function(physeq_object){ 
   
   get_taxa_unique(physeq_object, "Kingdom") # unassigned in Kingdom
-  physeq_object <- subset_taxa(physeq_object, !is.na(Kingdom) & !Kingdom%in% c(" ", "Unassigned", "NA")) #let's eliminate those otus
-  get_taxa_unique(physeq_object, "Kingdom") # all good now
+  physeq_object <- subset_taxa(physeq_object, !is.na(Kingdom) & !Kingdom%in% c(" ", "Unassigned", "unassigned", "NA")) #let's eliminate those otus
+  present_kingdoms <- get_taxa_unique(physeq_object, "Kingdom") # all good now
   
   # get_taxa_unique(physeq_object, "Phylum") # let's check the Phyla, there's "NA"
   phyla_before <- length(get_taxa_unique(physeq_object,"Phylum"))  
@@ -40,7 +40,8 @@ wonky_tonky_taxonomy <- function(physeq_object){
  
   
   
-  taxa_sums_before_after <- list (sprintf("Phyla amount before is %s", phyla_before),
+  taxa_sums_before_after <- list (sprintf("Unique Kingdoms %s", present_kingdoms),
+                                  sprintf("Phyla amount before is %s", phyla_before),
                                   sprintf("Phyla amount after is %s", phyla_after),
                                   sprintf("Order amount before is %s", order_before),
                                   sprintf("Order amount after is %s", order_after),

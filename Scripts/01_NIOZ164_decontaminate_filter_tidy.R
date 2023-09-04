@@ -97,6 +97,8 @@ Diff.Sum <- decon.summary$sum.per.group
 Mean <- decon.summary$mean.per.group
 OTU.removed <- decon.summary$OTUs.removed
 
+write.table(asv.decon.2, '../Processed-Data/NIOZ164_EUX_discs_decontaminated_asv_table.txt')
+
 write.table(Reads.removed, "../Analysis/microDecon/NIOZ164_reads_removed.txt")
 write.table(OTU.removed, "../Analysis/microDecon/NIOZ164_ASVs_removed.txt")
 write.table(Diff.Sum, "../Analysis/microDecon/NIOZ164_removed_reads_per_group_sum.txt")
@@ -132,6 +134,8 @@ saveRDS(physeq_decon, "../Analysis/NIOZ164_physeq_object_decontamed.rds")
 # source("wonky_tonky_taxonomy.R")
 # wonky_tonky_taxonomy(physeq_object)
 
+# physeq_object <- readRDS("../Analysis/NIOZ164_physeq_object_decontamed.rds")
+
 get_taxa_unique(physeq_object, "Kingdom") # unassigned in Kingdom
 physeq_object <- subset_taxa(physeq_object, !is.na(Kingdom) & !Kingdom%in% c(" ", "Unassigned", "NA")) #let's eliminate those otus
 get_taxa_unique(physeq_object, "Kingdom") # all good now
@@ -139,7 +143,7 @@ get_taxa_unique(physeq_object, "Kingdom") # all good now
 # get_taxa_unique(physeq_object, "Phylum") # let's check the Phyla, there's "NA"
 length(get_taxa_unique(physeq_object,"Phylum"))  
 physeq_object <- subset_taxa(physeq_object, !is.na(Phylum) & !Phylum%in% c("NA", " ")) 
-get_taxa_unique(physeq_object, "Phylum")
+get_taxa_unique(physeq_object, "Phylum") %>% sort()
 length(get_taxa_unique(physeq_object,"Phylum")) 
 
 length(get_taxa_unique(physeq_object,"Order"))
@@ -159,7 +163,7 @@ taxo <- as.data.frame(physeq_decon@tax_table)
 for (i in 1:nrow(taxo)) {
   for (y in 1:ncol(taxo)) {
     if 
-    (any(str_detect(taxo[i,y], c("uncultured","Uncultured","metagenome","Metagenome","unknown","Unknown","NA")))) {taxo[i,y] <- "unassigned" }
+    (any(str_detect(taxo[i,y], c("uncultured","Uncultured","metagenome","Metagenome","unknown","Unknown","NA", " ")))) {taxo[i,y] <- "unassigned" }
   }
 } 
 
@@ -168,7 +172,7 @@ taxo <- tax_table(as.matrix(taxo))
 
 # Merge corrected taxonomy with other elements to create phyloseq object -------------------------------------
 physeq_decon.1 <- merge_phyloseq(asv.decon, taxo, map1) 
-get_taxa_unique(physeq_decon.1, "Kingdom")
+
 
 summarize_phyloseq(physeq_decon.1)
 #"1] Min. number of reads = 7301"
@@ -191,9 +195,9 @@ basic_info_physeq_object(physeq_decon.1)
 
 # Prune Physeq-object --------------------
 # Remove all samples with less than 10 reads
-physeq_pruned <- prune_samples(sample_sums(physeq_decon.1) > 10, physeq_decon)
+physeq_pruned <- prune_samples(sample_sums(physeq_decon.1) > 10, physeq_decon.1)
 # Remove all single singletons
-physeq_pruned <- prune_taxa(taxa_sums(physeq_pruned) > 1, physeq_decon) 
+physeq_pruned <- prune_taxa(taxa_sums(physeq_pruned) > 1, physeq_decon.1) 
 summarize_phyloseq(physeq_pruned)
 basic_info_physeq_object(physeq_pruned)
 
@@ -268,4 +272,4 @@ tidy_decont_RA <- tidy_decont_pruned  %>% group_by(Description) %>% mutate(Sampl
   ungroup() 
 
 head(tidy_decont_RA)
-write.csv(tidy_decont_RA, '../Processed-Data/NIOZ164_EUX_discs_Proks_tidy_data_decontamed_pruned_RA.csv')
+write.csv(tidy_decont_RA, '../Processed-Data/NIOZ164_EUX_discs_tidy_data_decontamed_pruned_RA.csv')

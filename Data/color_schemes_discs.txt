@@ -1,0 +1,15 @@
+colors_location <- c(#FF6DB6FF , #004949FF,  #008600FF)
+CB, CC, Zeelandia
+
+colors_habitats <- c(#DB6D00FF, #006DDBFF)
+Benthic, Pelagic
+
+colors location_habitat <- c(#FF6DB6FF,#FFB6DBFF , #004949FF, #009292FF,  #008600FF )
+CB_P, CB_B, CC_P, CB_B, Zeelandia
+
+colors_polymers_isotopes <- c("#A6CEE3", "#1F78B4","#B2DF8A", "#33A02C",
+   "#7570B3" , "#E7298A", "#E6AB02", "#1B9E77")
+PE;PE-13C;PP;PP-13C;PS;PET;Nylon;Blanco
+
+colors_treatment <- c("#DDCC77","#332288") 
+UV, noUV
