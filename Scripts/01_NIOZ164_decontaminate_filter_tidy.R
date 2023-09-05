@@ -197,9 +197,9 @@ basic_info_physeq_object(physeq_decon.1)
 # Remove all samples with less than 10 reads
 physeq_pruned <- prune_samples(sample_sums(physeq_decon.1) > 10, physeq_decon.1)
 # Remove all single singletons
-physeq_pruned <- prune_taxa(taxa_sums(physeq_pruned) > 1, physeq_decon.1) 
-summarize_phyloseq(physeq_pruned)
-basic_info_physeq_object(physeq_pruned)
+physeq_pruned.1 <- prune_taxa(taxa_sums(physeq_pruned) > 1, physeq_pruned) 
+summarize_phyloseq(physeq_pruned.1)
+basic_info_physeq_object(physeq_pruned.1)
 
 #"1] Min. number of reads = 7301"
 # "2] Max. number of reads = 539188"
@@ -219,7 +219,7 @@ basic_info_physeq_object(physeq_pruned)
 
 
 ## Visualizing the read abundance per sample plot -----
-sample_sums <- sample_sums(physeq_pruned)
+sample_sums <- sample_sums(physeq_pruned.1)
 sample_sums_df <- data.frame(sum = sample_sums) %>% rownames_to_column("Sample_ID") %>% arrange(Sample_ID)
 Sample_description <- data.frame(physeq_pruned@sam_data) %>% rownames_to_column("Sample_ID") %>% arrange(Sample_ID) %>%  filter(Location != "NC")
 sample_sums_df$Description <- Sample_description$Description
@@ -230,11 +230,11 @@ ggplot(sample_sums_df, aes(x = Description, y = sum)) +
 
 
 ## Store Physeq object --------------------
-saveRDS(physeq_pruned, "../Analysis/NIOZ164_physeq_object_decontamed_filtered.rds")
+saveRDS(physeq_pruned.1, "../Analysis/NIOZ164_physeq_object_decontamed_filtered.rds")
 
 # Create and store tidy tibble 3 domains ------------
 source("tidy_tibble_maker.R")
-tidy_decont_pruned <- tidy_tibble_maker(physeq_pruned)
+tidy_decont_pruned <- tidy_tibble_maker(physeq_pruned.1)
 
 ## Calculate the relative abundance per Taxonomic level for each sample
 tidy_decont_RA <- tidy_decont_pruned  %>% group_by(Description) %>% mutate(Sample_rel_abund = Abundance / sum(Abundance)) %>% #relative abundance of each otu per sample

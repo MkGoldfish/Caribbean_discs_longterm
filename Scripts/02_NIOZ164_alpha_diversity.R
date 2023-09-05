@@ -37,25 +37,16 @@ physeq_object <- readRDS("../Analysis/NIOZ164_physeq_object_decontamed.rds")
 
 # Colors for plotting --------------------------------------------------------------------
 pal_isme <- c("#006d77", "#ffddd2", "#00C49A", "#e29578", "#83c5be")
-Pal.plast <- c("#DDCC77","#117733", "#AA4499", "#88CCEE", "#332288" )
-pal.time <- c("#44AA99", "#882255")
-pal.uv <- c("#999933", "#CC6677")
 
-colors_location <- c("#FF6DB6FF" , "#004949FF",  "#66A61E")
+pal.loc <- c("#FF6DB6FF" , "#004949FF",  "#66A61E")
 # CB, CC, Zeelandia
-  
-colors_habitats <- c("#FF8E32FF", "#51C3CCFF")
-    # Benthic, Pelagic
-    
-colors location_habitat <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
+pal.habs<- c("#FF8E32FF", "#51C3CCFF")
+# Benthic, Pelagic
+pal.loc.hab <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
 # CB_P, CB_B, CC_P, CB_B, Zeelandia
-      
-colors_polymers_isotopes <- c("#A6CEE3", "#1F78B4","#E5C494" ,"#A6761D" ,
-                                    "#7570B3" , "#E31A1C", "#E6AB02", "#1B9E77")
-
+pal.pols.isotop <- c("#A6CEE3", "#1F78B4","#E5C494","#A6761D", "#7570B3" , "#E31A1C", "#E6AB02", "#1B9E77")
 # PE;PE-13C;PP;PP-13C;PS;PET;Nylon;Blanco
-      
-colors_treatment <- c("#DDCC77","#332288") 
+pal.uv <- c("#DDCC77","#332288") 
 # UV, noUV
 
 # Calculate alpha diversity indices -----------------------------------------------------

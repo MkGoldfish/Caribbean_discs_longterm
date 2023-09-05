@@ -26,14 +26,63 @@ library(phyloseq)
 library(tidyverse)
 library(ggpubr)
 library(ggh4x)
+library(cartography)
+library(ggsci)
+library(wesanderson)
 
 
 
 ## Colors for plotting --------------------------------------------------------------------
 pal_isme <- c("#006d77", "#ffddd2", "#00C49A", "#e29578", "#83c5be")
-Pal.plast <- c("#DDCC77","#117733", "#AA4499", "#88CCEE", "#332288" )
-pal.time <- c("#44AA99", "#882255")
-pal.uv <- c("#999933", "#CC6677")
+
+pal.loc <- c("#FF6DB6FF" , "#004949FF",  "#66A61E")
+# CB, CC, Zeelandia
+pal.habs<- c("#CC5800FF", "#51C3CCFF")
+# Benthic, Pelagic
+pal.loc.hab <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
+# CB_P, CB_B, CC_P, CB_B, Zeelandia
+pal.pols.isotop <- c("#E31A1C", "#7570B3", "#1F78B4","#A6CEE3", "#E6AB02","#A6761D", "#E5C494","#1B9E77")
+# Blanco;Nylon;PE;PE-13C;PET;PP;PP-13C;PS;
+pal.uv <- c("#DDCC77","#332288") 
+# UV, noUV
+
+colors.1 <- c( '#88CCEE', '#CC6677', '#44AA99', '#999933', '#332288', '#DDCC77', '#117733', '#882255', 
+               '#EE8866', '#FFAABB', '#99DDFF', '#BBCC33', '#AA4499', '#004949FF', '#B66DFFFF', 
+               '#0077BB', '#EE3377', '#CC3311', '#009988', '#490092FF', '#920000FF', '#924900FF','#DB6D00FF', 
+               '#24FF24FF', '#FDBF6FFF','#CAB2D6FF', "#E5C494",'#B2DF8AFF','#6A3D9AFF', '#33A02CFF', '#E6AB02FF',
+               '#A6761DFF' ,'#666666FF'                    )
+
+pal.carto <- cartography::carto.pal(pal1 = "multi.pal", n1 = 20)
+c("#cb7c77", "#68d359", "#6b42c8", "#c9d73d", "#c555cb", "#aed688", "#502e71", 
+  "#c49a3f", "#6a7dc9", "#d7652d", "#7cd5c8", "#c5383c", "#507d41", "#cf4c8b", 
+  "#5d8d9c", "#722e41", "#c8b693", "#33333c", "#c6a5cc", "#674c2a")
+
+pal.igv <- pal_igv("default")(40)
+
+[1] "#5050FFFF" "#CE3D32FF" "#749B58FF" "#F0E685FF" "#466983FF" "#BA6338FF" "#5DB1DDFF" "#802268FF" "#6BD76BFF" "#D595A7FF" "#924822FF" "#837B8DFF" "#C75127FF" "#D58F5CFF" "#7A65A5FF" "#E4AF69FF" "#3B1B53FF"
+[18] "#CDDEB7FF" "#612A79FF" "#AE1F63FF" "#E7C76FFF" "#5A655EFF" "#CC9900FF" "#99CC00FF" "#A9A9A9FF" "#CC9900FF" "#99CC00FF" "#33CC00FF" "#00CC33FF" "#00CC99FF" "#0099CCFF" "#0A47FFFF" "#4775FFFF" "#FFC20AFF"
+[35] "#FFD147FF" "#990033FF" "#991A00FF" "#996600FF" "#809900FF" "#339900FF"
+
+BottleRocket2 = c("#FAD510", "#CB2314", "#273046", "#354823", "#1E1E1E")
+Rushmore1 = c("#E1BD6D", "#EABE94", "#0B775E", "#35274A" ,"#F2300F")
+Royal2 = c("#9A8822", "#F5CDB4", "#F8AFA8", "#FDDDA0", "#74A089")
+Darjeeling1 = c("#FF0000", "#00A08A", "#F2AD00", "#F98400", "#5BBCD6")
+Chevalier1 = c("#446455", "#FDD262", "#D3DDDC", "#C7B19C")
+Darjeeling2 = c("#ECCBAE", "#046C9A", "#D69C4E", "#ABDDDE", "#000000")
+BottleRocket1 = c("#A42820", "#5F5647", "#9B110E", "#3F5151", "#4E2A1E", "#550307", "#0C1707")
+Moonrise1 = c("#F3DF6C", "#CEAB07", "#D5D5D3", "#24281A"),
+Moonrise2 = c("#798E87", "#C27D38", "#CCC591", "#29211F"),
+Moonrise3 = c("#85D4E3", "#F4B5BD", "#9C964A", "#CDC08C", "#FAD77B"),
+Cavalcanti1 = c("#D8B70A", "#02401B", "#A2A475", "#81A88D", "#972D15"),
+GrandBudapest1 = c("#F1BB7B", "#FD6467", "#5B1A18", "#D67236"),
+GrandBudapest2 = c("#E6A0C4", "#C6CDF7", "#D8A499", "#7294D4"),
+IsleofDogs1 = c("#9986A5", "#79402E", "#CCBA72", "#0F0D0E", "#D9D0D3", "#8D8680"),
+IsleofDogs2 = c("#EAD3BF", "#AA9486", "#B6854D", "#39312F", "#1C1718"),
+FrenchDispatch = c("#90D4CC", "#BD3027", "#B0AFA2", "#7FC0C6", "#9D9C85"),
+AsteroidCity1 = c("#0A9F9D", "#CEB175", "#E54E21", "#6C8645", "#C18748"),
+AsteroidCity2 = c("#C52E19", "#AC9765", "#54D8B1", "#b67c3b", "#175149", "#AF4E24"),
+AsteroidCity3 = c("#FBA72A", "#D3D4D8", "#CB7A5C", "#5785C1")
+
 
 colors_M1 <- c("#004e64", "#ecc8af", "#F2AF29", "#436436", "#00a5cf", 
                "#c18c5d", "#5f0f40", "#DC602E", "#495867", "#A29F15", 
