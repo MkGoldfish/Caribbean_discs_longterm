@@ -26,11 +26,6 @@ library(phyloseq)
 library(tidyverse)
 library(ggpubr)
 library(ggh4x)
-library(cartography)
-library(ggsci)
-library(wesanderson)
-
-
 
 ## Colors for plotting --------------------------------------------------------------------
 pal_isme <- c("#006d77", "#ffddd2", "#00C49A", "#e29578", "#83c5be")
@@ -50,7 +45,8 @@ colors.1 <- c( '#88CCEE', '#CC6677', '#44AA99', '#999933', '#332288', '#DDCC77',
                '#EE8866', '#FFAABB', '#99DDFF', '#BBCC33', '#AA4499', '#004949FF', '#B66DFFFF', 
                '#0077BB', '#EE3377', '#CC3311', '#009988', '#490092FF', '#920000FF', '#924900FF','#DB6D00FF', 
                '#24FF24FF', '#FDBF6FFF','#CAB2D6FF', "#E5C494",'#B2DF8AFF','#6A3D9AFF', '#33A02CFF', '#E6AB02FF',
-               '#A6761DFF' ,'#666666FF'                    )
+               '#A6761DFF' ,'#555555', '#222255', '#225555', '#225522', 
+               '#666633', '#663333', '#DDDDDD')
 
 pal.carto <- cartography::carto.pal(pal1 = "multi.pal", n1 = 20)
 c("#cb7c77", "#68d359", "#6b42c8", "#c9d73d", "#c555cb", "#aed688", "#502e71", 
