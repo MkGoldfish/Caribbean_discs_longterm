@@ -23,7 +23,6 @@ setwd("C:/Users/mgoudriaan/Documents/GitHub/Caribbean_discs_longterm/Scripts")
 
 # Load libraries -------------------------------------------------------------------------
 library(tidyverse)
-library(dplyr)
 library("ggh4x")
 library(ggpubr)
 library("ggsci")
@@ -33,6 +32,7 @@ library("cowplot")
 Areas <- read.delim("../Data/Lipid_areas_corrected_signals.txt", sep = '\t', dec = ".")
 d13C <- read.delim("../Data/Lipid_d13C_corrected_signals.txt", sep = '\t', na.strings = c(" "), dec = ".")
 metadata  <- read.delim("../Data/Metadata_lipids_R_plots.txt", sep = '\t')
+Biomass_average <- read.delim("../Data/Abundance_weigthed_average_13c_lipid.txt", sep = '\t')
 
 # Create one tibble for easy plotting ----------------------------------------------------
 # Remove the row of the standard and pivot
@@ -43,7 +43,7 @@ d13C.long <- d13C %>% filter(Fatty.Acid != "C19:0 (standard!)") %>% pivot_longer
 
 # Combine tibbles and add metadata
 df <- inner_join(Areas.long.ra, d13C.long)
-df.c <- df %>% select(-Area) %>%  pivot_longer(Rel.Abund:d13C,
+df.c <- df  %>%  pivot_longer(Rel.Abund:d13C,
                                                names_to = "Variable",
                                                values_to = "Value")
 
@@ -65,7 +65,7 @@ CB <- ggplot(df.cb) +         #Pick data to plot
                as.table = T, 
                 nest_line = element_line()) +
   theme_pubclean()+
-   theme(axis.text.x=element_text(size = 12, angle = 60, hjust = 1), 
+   theme(axis.text.x=element_text(size = 10, angle = 60, hjust = 1), 
         axis.text.y=element_text(size= 12), 
         legend.text=element_text(size = 12),
         legend.title = element_text(size=15, face = "bold"),
@@ -125,7 +125,7 @@ CC <- ggplot(df.cc) +         #Pick data to plot
                as.table = T, 
                nest_line = element_line()) +
   theme_pubclean()+
-  theme(axis.text.x=element_text(size = 12, angle = 60, hjust = 1), 
+  theme(axis.text.x=element_text(size = 10, angle = 60, hjust = 1), 
         axis.text.y=element_text(size= 12), 
         legend.text=element_text(size = 12),
         legend.title = element_text(size=15, face = "bold"),
@@ -137,3 +137,18 @@ CC <- ggplot(df.cc) +         #Pick data to plot
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) 
 CC
+
+# Plot average biomass value ---------------------------------------------------------------------
+ 
+ggplot(Biomass_average) +
+  geom_col(aes(x = Description, y = d13C.FA)) +
+  geom_hline(yintercept = 0,linewidth = 1, colour = "black") +
+  labs(y = "Abundance weighted average d13C Fatty Acids", y = " ") +
+  coord_flip() +
+    facet_nested(Location ~., drop = T,
+             axes = 'margins',
+             scale = "free",
+             as.table = T) +
+  theme_pubclean()
+
+  

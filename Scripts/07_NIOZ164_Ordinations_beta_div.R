@@ -36,12 +36,14 @@ library(labdsv)
 library(zCompositions)
 library(microbiome)
 library(ggpubr)
+library(glue)
+library(cowplot)
 
 # Colors for plotting --------------------------------------------------------------------
 pal_isme <- c("#006d77", "#ffddd2", "#00C49A", "#e29578", "#83c5be")
 
 pal.loc <- c("#FF6DB6FF" , "#004949FF",  "#66A61E")
-# CB, CC, Zeelandia
+# CB, CC, Zeelandia"
 pal.habs<- c("#66A61E","#FF8E32FF", "#51C3CCFF")
 pal.habs.i<- c("#FF8E32FF", "#51C3CCFF")
 # Beach, Benthic, Pelagic
@@ -90,7 +92,7 @@ basic_info_physeq_object(physeq_pruned)
 
 ## Subset the physeq for different analyses and extract OTU tables and sample data ----------------
 ### 1. inc and wild ----
-physeq_inc_wild <- physeq_pruned %>% subset_samples(Phase != "Filter") 
+physeq_inc_wild<- physeq_pruned %>% subset_samples(Phase != "Filter") 
 physeq_inc_wild <- prune_taxa(taxa_sums(physeq_inc_wild)>0, physeq_inc_wild)
 basic_info_physeq_object(physeq_inc_wild)
 otu_i.w <- as.data.frame(otu_table(physeq_inc_wild)) %>% t() # We need samples per rows and asv per columns
@@ -120,7 +122,7 @@ samp_i <- as.data.frame(as.matrix(sample_data(physeq_inc)))
 # Number of singletons = 119"
 
 ### 3. CC Only----
-physeq_inc_CC <- subset_samples(physeq_inc, Location == "Crooks_Castle")
+physeq_inc_CC <- subset_samples(physeq_inc, Location == "Crooks Castle")
 physeq_inc_CC <- prune_taxa(taxa_sums(physeq_inc_CC)>0, physeq_inc_CC)
 summarize_phyloseq(physeq_inc_CC)
 basic_info_physeq_object(physeq_inc_CC)
@@ -135,7 +137,7 @@ samp_i.cc <- as.data.frame(as.matrix(sample_data(physeq_inc_CC)))
 # Number of singletons = 397"
 
 ### 4. CB Only   ----
-physeq_inc_CB <- subset_samples(physeq_inc, Location == "Charles_Brown")
+physeq_inc_CB <- subset_samples(physeq_inc, Location == "Charles Brown")
 physeq_inc_CB <- prune_taxa(taxa_sums(physeq_inc_CB)>0, physeq_inc_CB)
 summarize_phyloseq(physeq_inc_CB)
 basic_info_physeq_object(physeq_inc_CB)
@@ -181,7 +183,10 @@ pcoa_i.w <- wcmdscale(aitd_i.w, eig = T)
 # Lets plot the relative eigenvalues of all axes
 barplot(as.vector(pcoa_i.w$eig)/sum(pcoa_i.w$eig))
 
-pct_xplnd <- (as.vector(pcoa_i.w$eig)/sum(pcoa_i.w$eig)) *100
+pct_xplnd <- pcoa_i.w$eig/sum(pcoa_i.w$eig) *100
+pretty_px <- format(round(pct_xplnd[1:2], digits = 1), nsmall = 1, trim = TRUE)
+labs <- c(glue("PCo1 ({pretty_px[1]}%)"),
+          glue("PCo2 ({pretty_px[2]}%)"))
 
 #How much do the first 2 axes explain in total?
 sum((as.vector(pcoa_i.w$eig)/sum(pcoa_i.w$eig))[1:2]) * 100
@@ -210,11 +215,11 @@ head(data.scores)
 shapes <- c(15,17,18,19,4,8,13)
 
 ## Create NMDS ordination plot
-PCoA_plot <- 
+PCoA_plot_all <- 
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Backbone, shape = Location_Habitat, stroke = 1))  +
+  geom_point(size = 5, aes(color = Location_Habitat, shape = Polymer, stroke = 1))  +
   theme_pubr() +
   theme(axis.text.y = element_text(colour = "black", size = 10),
         axis.text.x = element_text(colour = "black", size = 10),
@@ -227,14 +232,15 @@ PCoA_plot <-
         legend.key=element_blank(),
         plot.title = element_text(size = 12, face = "bold", hjust = 0.5, vjust = 1)) +
   # Set axislabels and title 
-  labs(title = "PCoA plastic communities")  + 
+  labs(title = "PCoA plastic communities",
+       x = labs[1], y = labs[2])  + 
  scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
-  scale_fill_manual(values = pal.uv) +      #<- Pick the correct colorpalette, based on your fill 
-  scale_color_manual(values =pal.uv) +     #<- Pick the correct colorpalette, based on your fill 
+  scale_fill_manual(values = pal.loc.hab) +      #<- Pick the correct colorpalette, based on your fill 
+  scale_color_manual(values =pal.loc.hab) +     #<- Pick the correct colorpalette, based on your fill 
   guides(fill = guide_legend(override.aes = list( shape = 22, linetype = NULL)),  #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
          shape = guide_legend(override.aes = list(fill = "black", colopr = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
  
-PCoA_plot
+PCoA_plot_all
 
 # 2. Calculate distances for 2 locations, incubations only --------------------------------------------------------------
 # Aitchison distance it the Euclidean distance of (r)clr transformed data
@@ -244,7 +250,10 @@ pcoa_i <- wcmdscale(aitd_i, eig = T)
 # Lets plot the relative eigenvalues of all axes
 barplot(as.vector(pcoa_i$eig)/sum(pcoa_i$eig))
 
-pct_xplnd <- (as.vector(pcoa_i$eig)/sum(pcoa_i$eig)) *100
+pct_xplnd <- pcoa_i.w$eig/sum(pcoa_i.w$eig) *100
+pretty_px <- format(round(pct_xplnd[1:2], digits = 1), nsmall = 1, trim = TRUE)
+labs <- c(glue("PCo1 ({pretty_px[1]}%)"),
+          glue("PCo2 ({pretty_px[2]}%)"))
 
 #How much do the first 2 axes explain in total?
 sum((as.vector(pcoa_i$eig)/sum(pcoa_i$eig))[1:2]) * 100
@@ -273,11 +282,11 @@ head(data.scores)
 shapes <- c(15,17,18,19,4,8,13)
 
 ## Create NMDS ordination plot
-PCoA_plot <- 
+PCoA_plot_inc <- 
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Backbone, shape = Location_Habitat, stroke = 1))  +
+  geom_point(size = 5, aes(color = Location_Habitat, shape = Polymer, stroke = 1))  +
   theme_pubr() +
   theme(axis.text.y = element_text(colour = "black", size = 10),
         axis.text.x = element_text(colour = "black", size = 10),
@@ -290,14 +299,14 @@ PCoA_plot <-
         legend.key=element_blank(),
         plot.title = element_text(size = 12, face = "bold", hjust = 0.5, vjust = 1)) +
   # Set axislabels and title 
-  labs(title = "PCoA plastic communities")  + 
+  labs(x = labs[1], y = labs[2])  + 
   scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
-  scale_fill_manual(values = pal.uv) +      #<- Pick the correct colorpalette, based on your fill 
-  scale_color_manual(values = pal.uv) +     #<- Pick the correct colorpalette, based on your fill 
+  scale_fill_manual(values = pal.loc.hab) +      #<- Pick the correct colorpalette, based on your fill 
+  scale_color_manual(values = pal.loc.hab) +     #<- Pick the correct colorpalette, based on your fill 
   guides(fill = guide_legend(override.aes = list( shape = 22, linetype = NULL)),  #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
          shape = guide_legend(override.aes = list(fill = "black", colopr = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
 
-PCoA_plot
+PCoA_plot_inc
 
 # 3. Calculate distances for CC only --------------------------------------------------------------
 # Aitchison distance it the Euclidean distance of (r)clr transformed data
@@ -307,7 +316,10 @@ pcoa_cc <- wcmdscale(aitd_i_cc, eig = T)
 # Lets plot the relative eigenvalues of all axes
 barplot(as.vector(pcoa_cc$eig)/sum(pcoa_cc$eig))
 
-pct_xplnd <- (as.vector(pcoa_cc$eig)/sum(pcoa_cc$eig)) *100
+pct_xplnd <- pcoa_i.w$eig/sum(pcoa_i.w$eig) *100
+pretty_px <- format(round(pct_xplnd[1:2], digits = 1), nsmall = 1, trim = TRUE)
+labs <- c(glue("PCo1 ({pretty_px[1]}%)"),
+          glue("PCo2 ({pretty_px[2]}%)"))
 
 #How much do the first 2 axes explain in total?
 sum((as.vector(pcoa_cc$eig)/sum(pcoa_cc$eig))[1:2]) * 100
@@ -336,7 +348,7 @@ head(data.scores)
 shapes <- c(15,17,18,19,4,8,13)
 
 ## Create NMDS ordination plot
-PCoA_plot <- 
+PCoA_plot_CC <- 
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
@@ -353,14 +365,14 @@ PCoA_plot <-
         legend.key=element_blank(),
         plot.title = element_text(size = 12, face = "bold", hjust = 0.5, vjust = 1)) +
   # Set axislabels and title 
-  labs(title = "PCoA plastic communities")  + 
+  labs(x = labs[1], y = labs[2])  + 
   scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
   scale_fill_manual(values = pal.habs.i) +      #<- Pick the correct colorpalette, based on your fill 
   scale_color_manual(values = pal.habs.i) +     #<- Pick the correct colorpalette, based on your fill 
   guides(fill = guide_legend(override.aes = list( shape = 22, linetype = NULL)),  #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
          shape = guide_legend(override.aes = list(fill = "black", colopr = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
 
-PCoA_plot
+PCoA_plot_CC
 
 # 4. Calculate distances for CB only --------------------------------------------------------------
 # Aitchison distance it the Euclidean distance of (r)clr transformed data
@@ -370,7 +382,10 @@ pcoa_cb <- wcmdscale(aitd_i_cb, eig = T)
 # Lets plot the relative eigenvalues of all axes
 barplot(as.vector(pcoa_cb$eig)/sum(pcoa_cb$eig))
 
-pct_xplnd <- (as.vector(pcoa_cb$eig)/sum(pcoa_cb$eig)) *100
+pct_xplnd <- pcoa_i.w$eig/sum(pcoa_i.w$eig) *100
+pretty_px <- format(round(pct_xplnd[1:2], digits = 1), nsmall = 1, trim = TRUE)
+labs <- c(glue("PCo1 ({pretty_px[1]}%)"),
+          glue("PCo2 ({pretty_px[2]}%)"))
 
 #How much do the first 2 axes explain in total?
 sum((as.vector(pcoa_cb$eig)/sum(pcoa_cb$eig))[1:2]) * 100
@@ -399,11 +414,11 @@ head(data.scores)
 shapes <- c(15,17,18,19,4,8,13)
 
 ## Create NMDS ordination plot
-PCoA_plot <- 
+PCoA_plot_CB <- 
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Backbone, shape = Habitat, stroke = 1))  +
+  geom_point(size = 5, aes(color = Habitat, shape = Polymer, stroke = 1))  +
   theme_pubr() +
   theme(axis.text.y = element_text(colour = "black", size = 10),
         axis.text.x = element_text(colour = "black", size = 10),
@@ -416,11 +431,24 @@ PCoA_plot <-
         legend.key=element_blank(),
         plot.title = element_text(size = 12, face = "bold", hjust = 0.5, vjust = 1)) +
   # Set axislabels and title 
-  labs(title = "PCoA plastic communities")  + 
+  labs(x = labs[1], y = labs[2])  + 
   scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
-  scale_fill_manual(values = pal.uv) +      #<- Pick the correct colorpalette, based on your fill 
-  scale_color_manual(values = pal.uv) +     #<- Pick the correct colorpalette, based on your fill 
+  scale_fill_manual(values = pal.habs.i) +      #<- Pick the correct colorpalette, based on your fill 
+  scale_color_manual(values = pal.habs.i) +     #<- Pick the correct colorpalette, based on your fill 
   guides(fill = guide_legend(override.aes = list( shape = 22, linetype = NULL)),  #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
          shape = guide_legend(override.aes = list(fill = "black", colopr = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
 
-PCoA_plot
+PCoA_plot_CB
+
+# Grid of both incubation locations w cowpolt ---------------
+legend.a <- get_legend(PCoA_plot_CC)
+
+plot_grid(PCoA_plot_CB + theme(legend.position ="none"),
+          PCoA_plot_CC + theme(legend.position ="none"),
+          legend.a,
+          ncol = 3,
+          nrow = 1,
+          labels = c('A', 'B'),
+          align = 'v',
+          axis = "l",
+          rel_widths = c(1,1,0.2))
