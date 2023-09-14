@@ -15,7 +15,6 @@
 # Date: 2023 - 08 - 23
 # R-version: 4.3.1 
 
-
 ## Set working directory ------------------------------------------------------------------
 setwd("C:/Users/mgoudriaan/Documents/GitHub/Caribbean_discs_longterm/Scripts")
 set.seed(42)
@@ -182,39 +181,23 @@ Permanova_i.w.1 <- adonis2(aitd_i.w ~ Habitat * Location * Backbone * Treatment,
 Permanova_i.w.1 
 
 Permanova_i.w.2 <- adonis2(aitd_i.w ~ Habitat + Location + Backbone + Treatment, data = samp_i.w, add = T, na.rm = T, permutations = perm )
-Permanova_i.w.2 
+Permanova_i.w.2
 
-Permanova_i.w.3 <- adonis2(aitd_i.w ~ Habitat * Location * (Backbone + Treatment), data = samp_i.w, add = T, na.rm = T, permutations = perm )
-Permanova_i.w.3 
-# Does not really make a difference compared to the 1st test
+# Adjust p-values to q-values, add to df, write table to store results
+q_i.w_p1 <- p.adjust(Permanova_i.w.1$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
+Permanova_i.w.1.q <- bind_cols(Permanova_i.w.1,q_i.w_p1$qvalue, .name_repair = "minimal")
 
-#store all p-values in numeric vectors
-i.w_p1 <- numeric()
-i.w_p1["Habitat"] <- Permanova_i.w.1$`Pr(>F)`[1]
-i.w_p1["Location"] <- Permanova_i.w.1$`Pr(>F)`[2]
-i.w_p1["Backbone"] <- Permanova_i.w.1$`Pr(>F)`[3]
-i.w_p1["Treatment"] <- Permanova_i.w.1$`Pr(>F)`[4]
-i.w_p1["Habitat:Location"] <- Permanova_i.w.1$`Pr(>F)`[5]
-i.w_p1["Habitat:Backbone"] <- Permanova_i.w.1$`Pr(>F)`[6]
-i.w_p1["Location:Backbone"] <- Permanova_i.w.1$`Pr(>F)`[7]
-i.w_p1["Habitat:Treatment "] <- Permanova_i.w.1$`Pr(>F)`[8]
-i.w_p1["Location:Treatment"] <- Permanova_i.w.1$`Pr(>F)`[9]
-i.w_p1["Habitat:Location:Backbone"] <- Permanova_i.w.1$`Pr(>F)`[11]
-i.w_p1["Habitat:Location:Treatment "] <- Permanova_i.w.1$`Pr(>F)`[12]
-i.w_p1
+write.table(Permanova_i.w.1.q,"../Analysis/Permanova/PERM_inc.wild.full.txt" )
 
-i.w_p2 <- numeric()
-i.w_p2["Habitat"] <- Permanova_i.w.2$`Pr(>F)`[1]
-i.w_p2["Locarion"] <- Permanova_i.w.2$`Pr(>F)`[2]
-i.w_p2["Backbone"] <- Permanova_i.w.2$`Pr(>F)`[3]
-i.w_p2["Treatment"] <- Permanova_i.w.2$`Pr(>F)`[4]
-i.w_p2
 
-# adjust p-values according to BH to get q-values
-q_i.w_p1 <- p.adjust(i.w_p1, method = "BH")
-q_i.w_p2 <- p.adjust(i.w_p2, method = "BH")
-q_i.w_p1
-q_i.w_p2 
+q_i.w_p2 <- p.adjust(Permanova_i.w.2$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
+Permanova_i.w.2.q <- bind_cols(Permanova_i.w.2,q_i.w_p2$qvalue, .name_repair = "minimal")
+
+write.table(Permanova_i.w.1.q,"../Analysis/Permanova/PERM_inc.wild_additive.txt" )
+
+####
+# Permanova_i.w.3 <- adonis2(aitd_i.w ~ Habitat * Location * (Backbone + Treatment), data = samp_i.w, add = T, na.rm = T, permutations = perm )
+# Permanova_i.w.3 
 
 # 2. Calculate distances for 2 locations, incubations only --------------------------------------------------------------
 # Aitchison distance it the Euclidean distance of (r)clr transformed data
@@ -227,36 +210,18 @@ Permanova_i.1
 Permanova_i.2 <- adonis2(aitd_i ~ Habitat + Location + Backbone + Treatment, data = samp_i, add = T, na.rm = T, permutations = perm )
 Permanova_i.2 
 
-Permanova_i.3 <- adonis2(aitd_i ~ Habitat * Location * (Backbone + Treatment), data = samp_i, add = T, na.rm = T, permutations = perm )
-Permanova_i.3 
+# Adjust p-values to q-values, add to df, write table to store results
+q_i_p1 <- p.adjust(Permanova_i.1$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
+Permanova_i.1.q <- bind_cols(Permanova_i.1,q_i_p1$qvalue, .name_repair = "minimal") 
 
-#store all p-values in numeric vectors
-i_p1 <- numeric()
-i_p1["Habitat"] <- Permanova_i.1$`Pr(>F)`[1]
-i_p1["Location"] <- Permanova_i.1$`Pr(>F)`[2]
-i_p1["Backbone"] <- Permanova_i.1$`Pr(>F)`[3]
-i_p1["Treatment"] <- Permanova_i.1$`Pr(>F)`[4]
-i_p1["Habitat:Location"] <- Permanova_i.1$`Pr(>F)`[5]
-i_p1["Habitat:Backbone"] <- Permanova_i.1$`Pr(>F)`[6]
-i_p1["Location:Backbone"] <- Permanova_i.1$`Pr(>F)`[7]
-i_p1["Habitat:Treatment "] <- Permanova_i.1$`Pr(>F)`[8]
-i_p1["Location:Treatment"] <- Permanova_i.1$`Pr(>F)`[9]
-i_p1["Habitat:Location:Backbone"] <- Permanova_i.1$`Pr(>F)`[11]
-i_p1["Habitat:Location:Treatment "] <- Permanova_i.1$`Pr(>F)`[12]
-i_p1
+write.table(Permanova_i.1.q,"../Analysis/Permanova/PERM_inc.full.txt" )
 
-i_p2 <- numeric()
-i_p2["Habitat"] <- Permanova_i.2$`Pr(>F)`[1]
-i_p2["Locarion"] <- Permanova_i.2$`Pr(>F)`[2]
-i_p2["Backbone"] <- Permanova_i.2$`Pr(>F)`[3]
-i_p2["Treatment"] <- Permanova_i.2$`Pr(>F)`[4]
-i_p2
 
-# adjust p-values according to BH to get q-values
-q_i_p1 <- p.adjust(i_p1, method = "BH")
-q_i_p2 <- p.adjust(i_p2, method = "BH")
-q_i_p1
-q_i_p2 
+
+q_i_p2 <- p.adjust(Permanova_i.2$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
+Permanova_i.2.q <- bind_cols(Permanova_i.2,q_i_p2$qvalue, .name_repair = "minimal")
+
+write.table(Permanova_i.2.q,"../Analysis/Permanova/PERM_inc_additive.txt" )
 
 
 # 3. Calculate distances for CC only --------------------------------------------------------------
@@ -270,30 +235,18 @@ Permanova_cc.1
 Permanova_cc.2 <- adonis2(aitd_i_cc ~ Habitat +  Backbone + Treatment, data = samp_i.cc, add = T, na.rm = T, permutations = perm )
 Permanova_cc.2 
 
-Permanova_cc.3 <- adonis2(aitd_i_cc ~ Habitat * (Backbone + Treatment), data = samp_i.cc, add = T, na.rm = T, permutations = perm )
-Permanova_cc.3 
+# Adjust p-values to q-values, add to df, write table to store results
+q_cc_p1 <- p.adjust(Permanova_cc.1$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
+Permanova_cc.1.q <- bind_cols(Permanova_cc.1,q_cc_p1$qvalue, .name_repair = "minimal") 
 
-#store all p-values in numeric vectors
-cc_p1 <- numeric()
-cc_p1["Habitat"] <- Permanova_cc.1$`Pr(>F)`[1]
-cc_p1["Backbone"] <- Permanova_cc.1$`Pr(>F)`[2]
-cc_p1["Treatment"] <- Permanova_cc.1$`Pr(>F)`[3]
-cc_p1["Habitat:Backbone"] <- Permanova_cc.1$`Pr(>F)`[4]
-cc_p1["Habitat:Treatment "] <- Permanova_cc.1$`Pr(>F)`[5]
-cc_p1["Backbone:Treatment"]<- Permanova_cc.1$`Pr(>F)`[6]
-cc_p1
+write.table(Permanova_cc.1.q,"../Analysis/Permanova/PERM_CC.full.txt" )
 
-cc_p2 <- numeric()
-cc_p2["Habitat"] <- Permanova_cc.2$`Pr(>F)`[1]
-cc_p2["Backbone"] <- Permanova_cc.2$`Pr(>F)`[2]
-cc_p2["Treatment"] <- Permanova_cc.2$`Pr(>F)`[3]
-cc_p2
 
-# adjust p-values according to BH to get q-values
-q_cc_p1 <- p.adjust(cc_p1, method = "BH")
-q_cc_p2 <- p.adjust(cc_p2, method = "BH")
-q_cc_p1
-q_cc_p2 
+
+q_cc_p2 <- p.adjust(Permanova_cc.2$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
+Permanova_cc.2.q <- bind_cols(Permanova_cc.2,q_cc_p2$qvalue, .name_repair = "minimal")
+
+write.table(Permanova_i.w.1.q,"../Analysis/Permanova/PERM_CC_additive.txt" )
 
 
 # 4. Calculate distances for CB only --------------------------------------------------------------
@@ -301,34 +254,25 @@ q_cc_p2
 aitd_i_cb <- vegdist(clr_i_CB, method = "euclidean")
 
 ## PERMANOVA CB -------------------------------------------------------
-Permanova_cb1 <- adonis2(aitd_i_cb ~ Habitat * Backbone * Treatment, data = samp_i.cb, add = T, na.rm = T, permutations = perm )
-Permanova_cb1 
+Permanova_cb.1 <- adonis2(aitd_i_cb ~ Habitat * Backbone * Treatment, data = samp_i.cb, add = T, na.rm = T, permutations = perm )
+Permanova_cb.1 
 
-Permanova_cb2 <- adonis2(aitd_i_cb ~ Habitat +  Backbone + Treatment, data = samp_i.cb, add = T, na.rm = T, permutations = perm )
-Permanova_cb2 
+Permanova_cb.2 <- adonis2(aitd_i_cb ~ Habitat +  Backbone + Treatment, data = samp_i.cb, add = T, na.rm = T, permutations = perm )
+Permanova_cb.2 
 
-Permanova_cb3 <- adonis2(aitd_i_cb ~ Habitat * (Backbone + Treatment), data = samp_i.cb, add = T, na.rm = T, permutations = perm )
-Permanova_cb3 
+Permanova_cb.3 <- adonis2(aitd_i_cb ~ Habitat * (Backbone + Treatment), data = samp_i.cb, add = T, na.rm = T, permutations = perm )
+Permanova_cb.3 
 
-#store all p-values in numeric vectors
-cb_p1 <- numeric()
-cb_p1["Habitat"] <- Permanova_cb1$`Pr(>F)`[1]
-cb_p1["Backbone"] <- Permanova_cb1$`Pr(>F)`[2]
-cb_p1["Treatment"] <- Permanova_cb1$`Pr(>F)`[3]
-cb_p1["Habitat:Backbone"] <- Permanova_cb1$`Pr(>F)`[4]
-cb_p1["Habitat:Treatment "] <- Permanova_cb1$`Pr(>F)`[5]
-cb_p1["Backbone:Treatment"]<- Permanova_cb1$`Pr(>F)`[6]
-cb_p1
+# Adjust p-values to q-values, add to df, write table to store results
+q_cb_p1 <- p.adjust(Permanova_cb1$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
+Permanova_cb.1.q <- bind_cols(Permanova_cb.1,q_cb_p1$qvalue, .name_repair = "minimal") 
 
-cb_p2 <- numeric()
-cb_p2["Habitat"] <- Permanova_cb2$`Pr(>F)`[1]
-cb_p2["Backbone"] <- Permanova_cb2$`Pr(>F)`[2]
-cb_p2["Treatment"] <- Permanova_cb2$`Pr(>F)`[3]
-cb_p2
+write.table(Permanova_cc.1.q,"../Analysis/Permanova/PERM_CC.full.txt" )
 
-# adjust p-values according to BH to get q-values
-q_cb_p1 <- p.adjust(cb_p1, method = "BH")
-q_cb_p2 <- p.adjust(cb_p2, method = "BH")
-q_cb_p1
-q_cb_p2 
+
+
+q_cb_p2 <- p.adjust(Permanova_cb.2$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
+Permanova_cb.2.q <- bind_cols(Permanova_cb.2,q_cb_p2$qvalue, .name_repair = "minimal")
+
+write.table(Permanova_i.w.1.q,"../Analysis/Permanova/PERM_CC_additive.txt" )
 
