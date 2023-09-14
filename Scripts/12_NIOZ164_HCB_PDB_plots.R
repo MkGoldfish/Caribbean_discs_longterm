@@ -292,7 +292,7 @@ HCB.PDB.Bubble <- ggplot(HCB.PDB.Genera.pdbpols,aes(x=interaction(Polymer_Isotop
   theme_minimal()+
   theme(
     axis.text.x=element_text( size = 14, angle = 60, hjust = 1), 
-    axis.text.y=element_text(size= 13, face = "italic", color = "black"), 
+    axis.text.y=element_text(size= 13, color = "black"), 
     legend.text=element_text(size = 12),
     legend.title = element_text(size=14),
     axis.title.x = element_text(size=15),
@@ -401,7 +401,7 @@ HCB.PDB.Bubble <- ggplot(HCB.PDB.Genera.pdbpols,aes(x=Description,y= Genus.pol))
   theme_minimal()+
   theme(
     axis.text.x=element_text( size = 14, angle = 60, hjust = 1), 
-    axis.text.y=element_text(size= 13, face = "italic", color = "black"), 
+    axis.text.y=element_text(size= 13, color = "black"), 
     legend.text=element_text(size = 12),
     legend.title = element_text(size=14),
     axis.title.x = element_text(size=15),

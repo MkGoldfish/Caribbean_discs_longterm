@@ -246,7 +246,7 @@ write.table(Permanova_cc.1.q,"../Analysis/Permanova/PERM_CC.full.txt" )
 q_cc_p2 <- p.adjust(Permanova_cc.2$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
 Permanova_cc.2.q <- bind_cols(Permanova_cc.2,q_cc_p2$qvalue, .name_repair = "minimal")
 
-write.table(Permanova_i.w.1.q,"../Analysis/Permanova/PERM_CC_additive.txt" )
+write.table(Permanova_cc.2.q,"../Analysis/Permanova/PERM_CC_additive.txt" )
 
 
 # 4. Calculate distances for CB only --------------------------------------------------------------
@@ -264,15 +264,15 @@ Permanova_cb.3 <- adonis2(aitd_i_cb ~ Habitat * (Backbone + Treatment), data = s
 Permanova_cb.3 
 
 # Adjust p-values to q-values, add to df, write table to store results
-q_cb_p1 <- p.adjust(Permanova_cb1$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
+q_cb_p1 <- p.adjust(Permanova_cb.11$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
 Permanova_cb.1.q <- bind_cols(Permanova_cb.1,q_cb_p1$qvalue, .name_repair = "minimal") 
 
-write.table(Permanova_cc.1.q,"../Analysis/Permanova/PERM_CC.full.txt" )
+write.table(Permanova_cb.1.q,"../Analysis/Permanova/PERM_CB.full.txt" )
 
 
 
 q_cb_p2 <- p.adjust(Permanova_cb.2$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
 Permanova_cb.2.q <- bind_cols(Permanova_cb.2,q_cb_p2$qvalue, .name_repair = "minimal")
 
-write.table(Permanova_i.w.1.q,"../Analysis/Permanova/PERM_CC_additive.txt" )
+write.table(Permanova_cb.2.q,"../Analysis/Permanova/PERM_CB_additive.txt" )
 
