@@ -75,7 +75,7 @@ basic_info_physeq_object(physeq_object)
 ```
 
 ## Visualizing the read abundance per sample plot
-```{r abundance plot, results='hold', message=FALSE}
+```{r abundance plot, results='hide', message=FALSE}
 sample_sums <- sample_sums(physeq_object)
 sample_sums_df <- data.frame(sum = sample_sums) %>% rownames_to_column("Sample_ID") %>% arrange(Sample_ID)
 Sample_description <- data.frame(map) %>% rownames_to_column("Sample_ID") %>% arrange(Sample_ID)
