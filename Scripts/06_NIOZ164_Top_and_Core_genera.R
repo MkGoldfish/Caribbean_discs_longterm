@@ -1,5 +1,5 @@
 ##%#####################################################################################%##
-#NIOZ164 Statia Discs - PERMANOVA & PERMDISP                                          #####                                            
+#NIOZ164 Statia Discs - Core community & Top genera                                   #####                                            
 #Author: Maaike Goudriaan, NIOZ, MMB                                                      #
 #                                                                                         #
 # Purpose:                                                                                # 
@@ -47,11 +47,9 @@ basic_info_physeq_object(physeq_object)
 meta <- as.data.frame(as.matrix(sample_data(physeq_object))) 
 head(meta)
 
-
 # Trimming and transforming data -----------------------------------------------------
 # Filter to ASVs with at least 10 reads per sample, present in at least 5% of the samples
 physeq_pruned.0 <- filter_taxa(physeq_object, function(x)  sum(x>=10) > (0.05*length(x)), prune = T)
-physeq_pruned <- subset_taxa(physeq_pruned.0, !Order == "unassigned")
 
 summarize_phyloseq(physeq_pruned)
 basic_info_physeq_object(physeq_pruned)
@@ -60,62 +58,112 @@ basic_info_physeq_object(physeq_pruned)
 # "Lowest taxa sum is 78"
 # "Highest taxa sum is 225095"
 
-ps.pruned.gen <- aggregate_taxa(physeq_pruned, "Genus")
+# 1. Subset the physeq for different wild vs incubations on different tax-levels ----------------
+ps.pruned.rel <-  microbiome::transform(physeq_pruned.0, "compositional")
+ps.prune.rel.phyl <- aggregate_taxa(ps.pruned.rel , "Phylum") %>% subset_taxa(Phylum != "unassigned")
+ps.prune.rel.ord <- aggregate_taxa(ps.pruned.rel , "Order") %>% subset_taxa(Order != "unassigned")
+
+## 1.2 Detemine amount of Phyla and Orders in all samples together ----------------------
+basic_info_physeq_object(ps.prune.rel.phyl)
+ # "Total taxa is 31"
+ # "Total samples is 86"
+
+basic_info_physeq_object(ps.prune.rel.ord)
+# "Total taxa is 138"
+# "Total samples is 86"
+
+### 1.2.1 wild only ----
+ps.wild.phyl.rel<- ps.prune.rel.phyl %>% subset_samples(Location == "Zeelandia") 
+summarize_phyloseq(ps.wild.phyl.rel)
+basic_info_physeq_object(ps.wild.phyl.rel)
+# "Total taxa is 31"
+# "Total samples is 9"
+
+ps.wild.ord.rel <- ps.prune.rel.ord %>% subset_samples(Location == "Zeelandia") 
+summarize_phyloseq(ps.wild.ord.rel)
+basic_info_physeq_object(ps.wild.ord.rel)
+# "Total taxa is 138"
+# "Total samples is 9"
+
+### 1.1.2. inc only ----
+ps.inc.phyl.rel<- ps.prune.rel.phyl %>% subset_samples(Phase == "Disc") 
+summarize_phyloseq(ps.inc.phyl.rel)
+basic_info_physeq_object(ps.inc.phyl.rel)
+# "Total taxa is 31"
+# "Total samples is 59"
+
+ps.inc.ord.rel <- ps.prune.rel.ord %>% subset_samples(Phase == "Disc") 
+summarize_phyloseq(ps.inc.ord.rel)
+basic_info_physeq_object(ps.inc.ord.rel)
+# "Total taxa is 138"
+# "Total samples is 59"
+
+## 1.A. Calculate top genera per data subset --------------------------------------------------------------
+### Phyla ----
+top_wild <- top_taxa(ps.wild.phyl.rel, n = 10)
+top_inc <- top_taxa(ps.inc.phyl.rel, n = 10)
+
+### Order ----
+top_wild <- top_taxa(ps.wild.ord.rel, n = 15)
+top_inc <- top_taxa(ps.inc.ord.rel, n = 15)
+
+# 2. Subset the physeq for different locations and habitats, Genus level ----------------
+physeq_pruned.1 <- subset_taxa(physeq_pruned.0, !Order == "unassigned")
+ps.pruned.gen <- aggregate_taxa(physeq_pruned.1, "Genus")
 ps.pruned.gen.rel <-  microbiome::transform(ps.pruned.gen, "compositional")
 
-## Subset the physeq for different locations and habitats ----------------
-### 1. wild ----
+### 2.1. wild ----
 ps.wild.gen.rel<- ps.pruned.gen.rel %>% subset_samples(Location == "Zeelandia") 
 summarize_phyloseq(ps.wild.gen.rel)
 basic_info_physeq_object(ps.wild.gen.rel)
 
-### 2. inc only ----
+### 2.2. inc only ----
 ps.inc.gen.rel <- subset_samples(ps.pruned.gen.rel, Phase == "Disc")
 summarize_phyloseq(ps.inc.gen.rel)
 basic_info_physeq_object(ps.inc.gen.rel)
 
-### 3. CC Only----
+### 2.3. CC Only----
 ps.cc.gen.rel <- subset_samples(ps.inc.gen.rel, Location == "Crooks_Castle")
 summarize_phyloseq(ps.cc.gen.rel)
 basic_info_physeq_object(ps.cc.gen.rel)
 
-### 4. CB Only   ----
+### 2.4. CB Only   ----
 ps.cb.gen.rel  <- subset_samples(ps.inc.gen.rel, Location == "Charles_Brown")
 summarize_phyloseq(ps.cb.gen.rel)
 basic_info_physeq_object(ps.cb.gen.rel)
 
-### 5.Pelagic Only----
+### 2.5.Pelagic Only----
 ps.p.gen.rel <- subset_samples(ps.inc.gen.rel, Habitat == "Pelagic")
 summarize_phyloseq(physeq_P)
 basic_info_physeq_object(physeq_P)
 
-### 6. Benthic Only   ----
+### 2.6. Benthic Only   ----
 ps.b.gen.rel <- subset_samples(ps.inc.gen.rel, Habitat == "Benthic")
 summarize_phyloseq(physeq_B)
 basic_info_physeq_object(physeq_B)
 
-### 7. CC Pelagic----
+### 2.7. CC Pelagic----
 ps.cc.p.gen.rel <- subset_samples(ps.cc.gen.rel, Habitat == "Pelagic")
 summarize_phyloseq(physeq_CC_P)
 basic_info_physeq_object(physeq_CC_P)
 
-### 8. CC Benthic----
+### 2.8. CC Benthic----
 ps.cc.b.gen.rel<- subset_samples(ps.cc.gen.rel, Habitat == "Benthic")
 summarize_phyloseq(physeq_CC_B)
 basic_info_physeq_object(physeq_CC_B)
 
-### 9. CB Pelagic----
+### 2.9. CB Pelagic----
 ps.cb.p.gen.rel <- subset_samples(ps.cc.gen.rel, Habitat == "Pelagic")
 summarize_phyloseq(physeq_CB_P)
 basic_info_physeq_object(physeq_CB_P)
 
-### 10. CC Benthic----
+### 2.10. CC Benthic----
 ps.cb.b.gen.rel <- subset_samples(ps.cc.gen.rel, Habitat == "Benthic")
 summarize_phyloseq(physeq_CB_B)
 basic_info_physeq_object(physeq_CB_B)
 
 
-# A. Calculate top genera per data subset --------------------------------------------------------------
+# 2.A. Calculate top genera per data subset --------------------------------------------------------------
 top_wild <- top_taxa(ps.wild.gen.rel, n = 15)
 top_inc <- top_taxa(ps.inc.gen.rel, n = 15)
 top_CB <- top_taxa(ps.cb.gen.rel, n = 15)
@@ -127,7 +175,7 @@ top_CB_P <- top_taxa(ps.cb.p.gen.rel, n = 15)
 top_CC_B <- top_taxa(ps.cc.b.gen.rel, n = 15)
 top_CC_P <- top_taxa(ps.cc.p.gen.rel, n = 15)
 
-# B.Determine core community per dataset --------------------------------------------------------------
+# 2.B.Determine core community per dataset --------------------------------------------------------------
 # determine core taxa
 # detection at least 1.0%, prevalence at least 10 of all the samples samples
 # gives the names of the core genera under given conditions

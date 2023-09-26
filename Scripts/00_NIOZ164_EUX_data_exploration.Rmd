@@ -75,7 +75,7 @@ basic_info_physeq_object(physeq_object)
 ```
 
 ## Visualizing the read abundance per sample plot
-```{r abundance plot, results='hide', message=FALSE}
+```{r abundance plot, results='hide', message=FALSE, fig.keep='all'}
 sample_sums <- sample_sums(physeq_object)
 sample_sums_df <- data.frame(sum = sample_sums) %>% rownames_to_column("Sample_ID") %>% arrange(Sample_ID)
 Sample_description <- data.frame(map) %>% rownames_to_column("Sample_ID") %>% arrange(Sample_ID)
@@ -90,7 +90,19 @@ There is clearly a difference in readnumbers per sample. CBW19_B has low read ab
 2NTC are low, 1 is a bit high. 
 
 ## How much of each rank do we have, and how much is NA?
+First we subset samples the remove the waterphase filters, which will not be included in the analyses
 ```{r calculations, results='hide', message=FALSE}
+physeq_object.1 <- readRDS("../Analysis/NIOZ164_physeq_object.rds")
+physeq_object <- subset_samples(physeq_object.1 , Phase %in% c('Disc', 'Wild'))
+summarize_phyloseq(physeq_object) 
+basic_info_physeq_object(physeq_object)
+
+subset_samples(physeq_object, Location_Habitat == "Crooks_Castle_Pelagic") %>% summarize_phyloseq()
+subset_samples(physeq_object, Location_Habitat == "Crooks_Castle_Benthic") %>% summarize_phyloseq()
+subset_samples(physeq_object, Location_Habitat == "Charles_Brown_Pelagic") %>% summarize_phyloseq()
+subset_samples(physeq_object, Location_Habitat == "Charles_Brown_Benthic") %>% summarize_phyloseq()
+
+
 get_taxa_unique(physeq_object, "Kingdom")
 subset_taxa(physeq_object, Kingdom == "Eukaryota") %>% summarize_phyloseq()
 subset_taxa(physeq_object, Kingdom == "Archaea") %>% summarize_phyloseq()
@@ -106,16 +118,29 @@ get_taxa_unique(physeq_object, "Family") %>% sort()
 subset_taxa(physeq_object, Genus == "NA") %>% summarize_phyloseq()
 
 ```
+## Readnumbers:
+Total taxa: 78,748
+Total reads: 9,880,102
+Total samples: 68
+
+
+### Per Habitat/Location
+Crooks_Castle_Pelagic: 3,466,833 
+Crooks_Castle_Benthic: 2,071,959
+CB_Pelagic: 1,221,229
+CB_Benthic: 2,144,505
+
+
 ### Kingdom level: 
-- Total Eukaryotic reads = 905
-- Total Archaeal reads = 127,564
-- Total NA reads = 541
+- Total Eukaryotic reads = 689
+- Total Archaeal reads = 69,960
+- Total NA reads = 346
 
 ### Other levels
-- Phylum level NA reads = 49,876
-- Order level NA = 852,155
-- Family level NA = 2,073,772
-- Genus level NA = 5,103,930
+- Phylum level NA reads = 40,321
+- Order level NA = 747,965
+- Family level NA = 1,742,689
+- Genus level NA = 4,347,209
 
 ## Turn absolute abundance data to a tidy tibble for rarefaction
 ```{r store make tibble,  results='hide', message=FALSE}

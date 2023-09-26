@@ -131,30 +131,11 @@ saveRDS(physeq_decon, "../Analysis/NIOZ164_physeq_object_decontamed.rds")
 ## Correct Physeq Taxonomy -----------------------------
 # Wonky_tonky_taxonomy removes ASVs unassigned on Kingdom and Phylum level, and removes Chloroplast and mitochondria.
 # After, we apply a loop on the taxonomy table to redefine "weird" taxonomy into a single communstring unassigned
-# source("wonky_tonky_taxonomy.R")
-# wonky_tonky_taxonomy(physeq_object)
 
-# physeq_object <- readRDS("../Analysis/NIOZ164_physeq_object_decontamed.rds")
+physeq_decon <- readRDS("../Analysis/NIOZ164_physeq_object_decontamed.rds")
 
-get_taxa_unique(physeq_object, "Kingdom") # unassigned in Kingdom
-physeq_object <- subset_taxa(physeq_object, !is.na(Kingdom) & !Kingdom%in% c(" ", "Unassigned", "NA")) #let's eliminate those otus
-get_taxa_unique(physeq_object, "Kingdom") # all good now
-
-# get_taxa_unique(physeq_object, "Phylum") # let's check the Phyla, there's "NA"
-length(get_taxa_unique(physeq_object,"Phylum"))  
-physeq_object <- subset_taxa(physeq_object, !is.na(Phylum) & !Phylum%in% c("NA", " ")) 
-get_taxa_unique(physeq_object, "Phylum") %>% sort()
-length(get_taxa_unique(physeq_object,"Phylum")) 
-
-length(get_taxa_unique(physeq_object,"Order"))
-physeq_object <- subset_taxa(physeq_object, !Order%in% c(" Chloroplast", "Chloroplast", "chloroplast", " chloroplast"))
-length(get_taxa_unique(physeq_object,"Order"))
-
-length(get_taxa_unique(physeq_object,"Family"))
-physeq_object <- subset_taxa(physeq_object, !Family%in% c("Mitochondria", " Mitochondria"))
-length(get_taxa_unique(physeq_object,"Family"))
-
-physeq_decon <- physeq_object
+source("wonky_tonky_taxonomy.R")
+wonky_tonky_taxonomy(physeq_decon)
 
 # extract tax table as dataframe
 taxo <- as.data.frame(physeq_decon@tax_table)
@@ -171,8 +152,7 @@ for (i in 1:nrow(taxo)) {
 taxo <- tax_table(as.matrix(taxo))
 
 # Merge corrected taxonomy with other elements to create phyloseq object -------------------------------------
-physeq_decon.1 <- merge_phyloseq(asv.decon, taxo, map1) 
-
+physeq_decon.1 <- merge_phyloseq(otu_table(physeq_decon), taxo, sample_data(physeq_decon)) 
 
 summarize_phyloseq(physeq_decon.1)
 #"1] Min. number of reads = 7301"
@@ -217,8 +197,7 @@ basic_info_physeq_object(physeq_pruned.1)
 # [1] "Lowest taxa sum is 2"
 # [1] "Highest taxa sum is 225095"
 
-
-## Visualizing the read abundance per sample plot -----
+## Visualizing the read abundance per sample plot -------------
 sample_sums <- sample_sums(physeq_pruned.1)
 sample_sums_df <- data.frame(sum = sample_sums) %>% rownames_to_column("Sample_ID") %>% arrange(Sample_ID)
 Sample_description <- data.frame(physeq_pruned@sam_data) %>% rownames_to_column("Sample_ID") %>% arrange(Sample_ID) %>%  filter(Location != "NC")
@@ -228,11 +207,65 @@ ggplot(sample_sums_df, aes(x = Description, y = sum)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x = "Sample", y = "Sum of Counts", title = "Sample Sums after decontamination and pruning")
 
+# Subset physeq for only discs and wild -----------------------------------
+physeq.prune.wild.inc <- subset_samples(physeq_pruned.1, Phase %in% c('Disc', 'Wild')) 
+summarize_phyloseq(physeq.prune.wild.inc)
+basic_info_physeq_object(physeq.prune.wild.inc)
+# 1] Min. number of reads = 7301
+# 2] Max. number of reads = 539187
+# 3] Total number of reads = 8,818,999
+# 4] Average number of reads = 129691.161764706
+# 7] Sparsity = 0.978569168084181
+# Total taxa is 38662
+# Total samples is 68
+
+## Check amounts of unassigned/removed taxa --------------------
+get_taxa_unique(physeq.prune.wild.inc, "Kingdom")
+subset_taxa(physeq.prune.wild.inc, Kingdom == "Bacteria") %>% summarize_phyloseq()
+subset_taxa(physeq.prune.wild.inc, Kingdom == "Archaea") %>% summarize_phyloseq()
+subset_taxa(physeq.prune.wild.inc, Kingdom == "NA") %>% summarize_phyloseq()
+
+Phyl <- subset_taxa(physeq.prune.wild.inc, Phylum == "unassigned" )
+#unassigned Phyla
+summarize_phyloseq(Phyl)
+mean(taxa_sums(Phyl))
+sd(taxa_sums(Phyl))
+
+Order <- subset_taxa(physeq.prune.wild.inc, Order == "unassigned" )
+#unassigned Orders
+summarize_phyloseq(Order)
+mean(taxa_sums(Order))
+sd(taxa_sums(Order))
+
+Family <- subset_taxa(physeq.prune.wild.inc, Family == "unassigned" )
+#unassigned Family
+summarize_phyloseq(Family)
+mean(taxa_sums(Family))
+sd(taxa_sums(Family))
+
+Genus <- subset_taxa(physeq.prune.wild.inc, Genus == "unassigned" )
+#unassigned Genus
+summarize_phyloseq(Genus)
+mean(taxa_sums(Genus))
+sd(taxa_sums(Genus))
+
+### Kingdom level: 
+# - Total Bacterial reads = 8,749,040
+# - Total Archaeal reads = 69,960
+
+pct_bact = 100* (8749040/8818999)
+
+### Other levels
+# - Phylum level NA reads = 40,321
+# - Order level NA = 747,965
+# - Family level NA = 1,742,689
+# - Genus level NA = 4,347,209
+
 
 ## Store Physeq object --------------------
 saveRDS(physeq_pruned.1, "../Analysis/NIOZ164_physeq_object_decontamed_filtered.rds")
 
-# Create and store tidy tibble 3 domains ------------
+# Create and store tidy tibble 16S Data ------------
 source("tidy_tibble_maker.R")
 tidy_decont_pruned <- tidy_tibble_maker(physeq_pruned.1)
 
