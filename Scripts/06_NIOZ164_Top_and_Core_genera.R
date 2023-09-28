@@ -11,7 +11,7 @@
 # The tested polymers were PE, PP, PS, PEt and Nylon, PE-13C and PP-13C.                  #
 # Of each polymere there was an UV pretreated and a non-treated version.                  #
 #                                                                                         #
-# Test which factor causes significant community differences                              #
+# Determine top and core genera of samples                                                #
 ##%#####################################################################################%##
 
 # Date: 2023 - 08 - 23
@@ -20,9 +20,6 @@
 ## Set working directory ------------------------------------------------------------------
 setwd("C:/Users/mgoudriaan/Documents/GitHub/Caribbean_discs_longterm/Scripts")
 set.seed(42)
-
-# Permutations for Permanova and Permdisp
-perm <- 9999
 
 # Load libraries -------------------------------------------------------------------------
 library(devtools)
@@ -34,7 +31,7 @@ library(tidyverse)
 # Import data ----------------------------------------------------------------------------
 source("basic_info_physeq_object.R")
 # Import earlier created physeq object
-physeq_object <- readRDS("../Analysis/NIOZ164_physeq_object_decontamed_filtered.rds")
+physeq_object <- readRDS("../Analysis/NIOZ164_physeq_object_subset_decontamed_tax.corrected_pruned.rds")
 summarize_phyloseq(physeq_object)
 basic_info_physeq_object(physeq_object)
 
@@ -47,9 +44,16 @@ basic_info_physeq_object(physeq_object)
 meta <- as.data.frame(as.matrix(sample_data(physeq_object))) 
 head(meta)
 
+# Import RA tibble to calculate percentages of top taxa
+tt <- read.csv('../Processed-Data/NIOZ164_EUX_discs_RA_tidy_data_decontamed_tax.correct_pruned.csv', row.names = NULL)
+Phyla <- tt %>%  select( Description, Phylum, Phylum_rel_abund_Sample)  %>% distinct()
+Orders<- tt %>%  select( Description, Order, Order_rel_abund_Sample)  %>% distinct()
+Arch <- tt %>% filter(Kingdom == "Archaea")
+  
+
 # Trimming and transforming data -----------------------------------------------------
 # Filter to ASVs with at least 10 reads per sample, present in at least 5% of the samples
-physeq_pruned.0 <- filter_taxa(physeq_object, function(x)  sum(x>=10) > (0.05*length(x)), prune = T)
+physeq_pruned <- filter_taxa(physeq_object, function(x)  sum(x>=10) > (0.05*length(x)), prune = T)
 
 summarize_phyloseq(physeq_pruned)
 basic_info_physeq_object(physeq_pruned)
@@ -59,20 +63,20 @@ basic_info_physeq_object(physeq_pruned)
 # "Highest taxa sum is 225095"
 
 # 1. Subset the physeq for different wild vs incubations on different tax-levels ----------------
-ps.pruned.rel <-  microbiome::transform(physeq_pruned.0, "compositional")
+ps.pruned.rel <-  microbiome::transform(physeq_pruned, "compositional")
 ps.prune.rel.phyl <- aggregate_taxa(ps.pruned.rel , "Phylum") %>% subset_taxa(Phylum != "unassigned")
 ps.prune.rel.ord <- aggregate_taxa(ps.pruned.rel , "Order") %>% subset_taxa(Order != "unassigned")
 
-## 1.2 Detemine amount of Phyla and Orders in all samples together ----------------------
+## 1.1 Detemine amount of Phyla and Orders in all samples together ----------------------
 basic_info_physeq_object(ps.prune.rel.phyl)
  # "Total taxa is 31"
- # "Total samples is 86"
+ # "Total samples is 68"
 
 basic_info_physeq_object(ps.prune.rel.ord)
 # "Total taxa is 138"
 # "Total samples is 86"
 
-### 1.2.1 wild only ----
+### 1.1.1 wild only ----
 ps.wild.phyl.rel<- ps.prune.rel.phyl %>% subset_samples(Location == "Zeelandia") 
 summarize_phyloseq(ps.wild.phyl.rel)
 basic_info_physeq_object(ps.wild.phyl.rel)
@@ -98,14 +102,65 @@ basic_info_physeq_object(ps.inc.ord.rel)
 # "Total taxa is 138"
 # "Total samples is 59"
 
-## 1.A. Calculate top genera per data subset --------------------------------------------------------------
+## 1.A. Calculate top taxa per data subset --------------------------------------------------------------
 ### Phyla ----
-top_wild <- top_taxa(ps.wild.phyl.rel, n = 10)
-top_inc <- top_taxa(ps.inc.phyl.rel, n = 10)
+top_wild <- top_taxa(ps.wild.phyl.rel, n = 7)
+#[1] "Proteobacteria"   "Bacteroidota"     "Firmicutes"       "Actinobacteriota" "Cyanobacteria"    "Planctomycetota" "Dadabacteria"  
+top_inc <- top_taxa(ps.inc.phyl.rel, n = 7)
+# "Proteobacteria"   "Bacteroidota"     "Actinobacteriota" "Desulfobacterota" "Planctomycetota"  "Firmicutes" "Cyanobacteria"   
+top_all <-top_taxa(ps.prune.rel.phyl, n = 7)
+# "Proteobacteria"   "Bacteroidota"     "Actinobacteriota" "Firmicutes"       "Desulfobacterota" "Planctomycetota" "Cyanobacteria" 
+
+### Calculate the percentage of reads belonging to these taxa in the sample set
+top.phyl.wild.avg <- Phyla %>% filter(Phylum %in% top_wild) %>% filter(Phylum_rel_abund_Sample > 0) %>% 
+   group_by(Sample) %>% summarise(mean = mean(Phylum_rel_abund_Sample)) %>% summarise(sum = sum(mean)) *100 
+top.phyl.wild.sd <- Phyla %>% filter(Phylum %in% top_wild) %>% filter(Phylum_rel_abund_Sample > 0) %>% 
+  group_by(Phylum) %>% summarise(sd = sd(Phylum_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+top.phyl.wild.avg
+top.phyl.wild.sd
+
+
+top.phyl.inc.avg <- Phyla %>% filter(Phylum %in% top_inc) %>% filter(Phylum_rel_abund_Sample > 0) %>% 
+  group_by(Phylum) %>% summarise(mean = mean(Phylum_rel_abund_Sample)) %>% summarise(sum = sum(mean)) *100 
+top.phyl.inc.sd <- Phyla %>% filter(Phylum %in% top_inc) %>% filter(Phylum_rel_abund_Sample > 0) %>% 
+  group_by(Phylum) %>% summarise(sd = sd(Phylum_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+top.phyl.inc.avg
+top.phyl.inc.sd
+
+
+top.phyl.all.avg <- Phyla %>% filter(Phylum %in% top_all) %>% filter(Phylum_rel_abund_Sample > 0) %>% 
+  group_by(Phylum) %>% summarise(mean = mean(Phylum_rel_abund_Sample)) %>% summarise(sum = sum(mean)) *100 
+top.phyl.all.sd <- Phyla %>% filter(Phylum %in% top_all) %>% filter(Phylum_rel_abund_Sample > 0) %>% 
+  group_by(Phylum) %>% summarise(sd = sd(Phylum_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+top.phyl.all.avg
+top.phyl.all.sd
+
 
 ### Order ----
-top_wild <- top_taxa(ps.wild.ord.rel, n = 15)
-top_inc <- top_taxa(ps.inc.ord.rel, n = 15)
+top_ord_wild <- top_taxa(ps.wild.ord.rel, n = 10)
+# [1] "Rhodobacterales"   "Chitinophagales"   "Enterobacterales"  "Flavobacteriales"  "Caulobacterales"   "Staphylococcales"  
+# "Rhizobiales"       "Lactobacillales"   "Burkholderiales"   "Pseudomonadales"   
+
+
+top_ord_inc <- top_taxa(ps.inc.ord.rel, n = 10)
+# [1] "Rhodobacterales"     "Rhizobiales"         "Enterobacterales"    "Flavobacteriales"    "Chitinophagales"     
+# "Corynebacteriales"   "Staphylococcales"    "Desulfuromonadales" "Pseudomonadales"     "Thiotrichales" 
+     
+
+top_ord_all <-top_taxa(ps.prune.rel.ord, n = 10)
+# 1] "Rhodobacterales"     "Rhizobiales"         "Enterobacterales"    "Chitinophagales"     "Flavobacteriales"    
+# "Corynebacteriales"   "Staphylococcales"    "Caulobacterales" "Pseudomonadales"     "Desulfuromonadales"  
+
+top.ord.all.avg <- Orders %>% filter(Order %in% top_ord_all) %>% filter(Order_rel_abund_Sample > 0) %>% 
+  group_by(Order) %>% summarise(mean = mean(Order_rel_abund_Sample)) %>% summarise(sum = sum(mean)) *100 
+top.ord.all.sd <- Orders %>% filter(Order %in% top_ord_all) %>% filter(Order_rel_abund_Sample > 0) %>% 
+  group_by(Order) %>% summarise(sd = sd(Order_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+top.ord.all.avg
+top.ord.all.sd
 
 # 2. Subset the physeq for different locations and habitats, Genus level ----------------
 physeq_pruned.1 <- subset_taxa(physeq_pruned.0, !Order == "unassigned")

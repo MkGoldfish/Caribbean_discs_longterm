@@ -33,7 +33,7 @@ library(stringr)
 
 
 ## Import data ----------------------------------------------------------------------------
-tt <- read.csv('../Processed-Data/NIOZ164_EUX_discs_tidy_data_decontamed_pruned_RA.csv', na.strings = c(""))
+tt <- read.csv('../Processed-Data/NIOZ164_EUX_discs_RA_tidy_data_decontamed_tax.correct_pruned.csv', na.strings = c(""))
 head(tt)
 tt$X <- NULL
 # Remove the _ from the location names and treatments for plotting
@@ -105,7 +105,8 @@ Genus_top_pel <- Genus.pel %>% dplyr::select(Description, Genus, Genus_rel_abund
 #Filter genera with RA>1%, to avoid bubbles with 0 value
 top_genus_pel= Genus.pel %>% filter(Genus%in%unique((c(Genus_top_pel$Genus)))) %>%  
   filter(Genus_rel_abund_Sample > 0.01) %>% distinct()
-top_genus_pel %>% select(Genus) %>% unique() 
+top.gen.pel <- top_genus_pel %>% select(Genus) %>% unique() 
+
 
 top_genus_pel$Genus <- factor(top_genus_pel$Genus, levels=rev(sort(unique(top_genus_pel$Genus))))
 top_genus_pel <- top_genus_pel %>% arrange(Order)
@@ -164,7 +165,7 @@ Genus_top_bent <- Genus.bent %>% dplyr::select(Description, Genus, Genus_rel_abu
 #Filter genera with RA>1%, to avoid bubbles with 0 value
 top_genus_bent= Genus.bent %>% filter(Genus%in%unique((c(Genus_top_bent$Genus)))) %>%  
   filter(Genus_rel_abund_Sample > 0.01) 
-top_genus %>% select(Genus) %>% unique() 
+top.gen.bent <- top_genus_bent %>% select(Genus) %>% unique() 
 
 top_genus_bent$Genus <- factor(top_genus_bent$Genus, levels=rev(sort(unique(top_genus$Genus))))
 top_genus_bent <- top_genus_bent %>% arrange(Order)
@@ -224,6 +225,25 @@ plot_grid(Genus_bubble_pel + theme(legend.position ="none", axis.text.x = elemen
           axis = "ltbr",
           rel_heights = c(1,1.25,0.1))
 
+#### Calculate sum_percentage of the top genera per incubation habitat ----------------------------
+top.gen.pel.avg <- Genus_top_pel %>% group_by(Description) %>% 
+  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean = mean(sum)) * 100
+
+top.gen.pel.sd <- Genus_top_pel %>% group_by(Description) %>% 
+  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+top.gen.pel.avg
+top.gen.pel.sd
+
+
+top.gen.bent.avg <- Genus_top_bent %>% group_by(Description) %>% 
+  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean = mean(sum)) * 100
+
+top.gen.bent.sd <- Genus_top_bent %>% group_by(Description) %>% 
+  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+top.gen.bent.avg
+top.gen.bent.sd
 
 ### Wild plastic-----------------------------------------------------------------
 Genus.wild <- tt.wild  %>%  select(Location, Habitat, Description, Phylum, Order, Genus, Genus_rel_abund_Sample)%>% 
@@ -243,7 +263,7 @@ Genus_top_wild %>% filter(Genus_rel_abund_Sample > 0.01) %>% select(Genus) %>%  
 #Filter genera with RA>1%, to avoid bubbles with 0 value
 top_genus_wild= Genus.wild %>% filter(Genus%in%unique((c(Genus_top_wild$Genus)))) %>%  
   filter(Genus_rel_abund_Sample > 0.01) 
-top_genus_wild %>% select(Genus) %>% unique() 
+top.gen.wild <- top_genus_wild %>% select(Genus) %>% unique() 
 
 top_genus_wild$Genus <- factor(top_genus_wild$Genus, levels=rev(sort(unique(top_genus_wild$Genus))))
 top_genus_wild <- top_genus_wild %>% arrange(Order)
@@ -286,6 +306,16 @@ Genus_bubble <- ggplot(top_genus_wild,aes(x=Description, y= Genus)) +
        fill = "Polymer", size = "Relative Abundance") 
 
 Genus_bubble
+
+#### Calculate sum_percentage of the top genera on wild plastics ----------------------------
+top.gen.wild.avg <- Genus_top_wild %>% group_by(Description) %>% 
+  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean = mean(sum)) * 100
+
+top.gen.wild.sd <- Genus_top_wild %>% group_by(Description) %>% 
+  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+top.gen.wild.avg
+top.gen.wild.sd
 
 # Family Relative Abundance --------------------------------------------------------------------
 Family <- tt.inc  %>%  select(Description, Location, Habitat, Polymer_Isotope, Backbone, Treatment, 
