@@ -220,6 +220,7 @@ PD_i.w_loc <- permutest(betadisper(aitd_i.w, samp_i.w$Location, type = 'median',
 PD_i.w_loc.hab <- permutest(betadisper(aitd_i.w, samp_i.w$Location_Habitat, type = 'median', sqrt.dist = F, add = F ), 
                         model = 'full', pairwise = F, permutations = perm)
 
+
 # Adjust p-values to q-values, add to df, write table to store results
 q_i.w_hab <- p.adjust(PD_i.w_hab$tab$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
 PD_i.w_hab.q <- bind_cols(PD_i.w_hab$tab,q_i.w_hab$qvalue, .name_repair = "minimal") 
@@ -263,6 +264,8 @@ write.table(Permanova_i.2.q,"../Analysis/Permanova/PERM_inc_additive.txt" )
 Disp_i_hab <- betadisper(aitd_i, samp_i$Habitat)
 Disp_i_loc <- betadisper(aitd_i, samp_i$Location)
 Disp_i_loc.hab <- betadisper(aitd_i, samp_i$Location_Habitat)
+Disp_i_bb <- betadisper(aitd_i, samp_i$Backbone)
+Disp_i_treat <- betadisper(aitd_i, samp_i$Treatment)
 
 # The median centroid method is more robust and less sensitive to outliers, aka better for scattered/environmental data
 PD_i_hab <- permutest(betadisper(aitd_i, samp_i$Habitat, type = 'median', sqrt.dist = F, add = F ), 
@@ -271,6 +274,10 @@ PD_i_loc <- permutest(betadisper(aitd_i, samp_i$Location, type = 'median', sqrt.
                         model = 'full', pairwise = F, permutations = perm)
 PD_i_loc.hab <- permutest(betadisper(aitd_i, samp_i$Location_Habitat, type = 'median', sqrt.dist = F, add = F ), 
                             model = 'full', pairwise = F, permutations = perm)
+PD_i_bb <- permutest(betadisper(aitd_i, samp_i$Backbone, type = 'median', sqrt.dist = F, add = F ), 
+                      model = 'full', pairwise = F, permutations = perm)
+PD_i_treat <- permutest(betadisper(aitd_i, samp_i$Treatment, type = 'median', sqrt.dist = F, add = F ), 
+                      model = 'full', pairwise = F, permutations = perm)
 
 
 # Adjust p-values to q-values, add to df, write table to store results
@@ -285,6 +292,14 @@ write.table(PD_i_loc.q,"../Analysis/Permdisp/PD_inc_loc.txt")
 q_i_loc.hab <- p.adjust(PD_i_loc.hab$tab$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
 PD_i_loc.hab.q <- bind_cols(PD_i_loc.hab$tab,q_i_loc.hab$qvalue, .name_repair = "minimal") 
 write.table(PD_i_loc.hab.q,"../Analysis/Permdisp/PD_inc.Wild_loc.hab.txt" )
+
+q_i_bb <- p.adjust(PD_i_bb$tab$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
+PD_i_bb.q <- bind_cols(PD_i_bb$tab,q_i_bb$qvalue, .name_repair = "minimal") 
+write.table(PD_i_bb.q,"../Analysis/Permdisp/PD_inc_backbone.txt" )
+
+q_i_treat <- p.adjust(PD_i_treat$tab$`Pr(>F)`, method = "BH") %>% enframe(value = "qvalue")
+PD_i_treat.q <- bind_cols(PD_i_treat$tab,q_i_treat$qvalue, .name_repair = "minimal") 
+write.table(PD_i_treat.q,"../Analysis/Permdisp/PD_inc_treatment.txt" )
 
 
 # 3. Calculate distances for CC only --------------------------------------------------------------

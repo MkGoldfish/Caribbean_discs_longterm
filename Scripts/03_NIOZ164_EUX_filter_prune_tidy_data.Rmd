@@ -162,6 +162,19 @@ Data is transformed to RA for plotting of commuity, and hellinger and rclr trans
 source("tidy_tibble_maker.R")
 tidy_filtered <- tidy_tibble_maker(physeq.wild.inc.prune.1)
 
+# Remove underscores for plotting
+tidy_filtered.1 <- tidy_filtered %>% mutate(Location = case_when(
+  Location == 'Crooks_Castle' ~ "Crooks Castle",
+  Location == 'Charles_Brown' ~ "Charles Brown",
+)
+)
+
+tidy_filtered.2 <- tidy_filtered.2 %>% mutate(Treatment = case_when(
+ Treatment == 'no_UV' ~ "no UV",
+ 
+)
+)
+
 ```
 
 ## Calculate the relative abundance per Taxonomic level per
