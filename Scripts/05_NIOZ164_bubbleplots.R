@@ -35,11 +35,11 @@ library(tidyverse)
 tt <- read.csv('../Processed-Data/NIOZ164_EUX_discs_RA_tidy_data_decontamed_tax.correct_pruned.csv', na.strings = c(""))
 head(tt)
 tt$X <- NULL
-# Remove the _ from the location names and treatments for plotting
-tt.1 <- tt %>%  mutate(Location = ifelse(Location == "Crooks_Castle", "Crooks Castle",
-                                   ifelse(Location == "Charles_Brown", "Charles Brown", Location)))
-tt.1 <- tt.1 %>%  mutate(Treatment = ifelse(Treatment == "no_UV", "no UV", Treatment))
-head(tt.1)
+# # Remove the _ from the location names and treatments for plotting
+# tt.1 <- tt %>%  mutate(Location = ifelse(Location == "Crooks_Castle", "Crooks Castle",
+#                                    ifelse(Location == "Charles_Brown", "Charles Brown", Location)))
+# tt.1 <- tt.1 %>%  mutate(Treatment = ifelse(Treatment == "no_UV", "no UV", Treatment))
+# head(tt.1)
 
 tt.inc <- tt %>% filter(Phase == "Disc" ) 
 unique(tt.inc$Location)
@@ -137,6 +137,7 @@ Genus_bubble_pel <- ggplot(top_genus_pel,aes(x=interaction(Polymer_Isotope,Backb
   theme(
     axis.text.x=element_text( size = 14, angle = 60, hjust = 1), 
     axis.text.y=element_text(size= 13, face = "italic", color = "black"), 
+    axis.ticks = element_line(color = "grey50"),
     legend.text=element_text(size = 12),
     legend.title = element_text(size=14),
     axis.title.x = element_text(size=15),
@@ -149,7 +150,7 @@ Genus_bubble_pel <- ggplot(top_genus_pel,aes(x=interaction(Polymer_Isotope,Backb
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
     legend.position = "right") +
-  guides( x = "axis_nested",  fill = guide_legend(override.aes = list(size = 10, color = NA)),
+  guides( x = "axis_nested",
   fill = FALSE) +
   labs(title = "", subtitle = "",
        fill = "Polymer", size = "Relative Abundance") 
@@ -197,6 +198,7 @@ Genus_bubble_bent <- ggplot(top_genus_bent,aes(x=interaction(Polymer_Isotope,Bac
   theme(
     axis.text.x=element_text( size = 14, angle = 60, hjust = 1), 
     axis.text.y=element_text(size= 13, face = "italic", color = "black"), 
+    axis.ticks = element_line(color = "grey50"),
     legend.text=element_text(size = 12),
     legend.title = element_text(size=14),
     axis.title.x = element_text(size=15),
@@ -209,7 +211,7 @@ Genus_bubble_bent <- ggplot(top_genus_bent,aes(x=interaction(Polymer_Isotope,Bac
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
     legend.position = "right") +
-  guides( x = "axis_nested",  fill = guide_legend(override.aes = list(size = 10, color = NA)), +
+  guides( x = "axis_nested",  fill = guide_legend(override.aes = list(size = 10, color = NA)), 
           size  = guide_legend(order = 1),
          color = guide_legend(order = 2)) +
   labs(title = "", subtitle = "",
@@ -218,11 +220,11 @@ Genus_bubble_bent <- ggplot(top_genus_bent,aes(x=interaction(Polymer_Isotope,Bac
 Genus_bubble_bent
 
 #### Combine incubations with cowplot -----------------------------------------------------------------
-legend.a <- get_legend(Genus_bubble_bent+
-                         theme(legend.direction = "horizontal",
-                               legend.title.align = 0.5))
+# legend.a <- get_legend(Genus_bubble_bent+
+#                          theme(legend.direction = "horizontal",
+#                                legend.title.align = 0.5))
 
-plot_grid(Genus_bubble_pel + theme( axis.text.x = element_blank(), 
+plot_grid(Genus_bubble_pel + theme( axis.text.x = element_blank(),
                                    axis.title.x = element_blank(),ggh4x.axis.nestline.x = element_blank(),
                                    ggh4x.axis.nesttext.x =element_blank(), plot.margin = unit(c(0,0,-1,0), "cm")),
           Genus_bubble_bent + theme(plot.margin = unit(c(0,0,0,0), "cm")),

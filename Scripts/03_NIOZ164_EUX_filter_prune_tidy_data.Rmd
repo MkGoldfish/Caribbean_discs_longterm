@@ -171,6 +171,7 @@ tidy_filtered.1 <- tidy_filtered %>% mutate(Location = case_when(
 
 tidy_filtered.2 <- tidy_filtered.1 %>% mutate(Treatment = case_when(
  Treatment == 'no_UV' ~ "no UV",
+ Treatment == 'UV' ~ "UV",
  
 )
 )
