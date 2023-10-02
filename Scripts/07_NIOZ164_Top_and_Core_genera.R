@@ -163,7 +163,7 @@ top.ord.all.avg
 top.ord.all.sd
 
 # 2. Subset the physeq for different locations and habitats, Genus level ----------------
-physeq_pruned.1 <- subset_taxa(physeq_pruned.0, !Order == "unassigned")
+physeq_pruned.1 <- subset_taxa(physeq_pruned, !Order == "unassigned")
 ps.pruned.gen <- aggregate_taxa(physeq_pruned.1, "Genus")
 ps.pruned.gen.rel <-  microbiome::transform(ps.pruned.gen, "compositional")
 
@@ -189,33 +189,33 @@ basic_info_physeq_object(ps.cb.gen.rel)
 
 ### 2.5.Pelagic Only----
 ps.p.gen.rel <- subset_samples(ps.inc.gen.rel, Habitat == "Pelagic")
-summarize_phyloseq(physeq_P)
-basic_info_physeq_object(physeq_P)
+summarize_phyloseq(ps.p.gen.rel)
+basic_info_physeq_object(ps.p.gen.rel)
 
 ### 2.6. Benthic Only   ----
 ps.b.gen.rel <- subset_samples(ps.inc.gen.rel, Habitat == "Benthic")
-summarize_phyloseq(physeq_B)
-basic_info_physeq_object(physeq_B)
+summarize_phyloseq(ps.b.gen.rel)
+basic_info_physeq_object(ps.b.gen.rel)
 
 ### 2.7. CC Pelagic----
 ps.cc.p.gen.rel <- subset_samples(ps.cc.gen.rel, Habitat == "Pelagic")
-summarize_phyloseq(physeq_CC_P)
-basic_info_physeq_object(physeq_CC_P)
+summarize_phyloseq(ps.cc.p.gen.rel)
+basic_info_physeq_object(ps.cc.p.gen.rel)
 
 ### 2.8. CC Benthic----
 ps.cc.b.gen.rel<- subset_samples(ps.cc.gen.rel, Habitat == "Benthic")
-summarize_phyloseq(physeq_CC_B)
-basic_info_physeq_object(physeq_CC_B)
+summarize_phyloseq(ps.cc.b.gen.rel)
+basic_info_physeq_object(ps.cc.b.gen.rel)
 
 ### 2.9. CB Pelagic----
-ps.cb.p.gen.rel <- subset_samples(ps.cc.gen.rel, Habitat == "Pelagic")
-summarize_phyloseq(physeq_CB_P)
-basic_info_physeq_object(physeq_CB_P)
+ps.cb.p.gen.rel <- subset_samples(ps.cb.gen.rel, Habitat == "Pelagic")
+summarize_phyloseq(ps.cb.p.gen.rel)
+basic_info_physeq_object(ps.cb.p.gen.rel)
 
 ### 2.10. CC Benthic----
-ps.cb.b.gen.rel <- subset_samples(ps.cc.gen.rel, Habitat == "Benthic")
-summarize_phyloseq(physeq_CB_B)
-basic_info_physeq_object(physeq_CB_B)
+ps.cb.b.gen.rel <- subset_samples(ps.cb.gen.rel, Habitat == "Benthic")
+summarize_phyloseq(ps.cb.b.gen.rel)
+basic_info_physeq_object(ps.cb.b.gen.rel)
 
 
 # 2.A. Calculate top genera per data subset --------------------------------------------------------------
@@ -234,39 +234,108 @@ top_CC_P <- top_taxa(ps.cc.p.gen.rel, n = 15)
 # determine core taxa
 # detection at least 1.0%, prevalence at least 10 of all the samples samples
 # gives the names of the core genera under given conditions
-core.wild <- core_members(ps.wild.gen.rel, detection = 0.01, prevalence = 1/4) %>% enframe(value = "genus")
-length(core.wild) #12 core taxa
+core.wild <- core_members(ps.wild.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
+dim(core.wild) #15 core taxa
+core.abundance.wild <- sample_sums(core(ps.wild.gen.rel, detection = 0.0025, prevalence = 1/2))
+mean(core.abundance.wild)
+sd(core.abundance.wild)
 
-write.table(core.families.taxa , '../core_community/21_core_families_detection0.01_prevalence0.25.txt',
-            na = "NA", dec = '.', quote = F, sep = "\t")
+# write.table(core.families.taxa , '../core_community/21_core_families_detection0.01_prevalence0.25.txt',
+#             na = "NA", dec = '.', quote = F, sep = "\t")
 
-core.inc <- core_members(ps.inc.gen.rel, detection = 0.01, prevalence = 1/4) %>% enframe(value = "genus")
-length(core.inc) #23 core taxa
+core.inc <- core_members(ps.inc.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
+dim(core.inc) #17 core taxa
+core.abundance.inc <- sample_sums(core(ps.inc.gen.rel, detection = 0.0025, prevalence = 1/2)) 
+mean(core.abundance.inc)
+sd(core.abundance.inc)
 
-core.CB <- core_members(ps.cb.gen.rel, detection = 0.01, prevalence = 1/4) %>% enframe(value = "genus")
-length(core.CB) #25 core taxa
+core.CB <- core_members(ps.cb.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
+dim(core.CB) #17 core taxa
+core.abundance.CB <- sample_sums(core(ps.cb.gen.rel, detection = 0.0025, prevalence = 1/2)) 
+mean(core.abundance.CB)
+sd(core.abundance.CB)
 
-core.CC <- core_members(ps.cc.gen.rel, detection = 0.01, prevalence = 1/4) %>% enframe(value = "genus")
-length(core.CC) #25 core taxa
+core.CC <- core_members(ps.cc.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
+dim(core.CC) #23 core taxa
+core.abundance.CC <- sample_sums(core(ps.cc.gen.rel, detection = 0.0025, prevalence = 1/2)) 
+mean(core.abundance.CC)
+sd(core.abundance.CC)
 
-core.B <- core_members(ps.b.gen.rel, detection = 0.01, prevalence = 1/4) %>% enframe(value = "genus")
-length(core.B) #25 core taxa
+core.B <- core_members(ps.b.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
+dim(core.B) #38 core taxa
+core.abundance.B <- sample_sums(core(ps.b.gen.rel, detection = 0.0025, prevalence = 1/2)) 
+mean(core.abundance.B)
+sd(core.abundance.B)
 
-core.P <- core_members(ps.p.gen.rel, detection = 0.01, prevalence = 1/4) %>% enframe(value = "genus")
-length(core.P) #30 core taxa
+core.P <- core_members(ps.p.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
+dim(core.P) #17 core taxa
+core.abundance.P <- sample_sums(core(ps.p.gen.rel, detection = 0.0025, prevalence = 1/2)) 
+mean(core.abundance.P)
+sd(core.abundance.P)
 
-core.CB.B <- core_members(ps.cb.b.gen.rel, detection = 0.01, prevalence = 1/4) %>% enframe(value = "genus")
-length(core.CB.B) #25 core taxa
+core.CB.P <- core_members(ps.cb.p.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
+dim(core.CB.P) #24 core taxa
+core.abundance.CB.P <- sample_sums(core(ps.cb.p.gen.rel, detection = 0.0025, prevalence = 1/2)) 
+mean(core.abundance.CB.P)
+sd(core.abundance.CB.P)
 
-core.CB.P <- core_members(ps.cb.p.gen.rel, detection = 0.01, prevalence = 1/4) %>% enframe(value = "genus")
-length(core.CB.P) #30 core taxa
+core.CC.P <- core_members(ps.cc.p.gen.rel, detection = 0.001, prevalence = 1/2) %>% enframe(value = "genus")
+dim(core.CC.P) #46 core taxa
+core.abundance.B <- sample_sums(core(ps.b.gen.rel, detection = 0.0025, prevalence = 1/2)) 
+mean(core.abundance.B)
+sd(core.abundance.B)
 
-core.CC.B <- core_members(ps.cb.b.gen.rel, detection = 0.01, prevalence = 1/4) %>% enframe(value = "genus")
-length(core.CB.B) #25 core taxa
+core.CB.B <- core_members(ps.cb.b.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
+dim(core.CB.B) #40 core taxa
+core.abundance.CB.B <- sample_sums(core(ps.cb.b.gen.rel, detection = 0.0025, prevalence = 1/2)) 
+mean(core.abundance.CB.B)
+sd(core.abundance.CB.B)
 
-core.CC.P <- core_members(ps.cb.p.gen.rel, detection = 0.01, prevalence = 1/4) %>% enframe(value = "genus")
-length(core.CB.P) #30 core taxa
+core.CC.B <- core_members(ps.cc.b.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
+dim(core.CC.B) #35 core taxa
+core.abundance.CC.B <- sample_sums(core(ps.cc.b.gen.rel, detection = 0.0025, prevalence = 1/2)) 
+mean(core.abundance.CC.B)
+sd(core.abundance.CC.B)
 
+
+
+# Bind into one tibble, and pivot
 core <- bind_rows(Incubation = core.inc, 
-                  Wild = core.wild, 
+                  Wild = core.wild,
+                  Benthic = core.B,
+                  Pelagic = core.P,
+                  CharlesBrown = core.CB,
+                  CrooksCastle = core.CC,
+                  Pelagic.CB = core.CB.P,
+                  Pelagic.CC = core.CC.P,
+                  Benthic.CB = core.CB.B,
+                  Benthic.CC = core.CC.B,
                   .id = "Community" )
+head(core)
+
+# Pivot wider to get test per column, to compare core communities
+core_wide <- core %>% pivot_wider(names_from = Community, values_from = genus)
+head(core_wide)
+
+write.csv(core_wide, "../Analysis/Core_Communites.csv", row.names = F)
+
+## Compare core communities -------------------------------------
+inc.vs.wild <- setdiff(core.inc, core.wild) #16
+wild.vs.inc <- setdiff(core.wild, core.inc) #14
+inc.and.wild <- intersect(core.inc, core.wild) #1 
+
+P.vs.B <- setdiff(core.P, core.B) #17
+B.vs.P<- setdiff(core.B, core.P) #38
+P.and.B <- intersect(core.P, core.B) #0
+
+CB.vs.CC <- setdiff(core.CB, core.CC) #16
+CC.vs.CB<- setdiff(core.CC, core.CB) #22
+CB.and.CC <- intersect(core.CB, core.CC) #1
+
+P.CB.vs.CC <- setdiff(core.CB.P, core.CC.P) #22
+P.CC.vs.CB<- setdiff(core.CC.P, core.CB.P) #44
+P.CB.and.CC <- intersect(core.CB.P, core.CC.P) #2
+
+B.CB.vs.CC <- setdiff(core.CB.B, core.CC.B) #38
+B.CC.vs.CB <- setdiff(core.CC.B, core.CB.B) #33
+B.CB.and.CC <- intersect(core.CB.B, core.CC.B) #2

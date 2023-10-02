@@ -89,6 +89,9 @@ Genus.bent <- Genus %>% filter(Habitat == "Benthic")
 Genus.pel %>% select(Genus) %>%  unique() %>% count()
 Genus.bent %>% select(Genus) %>%  unique() %>% count()
 
+Genus %>%  group_by(Description) %>%  filter(Genus_rel_abund_Sample > 0.01) %>% 
+  ungroup() %>% select(Genus) %>% unique() 
+
 ### Incubation -----------------------------------------------------------------
 #### Pelagic -------------------------------------------------------------------
 # select top_n genera per sample Genera for plotting
@@ -106,6 +109,7 @@ Genus_top_pel <- Genus.pel %>% dplyr::select(Description, Genus, Genus_rel_abund
 top_genus_pel= Genus.pel %>% filter(Genus%in%unique((c(Genus_top_pel$Genus)))) %>%  
   filter(Genus_rel_abund_Sample > 0.01) %>% distinct()
 top.gen.pel <- top_genus_pel %>% select(Genus) %>% unique() 
+
 
 
 top_genus_pel$Genus <- factor(top_genus_pel$Genus, levels=rev(sort(unique(top_genus_pel$Genus))))

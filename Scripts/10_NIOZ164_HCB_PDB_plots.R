@@ -129,6 +129,9 @@ str(found.genera)
 gen.in.pdb <- PDB_clean %>% filter(Genus %in% found.genera)
 length(unique(gen.in.pdb$Genus))
 
+hcb.gen <- HCB_only[HCB_only %in% found.genera] 
+length(unique(hcb.gen))
+
 #What non-PE Plastics that have the PE string do we find?
 PDB_clean %>% filter(str_detect(Plastic,"PE")) %>% select(Plastic) %>% unique()
 
@@ -197,7 +200,7 @@ plot.pdb
 
 
 # Bubbleplots -----------------------------------------------------------------
-### Genera sequencing data incubations --------------------------------------------------------------------
+## Genera sequencing data incubations --------------------------------------------------------------------
 Genus <- tt.inc  %>%  select(Description, Location, Habitat, Polymer, Isotope, Polymer_Isotope, Backbone, Treatment, 
                              Phylum, Genus, Genus_rel_abund_Sample)%>% 
   distinct() 
@@ -242,6 +245,8 @@ HCB.PDB.Genera <- Genus_plastoil %>% dplyr::select(Description, Genus, Genus_rel
                                                    Location, Habitat, Polymer_Isotope, Backbone, Treatment) %>%
   filter(Genus_rel_abund_Sample > 0.005) %>% distinct()
 
+unique(HCB.PDB.Genera$Genus) %>% length()
+
 # Add degradation category including intersect for facetting
 HCB.PDB.Genera.subs <- HCB.PDB.Genera  %>% mutate(Degrading = case_when(
   Genus %in% HCB_only ~ "HCB",
@@ -262,6 +267,77 @@ HCB.PDB.Genera.pdbpols <- HCB.PDB.Genera.pdbpols %>% mutate(Genus.pol =
 HCB.PDB.Genera.pdbpols <- HCB.PDB.Genera.pdbpols %>% mutate(Genus.pol =                                                 
                                                               if_else(Genus %in% Nylon, paste(Genus.pol, "\u{25C6}", sep = " "), Genus.pol))
 
+### Calculate abundanof HCB and PDB ------------------------
+#### Pelagic HCB reads
+Samp.HCB.pel.avg <- Genus_HCBonly %>% filter(Habitat == "Pelagic") %>% select(Description, Genus_rel_abund_Sample) %>% group_by(Description) %>% 
+  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean = mean(sum)) *100
+
+Samp.HCB.pel.sd <- Genus_HCBonly %>% filter(Habitat == "Pelagic")  %>% select(Description, Genus_rel_abund_Sample) %>% group_by(Description) %>% 
+  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+Samp.HCB.pel.avg
+Samp.HCB.pel.sd
+
+#### Average reads per Genus to determine dominant Genera
+Genus.HCB.pel.avg <- Genus_HCBonly %>% filter(Habitat == "Pelagic") %>% select(Description, Genus, Genus_rel_abund_Sample) %>% group_by(Genus) %>%
+  mutate(avg = 100*mean(Genus_rel_abund_Sample)) %>% 
+  mutate(sd = sd(Genus_rel_abund_Sample)*100) %>% summarize_at(vars(avg,sd), mean) %>% arrange(desc(avg))
+
+Genus.HCB.pel.avg 
+
+
+#### Benthic HCB reads
+Samp.HCB.ben.avg <- Genus_HCBonly %>% filter(Habitat == "Benthic") %>% select(Description, Genus_rel_abund_Sample)  %>% group_by(Description) %>% 
+  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean = mean(sum)) *100
+
+Samp.HCB.ben.sd <- Genus_HCBonly %>% filter(Habitat == "Benthic")  %>% select(Description, Genus_rel_abund_Sample) %>% group_by(Description) %>% 
+  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+Samp.HCB.ben.avg
+Samp.HCB.ben.sd
+
+#### Average reads per Genus to determine dominant Genera
+Genus.HCB.ben.avg <- Genus_HCBonly %>% filter(Habitat == "Benthic") %>% select(Description, Genus, Genus_rel_abund_Sample) %>% group_by(Genus) %>%
+  mutate(avg = 100*mean(Genus_rel_abund_Sample)) %>% 
+  mutate(sd = sd(Genus_rel_abund_Sample)*100) %>% summarize_at(vars(avg,sd), mean) %>% arrange(desc(avg))
+
+Genus.HCB.ben.avg 
+
+
+#### Pelagic PDB reads
+Gen.plast.pel.avg <- Genus_plastic %>% filter(Habitat == "Pelagic")%>% select(Description, Genus_rel_abund_Sample)  %>% group_by(Description) %>% 
+  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean= mean(sum)) *100
+
+Gen.plast.pel.sd <- Genus_plastic %>% filter(Habitat == "Pelagic") %>% select(Description, Genus_rel_abund_Sample) %>% group_by(Description) %>% 
+  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+Gen.plast.pel.avg
+Gen.plast.pel.sd
+
+#### Average reads per Genus to determine dominant Genera
+Genus.PDB.pel.avg <- Genus_plastic %>% filter(Habitat == "Pelagic") %>% select(Description, Genus, Genus_rel_abund_Sample) %>% group_by(Genus) %>%
+  mutate(avg = 100*mean(Genus_rel_abund_Sample)) %>% 
+  mutate(sd = sd(Genus_rel_abund_Sample)*100) %>% summarize_at(vars(avg,sd), mean) %>% arrange(desc(avg))
+
+Genus.PDB.pel.avg 
+
+
+#### Benthic PDB reads
+Gen.plast.ben.avg <- Genus_plastic %>% filter(Habitat == "Benthic")%>% select(Description, Genus_rel_abund_Sample)  %>% group_by(Description) %>% 
+  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean= mean(sum)) *100
+
+Gen.plast.ben.sd <- Genus_plastic %>% filter(Habitat == "Benthic") %>% select(Description, Genus_rel_abund_Sample) %>% group_by(Description) %>% 
+  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+Gen.plast.ben.avg
+Gen.plast.ben.sd
+
+#### Average reads per Genus to determine dominant Genera
+Genus.PDB.ben.avg <- Genus_plastic %>% filter(Habitat == "Benthic") %>% select(Description, Genus, Genus_rel_abund_Sample) %>% group_by(Genus) %>%
+  mutate(avg = 100*mean(Genus_rel_abund_Sample)) %>% 
+  mutate(sd = sd(Genus_rel_abund_Sample)*100) %>% summarize_at(vars(avg,sd), mean) %>% arrange(desc(avg))
+
+Genus.PDB.ben.avg 
 
 
 ## Bubbleplot incubations  -------------------------------------------------------------------                                                                
@@ -311,7 +387,7 @@ HCB.PDB.Bubble <- ggplot(HCB.PDB.Genera.pdbpols,aes(x=interaction(Polymer_Isotop
 HCB.PDB.Bubble
 
 
-### Genera sequencing Wild plastic --------------------------------------------------------------------
+## Genera sequencing Wild plastic --------------------------------------------------------------------
 Genus <- tt.wild %>%  select(Description, Location, Habitat, Polymer, Isotope, Polymer_Isotope, Backbone, Treatment, 
                              Phylum, Genus, Genus_rel_abund_Sample)%>% 
   distinct() 
@@ -352,9 +428,47 @@ Genus_HCBonly <-  Genus %>%  filter(Genus%in%HCB_only)
 Genus_PDBonly <-  Genus %>%  filter(Genus%in%PDB_only)
 
 
-HCB.PDB.Genera <- Genus_plastoil %>% dplyr::select(Description, Genus, Genus_rel_abund_Sample, 
+HCB.PDB.Genera <- Genus_HCBonly %>% dplyr::select(Description, Genus, Genus_rel_abund_Sample, 
                                                    Location, Habitat, Polymer_Isotope, Backbone, Treatment) %>%
   filter(Genus_rel_abund_Sample > 0.005) %>% distinct()
+
+unique(HCB.PDB.Genera$Genus) %>% length()
+
+### Calculate abundanof HCB and PDB ------------------------
+#### Beach HCB reads
+Samp.HCB.beach.avg <- Genus_HCBonly  %>% select(Description, Genus_rel_abund_Sample) %>% group_by(Description) %>% 
+  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean = mean(sum)) *100
+
+Samp.HCB.beach.sd <- Genus_HCBonly  %>% select(Description, Genus_rel_abund_Sample) %>% group_by(Description) %>% 
+  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+Samp.HCB.beach.avg
+Samp.HCB.beach.sd
+
+#### Average reads per Genus to determine dominant Genera
+Genus.HCB.beach.avg <- Genus_HCBonly %>%  select(Description, Genus, Genus_rel_abund_Sample) %>% group_by(Genus) %>%
+  mutate(avg = 100*mean(Genus_rel_abund_Sample)) %>% 
+  mutate(sd = sd(Genus_rel_abund_Sample)*100) %>% summarize_at(vars(avg,sd), mean) %>% arrange(desc(avg))
+
+Genus.HCB.beach.avg 
+
+#### Beach PDB reads
+Gen.plast.beach.avg <- Genus_plastic %>%  select(Description, Genus_rel_abund_Sample)  %>% group_by(Description) %>% 
+  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean= mean(sum)) *100
+
+Gen.plast.beach.sd <- Genus_plastic %>%  select(Description, Genus_rel_abund_Sample) %>% group_by(Description) %>% 
+  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+
+Gen.plast.beach.avg
+Gen.plast.beach.sd
+
+#### Average reads per Genus to determine dominant Genera
+Genus.PDB.beach.avg <- Genus_plastic  %>% select(Description, Genus, Genus_rel_abund_Sample) %>% group_by(Genus) %>%
+  mutate(avg = 100*mean(Genus_rel_abund_Sample)) %>% 
+  mutate(sd = sd(Genus_rel_abund_Sample)*100) %>% summarize_at(vars(avg,sd), mean) %>% arrange(desc(avg))
+
+Genus.PDB.beach.avg 
+
 
 ## Bubbleplot wild plastics  ------------------------------------------------------------------- 
 # Add degradation category including intersect for facetting
