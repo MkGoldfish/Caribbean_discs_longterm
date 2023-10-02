@@ -169,7 +169,7 @@ tidy_filtered.1 <- tidy_filtered %>% mutate(Location = case_when(
 )
 )
 
-tidy_filtered.2 <- tidy_filtered.2 %>% mutate(Treatment = case_when(
+tidy_filtered.2 <- tidy_filtered.1 %>% mutate(Treatment = case_when(
  Treatment == 'no_UV' ~ "no UV",
  
 )
@@ -179,7 +179,7 @@ tidy_filtered.2 <- tidy_filtered.2 %>% mutate(Treatment = case_when(
 
 ## Calculate the relative abundance per Taxonomic level per
 ```{r calculate RA in tibble, results='hide'}
-tidy_RA <- tidy_filtered  %>% group_by(Description) %>% mutate(Sample_rel_abund = Abundance / sum(Abundance)) %>% #relative abundance of each otu per sample
+tidy_RA <- tidy_filtered.2  %>% group_by(Description) %>% mutate(Sample_rel_abund = Abundance / sum(Abundance)) %>% #relative abundance of each otu per sample
   mutate(Sample_st_dev = sd(Sample_rel_abund)) %>% 
   ungroup() %>% 
   

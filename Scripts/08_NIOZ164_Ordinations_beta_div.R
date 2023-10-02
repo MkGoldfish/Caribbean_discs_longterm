@@ -78,6 +78,7 @@ meta <- as.data.frame(as.matrix(sample_data(physeq_object)))
 colnames(meta)
 meta.1 <- meta %>%  mutate(Location = ifelse(Location == "Crooks_Castle", "Crooks Castle",
                                               ifelse(Location == "Charles_Brown", "Charles Brown", Location)))
+meta.1$Location_Habitat <- gsub("_", " ", meta.1$Location_Habitat)
 meta.2 <- meta.1 %>%  mutate(Treatment = ifelse(Treatment == "no_UV", "no UV", Treatment)) %>% sample_data()
 
 physeq_object.1 <- merge_phyloseq(otu_table(physeq_object), tax_table(physeq_object), meta.2)
@@ -239,14 +240,14 @@ data.scores$Treatment = samp_i.w$Treatment
 
 head(data.scores)
 
-shapes <- c(15,17,18,19,4,8,13)
+shapes <- c(6,18,20,15,17,8,4)
 
 ## Create NMDS ordination plot
 PCoA_plot_all <- 
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Location_Habitat, shape = Polymer, stroke = 1))  +
+  geom_point(size = 5, aes(color = Location_Habitat, shape = Polymer, stroke = 1, fill = Location_Habitat))  +
   theme_pubr() +
   theme(axis.text.y = element_text(colour = "black", size = 10),
         axis.text.x = element_text(colour = "black", size = 10),
@@ -263,9 +264,10 @@ PCoA_plot_all <-
        x = labs[1], y = labs[2])  + 
  scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
   scale_fill_manual(values = pal.loc.hab) +      #<- Pick the correct colorpalette, based on your fill 
-  scale_color_manual(values =pal.loc.hab) +     #<- Pick the correct colorpalette, based on your fill 
-  guides(fill = guide_legend(override.aes = list( shape = 22, linetype = NULL)),  #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
-         shape = guide_legend(override.aes = list(fill = "black", colopr = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
+  scale_color_manual(values = pal.loc.hab) +     #<- Pick the correctadj colorpalette, based on your fill 
+  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 7)),
+         color = guide_legend(title = "Location & Habitat"), #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
+          shape = guide_legend(override.aes = list(fill = "black", color = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
  
 PCoA_plot_all
 
@@ -306,14 +308,14 @@ data.scores$Treatment = samp_i$Treatment
 
 head(data.scores)
 
-shapes <- c(15,17,18,19,4,8,13)
+shapes <- c(6,18,20,15,17,8)
 
 ## Create NMDS ordination plot
 PCoA_plot_inc <- 
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Location_Habitat, shape = Polymer, stroke = 1))  +
+  geom_point(size = 5, aes(color = Location_Habitat, shape = Polymer, stroke = 1, fill = Location_Habitat))  +
   theme_pubr() +
   theme(axis.text.y = element_text(colour = "black", size = 10),
         axis.text.x = element_text(colour = "black", size = 10),
@@ -330,8 +332,9 @@ PCoA_plot_inc <-
   scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
   scale_fill_manual(values = pal.loc.hab) +      #<- Pick the correct colorpalette, based on your fill 
   scale_color_manual(values = pal.loc.hab) +     #<- Pick the correct colorpalette, based on your fill 
-  guides(fill = guide_legend(override.aes = list( shape = 22, linetype = NULL)),  #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
-         shape = guide_legend(override.aes = list(fill = "black", colopr = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
+  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 7)),
+         color = guide_legend(title = "Location & Habitat"), #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
+         shape = guide_legend(override.aes = list(fill = "black", color = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
 
 PCoA_plot_inc
 
@@ -372,14 +375,14 @@ data.scores$Treatment = samp_i.cc$Treatment
 
 head(data.scores)
 
-shapes <- c(15,17,18,19,4,8,13)
+shapes <- c(6,18,20,15,17,8)
 
 ## Create NMDS ordination plot
 PCoA_plot_CC <- 
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Habitat, shape = Polymer, stroke = 1))  +
+  geom_point(size = 5, aes(color = Habitat, shape = Polymer, stroke = 1, fill = Habitat))  +
   theme_pubr() +
   theme(axis.text.y = element_text(colour = "black", size = 10),
         axis.text.x = element_text(colour = "black", size = 10),
@@ -396,8 +399,9 @@ PCoA_plot_CC <-
   scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
   scale_fill_manual(values = pal.habs.i) +      #<- Pick the correct colorpalette, based on your fill 
   scale_color_manual(values = pal.habs.i) +     #<- Pick the correct colorpalette, based on your fill 
-  guides(fill = guide_legend(override.aes = list( shape = 22, linetype = NULL)),  #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
-         shape = guide_legend(override.aes = list(fill = "black", colopr = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
+  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 7)),
+         color = guide_legend(title = "Location & Habitat"), #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
+         shape = guide_legend(override.aes = list(fill = "black", color = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
 
 PCoA_plot_CC
 
@@ -438,14 +442,14 @@ data.scores$Treatment = samp_i.cb$Treatment
 
 head(data.scores)
 
-shapes <- c(15,17,18,19,4,8,13)
+shapes <- c(6,18,20,15,17,8)
 
 ## Create NMDS ordination plot
 PCoA_plot_CB <- 
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Habitat, shape = Polymer, stroke = 1))  +
+  geom_point(size = 5, aes(color = Habitat, shape = Polymer, stroke = 1, fill = Habitat))  +
   theme_pubr() +
   theme(axis.text.y = element_text(colour = "black", size = 10),
         axis.text.x = element_text(colour = "black", size = 10),
@@ -517,14 +521,14 @@ data.scores$Treatment = samp_p$Treatment
 
 head(data.scores)
 
-shapes <- c(15,17,18,19,4,8,13)
+shapes <- c(6,18,20,15,17,8)
 
 ## Create NMDS ordination plot
 PCoA_plot_P <- 
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Location, shape = Polymer, stroke = 1))  +
+  geom_point(size = 5, aes(color = Location, shape = Polymer, stroke = 1, fill = Location))  +
   theme_pubr() +
   theme(axis.text.y = element_text(colour = "black", size = 10),
         axis.text.x = element_text(colour = "black", size = 10),
@@ -541,8 +545,9 @@ PCoA_plot_P <-
   scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
   scale_fill_manual(values = pal.pel) +      #<- Pick the correct colorpalette, based on your fill 
   scale_color_manual(values = pal.pel) +     #<- Pick the correct colorpalette, based on your fill 
-  guides(fill = guide_legend(override.aes = list( shape = 22, linetype = NULL)),  #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
-         shape = guide_legend(override.aes = list(fill = "black", colopr = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
+  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 7)),
+         color = guide_legend(title = "Location & Habitat"), #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
+         shape = guide_legend(override.aes = list(fill = "black", color = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
 
 PCoA_plot_P
 
@@ -583,14 +588,14 @@ data.scores$Treatment = samp_b$Treatment
 
 head(data.scores)
 
-shapes <- c(15,17,18,19,4,8,13)
+shapes <- c(6,18,20,15,17,8)
 
 ## Create NMDS ordination plot
 PCoA_plot_B <- 
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Location, shape = Polymer, stroke = 1))  +
+  geom_point(size = 5, aes(color = Location, shape = Polymer, stroke = 1, fill = Location))  +
   theme_pubr() +
   theme(axis.text.y = element_text(colour = "black", size = 10),
         axis.text.x = element_text(colour = "black", size = 10),
@@ -607,9 +612,9 @@ PCoA_plot_B <-
   scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
   scale_fill_manual(values = pal.ben) +      #<- Pick the correct colorpalette, based on your fill 
   scale_color_manual(values = pal.ben) +     #<- Pick the correct colorpalette, based on your fill 
-  guides(fill = guide_legend(override.aes = list( shape = 22, linetype = NULL)),  #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
-         shape = guide_legend(override.aes = list(fill = "black", colopr = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
-
+  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 7)),
+         color = guide_legend(title = "Location & Habitat"), #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
+         shape = guide_legend(override.aes = list(fill = "black", color = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
 PCoA_plot_B
 
 # Grid of both incubation locations w cowpolt ---------------

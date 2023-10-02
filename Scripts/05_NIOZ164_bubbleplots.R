@@ -22,14 +22,13 @@ set.seed(42)
 
 ## Load libraries -------------------------------------------------------------------------
 library(devtools)
-library(tidyverse)
 library(ggpubr)
 library(ggh4x)
 library(cowplot)
-library(paletteer)
-library (emojifont)
+library(emojifont)
 library(ggthemes)
 library(stringr)
+library(tidyverse)
 
 
 ## Import data ----------------------------------------------------------------------------
@@ -42,17 +41,17 @@ tt.1 <- tt %>%  mutate(Location = ifelse(Location == "Crooks_Castle", "Crooks Ca
 tt.1 <- tt.1 %>%  mutate(Treatment = ifelse(Treatment == "no_UV", "no UV", Treatment))
 head(tt.1)
 
-tt.inc <- tt.1 %>% filter(Phase == "Disc" ) 
+tt.inc <- tt %>% filter(Phase == "Disc" ) 
 unique(tt.inc$Location)
 unique(tt.inc$Treatment)
 unique(tt.inc$Polymer)
 
-tt.wild <- tt.1 %>% filter(Method == "Collection") 
+tt.wild <- tt %>% filter(Method == "Collection") 
 unique(tt.wild$Location)
 unique(tt.wild$Method)
 unique(tt.wild$Polymer)
 
-tt.filt <- tt.1 %>% filter(Phase == "Filter" ) %>% filter(!Treatment == "NA ")
+tt.filt <- tt %>% filter(Phase == "Filter" ) %>% filter(!Treatment == "NA ")
 unique(tt.inc$Location)
 unique(tt.inc$Treatment)
 unique(tt.inc$Polymer)
@@ -79,13 +78,14 @@ colors_M1 <- c("#004e64", "#ecc8af", "#F2AF29", "#436436", "#00a5cf",
 
 ## Genus Relative Abundance --------------------------------------------------------------------
 Genus <- tt.inc  %>%  select(Description, Location, Habitat, Polymer, Isotope, Polymer_Isotope, Backbone, Treatment, 
-                             Phylum, Genus, Genus_rel_abund_Sample)%>% 
+                             Phylum, Genus, Genus_rel_abund_Sample) %>% 
   distinct() 
 
-Genus.pel <- Genus %>% filter(Habitat == "Pelagic")
+Genus.pel <- Genus %>% filter(Habitat == "Pelagic")  
+
 Genus.bent <- Genus %>% filter(Habitat == "Benthic")
 
-#Cout how many unique genera we have. 
+#Count how many unique genera we have. 
 Genus.pel %>% select(Genus) %>%  unique() %>% count()
 Genus.bent %>% select(Genus) %>%  unique() %>% count()
 
@@ -116,10 +116,10 @@ top_genus_pel$Genus <- factor(top_genus_pel$Genus, levels=rev(sort(unique(top_ge
 top_genus_pel <- top_genus_pel %>% arrange(Order)
 
 Genus_bubble_pel <- ggplot(top_genus_pel,aes(x=interaction(Polymer_Isotope,Backbone),y= Genus)) +
-  geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA, alpha = 0.7) +
+  geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA, alpha = 0.5) +
   scale_fill_manual(values = pal.pols.isotop) +
   scale_size(range = c(3,10))+
-  guides( x = "axis_nested",  fill = guide_legend(override.aes = list(size = 10, color = NA))) +
+  
   ylab("") +
   xlab("") +  
   facet_nested(Habitat + Phylum  ~ Location + Treatment, drop = T, 
@@ -148,7 +148,9 @@ Genus_bubble_pel <- ggplot(top_genus_pel,aes(x=interaction(Polymer_Isotope,Backb
     ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5),
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
-    legend.position = "bottom") +
+    legend.position = "right") +
+  guides( x = "axis_nested",  fill = guide_legend(override.aes = list(size = 10, color = NA)),
+  fill = FALSE) +
   labs(title = "", subtitle = "",
        fill = "Polymer", size = "Relative Abundance") 
 
@@ -175,10 +177,9 @@ top_genus_bent$Genus <- factor(top_genus_bent$Genus, levels=rev(sort(unique(top_
 top_genus_bent <- top_genus_bent %>% arrange(Order)
 
 Genus_bubble_bent <- ggplot(top_genus_bent,aes(x=interaction(Polymer_Isotope,Backbone),y= Genus)) +
-  geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA, alpha = 0.7) +
+  geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA, alpha = 0.5) +
   scale_fill_manual(values = pal.pols.isotop) +
   scale_size(range = c(3,10))+
-  guides( x = "axis_nested",  fill = guide_legend(override.aes = list(size = 10, color = NA))) +
   ylab("") +
   xlab("") +  
   facet_nested(Habitat + Phylum  ~ Location + Treatment, drop = T, 
@@ -207,7 +208,10 @@ Genus_bubble_bent <- ggplot(top_genus_bent,aes(x=interaction(Polymer_Isotope,Bac
     ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5),
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
-    legend.position = "bottom") +
+    legend.position = "right") +
+  guides( x = "axis_nested",  fill = guide_legend(override.aes = list(size = 10, color = NA)), +
+          size  = guide_legend(order = 1),
+         color = guide_legend(order = 2)) +
   labs(title = "", subtitle = "",
        fill = "Polymer", size = "Relative Abundance") 
 
@@ -218,16 +222,15 @@ legend.a <- get_legend(Genus_bubble_bent+
                          theme(legend.direction = "horizontal",
                                legend.title.align = 0.5))
 
-plot_grid(Genus_bubble_pel + theme(legend.position ="none", axis.text.x = element_blank(), 
+plot_grid(Genus_bubble_pel + theme( axis.text.x = element_blank(), 
                                    axis.title.x = element_blank(),ggh4x.axis.nestline.x = element_blank(),
                                    ggh4x.axis.nesttext.x =element_blank(), plot.margin = unit(c(0,0,-1,0), "cm")),
-          Genus_bubble_bent + theme(legend.position ="none", plot.margin = unit(c(0,0,0,0), "cm")),
-          legend.a,
+          Genus_bubble_bent + theme(plot.margin = unit(c(0,0,0,0), "cm")),
           ncol = 1,
-          nrow = 3,
+          nrow = 2,
           align = 'v',
           axis = "ltbr",
-          rel_heights = c(1,1.25,0.1))
+          rel_heights = c(1,1.5))
 
 #### Calculate sum_percentage of the top genera per incubation habitat ----------------------------
 top.gen.pel.avg <- Genus_top_pel %>% group_by(Description) %>% 
