@@ -182,10 +182,10 @@ summary(rownames(samp_b) == rownames(clr_i_B))
 aitd_i.w <- vegdist(clr_i.w, method = "euclidean")
 
 ## PERMANOVA i.w. -------------------------------------------------------
-Permanova_i.w.1 <- adonis2(aitd_i.w ~ Habitat * Location * Backbone * Treatment, data = samp_i.w, add = T, na.rm = T, permutations = perm )
+Permanova_i.w.1 <- adonis2(aitd_i.w ~  Backbone * Treatment , data = samp_i.w, add = T, na.rm = T, permutations = perm )
 Permanova_i.w.1 
 
-Permanova_i.w.2 <- adonis2(aitd_i.w ~ Habitat + Location + Backbone + Treatment, data = samp_i.w, add = T, na.rm = T, permutations = perm )
+Permanova_i.w.2 <- adonis2(aitd_i.w ~ (Habitat * Location) + Backbone + Treatment, data = samp_i.w, add = T, na.rm = T, permutations = perm )
 Permanova_i.w.2
 
 # Adjust p-values to q-values, add to df, write table to store results
@@ -307,7 +307,7 @@ write.table(PD_i_treat.q,"../Analysis/Permdisp/PD_inc_treatment.txt" )
 aitd_i_cc <- vegdist(clr_i_CC, method = "euclidean")
 
 ## PERMANOVA CC -------------------------------------------------------
-Permanova_cc.1<- adonis2(aitd_i_cc ~ Habitat * Backbone * Treatment, data = samp_i.cc, add = T, na.rm = T, permutations = perm )
+Permanova_cc.1<- adonis2(aitd_i_cc ~ Treatment * Backbone, data = samp_i.cc, add = T, na.rm = T, permutations = perm )
 Permanova_cc.1
 
 Permanova_cc.2 <- adonis2(aitd_i_cc ~ Habitat +  Backbone + Treatment, data = samp_i.cc, add = T, na.rm = T, permutations = perm )
@@ -383,7 +383,7 @@ write.table(PD_cb_hab.q,"../Analysis/Permdisp/PD_CB_hab.txt" )
 aitd_P<- vegdist(clr_i_P, method = "euclidean")
 
 ## PERMANOVA Pel -------------------------------------------------------
-Permanova_p.1<- adonis2(aitd_P ~ Location * Backbone * Treatment, data = samp_p, add = T, na.rm = T, permutations = perm )
+Permanova_p.1<- adonis2(aitd_P ~   Backbone * Location , data = samp_p, add = T, na.rm = T, permutations = perm )
 Permanova_p.1
 
 # Permanova_p.2 <- adonis2(aitd_P ~ Location +  Backbone + Treatment, data = samp_p, add = T, na.rm = T, permutations = perm )

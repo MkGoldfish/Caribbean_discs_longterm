@@ -60,25 +60,25 @@ tt <- read.csv('../Processed-Data/NIOZ164_EUX_discs_RA_tidy_data_decontamed_tax.
 
 # Trimming and transforming data -----------------------------------------------------
 # Filter to ASVs with at least 10 reads per sample, present in at least 5% of the samples
-physeq_pruned <- filter_taxa(physeq_object.1, function(x)  sum(x>=10) > (0.05*length(x)), prune = T)
-
-summarize_phyloseq(physeq_pruned)
-basic_info_physeq_object(physeq_pruned)
-# "Lowest readnumber is 5544"
-# "Highest readnumber is  391980"
-# "Lowest taxa sum is 55"
-# "Highest taxa sum is 225095"
-
-colnames(sample_data(physeq_pruned))
-ntaxa(physeq_pruned)
+# physeq_pruned <- filter_taxa(physeq_object.1, function(x)  sum(x>=10) > (0.05*length(x)), prune = T)
+# 
+# summarize_phyloseq(physeq_pruned)
+# basic_info_physeq_object(physeq_pruned)
+# # "Lowest readnumber is 5544"
+# # "Highest readnumber is  391980"
+# # "Lowest taxa sum is 55"
+# # "Highest taxa sum is 225095"
+# 
+# colnames(sample_data(physeq_pruned))
+# ntaxa(physeq_pruned)
 
 # Subset the physeq for different locations and habitats, OTU level ----------------
-ps_wild <- physeq_pruned %>% subset_samples(Location == "Zeelandia") 
-ps_inc <- physeq_pruned %>% subset_samples(Phase == "Disc")
-ps_CC <- physeq_pruned %>% subset_samples(Location == "Crooks Castle") 
-ps_CB <- physeq_pruned %>% subset_samples(Location == "Charles Brown") 
-ps_pel <- physeq_pruned %>% subset_samples(Habitat == "Pelagic") 
-ps_bent <- physeq_pruned %>% subset_samples(Habitat == "Benthic") 
+ps_wild <- physeq_object.1 %>% subset_samples(Location == "Zeelandia") 
+ps_inc <- physeq_object.1 %>% subset_samples(Phase == "Disc")
+ps_CC <- physeq_object.1%>% subset_samples(Location == "Crooks Castle") 
+ps_CB <- physeq_object.1 %>% subset_samples(Location == "Charles Brown") 
+ps_pel <- physeq_object.1 %>% subset_samples(Habitat == "Pelagic") 
+ps_bent <- physeq_object.1 %>% subset_samples(Habitat == "Benthic") 
 
 # Use MicEco to create Euler diagram from physeq objects ----------------------------
 pal.loc <- c("#FF6DB6FF" , "#009292FF",  "#66A61E")

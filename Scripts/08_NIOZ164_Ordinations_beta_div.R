@@ -50,8 +50,8 @@ pal.loc.hab <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
 # CB_P, CB_B, CC_P, CB_B, Zeelandia
 pal.CB <- c("#FF6DB6FF", "#FFB6DBFF")
 pal.CC <- c("#004949FF", "#009292FF")
-pal.pel <- c("#FF6DB6FF", "#004949FF")
-pal.ben <- c("#FFB6DBFF", "#009292FF")
+pal.ben <- c("#FF6DB6FF", "#004949FF")
+pal.pel <- c("#FFB6DBFF", "#009292FF")
 
 pal.pols.isotop <- c("#E31A1C", "#7570B3", "#1F78B4","#A6CEE3", "#E6AB02","#A6761D", "#E5C494","#1B9E77","#882255")
 pal.pols <- c("#E31A1C", "#7570B3" ,"#1F78B4","#E6AB02", "#A6761D", "#1B9E77","#882255")
@@ -249,18 +249,18 @@ PCoA_plot_all <-
   #Plot the points of the NMDS, select what you want as shape and color from metadata
   geom_point(size = 5, aes(color = Location_Habitat, shape = Polymer, stroke = 1, fill = Location_Habitat))  +
   theme_pubr() +
-  theme(axis.text.y = element_text(colour = "black", size = 10),
-        axis.text.x = element_text(colour = "black", size = 10),
-        legend.text = element_text(size = 10, colour ="black"),
+  theme(axis.text.y = element_text(colour = "black", size = 11),
+        axis.text.x = element_text(colour = "black", size = 11),
+        legend.text = element_text(size = 11, colour ="black"),
         legend.position="right", legend.box = "vertical", 
-        axis.title.y = element_text(face = "bold", size = 11),
-        axis.title.x = element_text(face = "bold", size = 11, colour = "black"),
-        legend.title = element_text(size = 11, colour = "black", face = "bold"),
+        axis.title.y = element_text(face = "bold", size = 12),
+        axis.title.x = element_text(face = "bold", size = 12, colour = "black"),
+        legend.title = element_text(size = 12, colour = "black", face = "bold"),
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1.2),
         legend.key=element_blank(),
         plot.title = element_text(size = 12, face = "bold", hjust = 0.5, vjust = 1)) +
   # Set axislabels and title 
-  labs(title = "PCoA plastic communities",
+  labs(title = "",
        x = labs[1], y = labs[2])  + 
  scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
   scale_fill_manual(values = pal.loc.hab) +      #<- Pick the correct colorpalette, based on your fill 
