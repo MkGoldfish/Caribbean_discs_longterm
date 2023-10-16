@@ -330,7 +330,7 @@ write.table(Permanova_cc.2.q,"../Analysis/Permanova/PERM_CC_additive.txt" )
 ## PERMDISP CC -------------------------------------------------------
 # homogeneity of dispersion test between distances
 # The median centroid method is more robust and less sensitive to outliers, aka better for scattered/environmental data
-PD_cc_hab <- permutest(betadisper(aitd_i_cc, samp_i.cc$Habitat, type = 'median', sqrt.dist = F, add = F ), 
+PD_cc_hab <- permutest(betadisper(aitd_i_cc, samp_i.cc$Treatment, type = 'median', sqrt.dist = F, add = F ), 
                       model = 'full', pairwise = F, permutations = perm)
 
 # Adjust p-values to q-values, add to df, write table to store results
@@ -369,7 +369,7 @@ write.table(Permanova_cb.2.q,"../Analysis/Permanova/PERM_CB_additive.txt" )
 ## PERMDISP CB -------------------------------------------------------
 # homogeneity of dispersion test between distances
 # The median centroid method is more robust and less sensitive to outliers, aka better for scattered/environmental data
-PD_cb_hab <- permutest(betadisper(aitd_i_cb, samp_i.cb$Habitat, type = 'median', sqrt.dist = F, add = F ), 
+PD_cb_hab <- permutest(betadisper(aitd_i_cb, samp_i.cb$Treatment, type = 'median', sqrt.dist = F, add = F ), 
                        model = 'full', pairwise = F, permutations = perm)
 
 # Adjust p-values to q-values, add to df, write table to store results
@@ -405,7 +405,7 @@ write.table(Permanova_p.1.q,"../Analysis/Permanova/PERM_pelagic.full.txt" )
 ## PERMDISP Pel -------------------------------------------------------
 # homogeneity of dispersion test between distances
 # The median centroid method is more robust and less sensitive to outliers, aka better for scattered/environmental data
-PD_P_loc <- permutest(betadisper(aitd_P, samp_p$Location, type = 'median', sqrt.dist = F, add = F ), 
+PD_P_loc <- permutest(betadisper(aitd_P, samp_p$Treatment, type = 'median', sqrt.dist = F, add = F ), 
                        model = 'full', pairwise = F, permutations = perm)
 
 # Adjust p-values to q-values, add to df, write table to store results
@@ -441,7 +441,7 @@ write.table(Permanova_b.1.q,"../Analysis/Permanova/PERM_benthic.full.txt" )
 ## PERMDISP CB -------------------------------------------------------
 # homogeneity of dispersion test between distances
 # The median centroid method is more robust and less sensitive to outliers, aka better for scattered/environmental data
-PD_b_loc <- permutest(betadisper(aitd_B, samp_b$Location, type = 'median', sqrt.dist = F, add = F ), 
+PD_b_loc <- permutest(betadisper(aitd_B, samp_b$Treatment, type = 'median', sqrt.dist = F, add = F ), 
                        model = 'full', pairwise = F, permutations = perm)
 
 # Adjust p-values to q-values, add to df, write table to store results

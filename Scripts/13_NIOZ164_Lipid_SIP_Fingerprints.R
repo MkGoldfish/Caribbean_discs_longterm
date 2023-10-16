@@ -131,9 +131,9 @@ CB
 df.cc <- df.m %>% filter(Location == "Crooks Castle ")
 
 CC <- ggplot(df.cc) +         #Pick data to plot
-  geom_bar(data = subset(df.cb, Variable == "Rel.Abund"), aes(x = Fatty.Acid, y = Value),
+  geom_bar(data = subset(df.cc, Variable == "Rel.Abund"), aes(x = Fatty.Acid, y = Value),
            stat="identity", position="stack")+
-  geom_point(data = subset(df.cb, Variable =="d13C"), aes(x = Fatty.Acid, y = Value))+
+  geom_point(data = subset(df.cc, Variable =="d13C"), aes(x = Fatty.Acid, y = Value))+
   scale_y_continuous(position = "right") +
   facet_nested(fct_relevel(Habitat, 'Pelagic', 'Benthic')  + Variable ~ Polymer + fct_relevel(Treatment, "UV", "noUV"),
                drop = T, scale = "free_y",
