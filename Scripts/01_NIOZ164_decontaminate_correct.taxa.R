@@ -109,7 +109,7 @@ write.table(Mean, "../Analysis/microDecon/NIOZ164_removed_reads_per_group_avg.tx
 # It is there present as 1 string column, were the different taxonomic levels are seperated by  ";"
 # This column needs to be split for phyloseq
 tax.decon <- asv.decon.2 %>% select(OTU.ID, taxonomy) %>% column_to_rownames("OTU.ID") %>%  
-separate(taxonomy, into = c( "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"), sep = ";") %>% as.matrix()
+                              separate(taxonomy, into = c( "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"), sep = ";") %>% as.matrix()
 tax.decon <- tax.decon  %>% tax_table()
 head(tax.decon)
 
@@ -132,12 +132,75 @@ saveRDS(physeq_decon, "../Analysis/NIOZ164_physeq_object_decontamed.rds")
 # After, we apply a loop on the taxonomy table to redefine "weird" taxonomy into a single communstring unassigned
 
 physeq_decon <- readRDS("../Analysis/NIOZ164_physeq_object_decontamed.rds")
+sample_data(physeq_decon)
 
-source("wonky_tonky_taxonomy.R")
-wonky_tonky_taxonomy(physeq_decon)
+physeq_decon.1 <- subset_samples(physeq_decon, Phase %in% c('Disc', 'Wild'))
+sample_data(physeq_decon.1)
+
+summarize_phyloseq(physeq_decon.1)
+#"1] Min. number of reads = 7608"
+# "2] Max. number of reads = 549481"
+#  "3] Total number of reads = 9,095,909"
+#  "4] Average number of reads = 133763.3676"
+# "5] Median number of reads = 102835.5"
+# "7] Sparsity = 0.9887"
+#  "6] Any OTU sum to 1 or less? YES"
+#  "8] Number of singletons = 53416"
+
+source("basic_info_physeq_object.R")
+basic_info_physeq_object(physeq_decon.1)
+# "Total taxa is 78748"
+# "Total samples is 68"
+#  "Lowest readnumber is 7608"
+#  "Highest readnumber is 549481"
+# "Lowest taxa sum is 0"
+# "Highest taxa sum is 225095"
+
+physeq_object <- physeq_decon.1
+## Remove Wonky Tonky Taxonomy
+  get_taxa_unique(physeq_object , "Kingdom") # unassigned in Kingdom
+  physeq_object <- subset_taxa(physeq_object , !is.na(Kingdom) & !Kingdom%in% c(" ", "Unassigned", "unassigned", "NA")) #let's eliminate those otus
+  get_taxa_unique(physeq_object , "Kingdom") # all good now
+  
+  # get_taxa_unique(physeq_object, "Phylum") # let's check the Phyla, there's "NA"
+  length(get_taxa_unique(physeq_object,"Phylum"))  
+  physeq_object <- subset_taxa(physeq_object, !is.na(Phylum) & !Phylum%in% c(" ", "Unassigned", "unassigned", "NA")) 
+  get_taxa_unique(physeq_object, "Phylum")
+  length(get_taxa_unique(physeq_object,"Phylum")) 
+  
+summarize_phyloseq(physeq_object)
+# Min. number of reads = 7554"
+# Max. number of reads = 544817"
+# Total number of reads = 9,055,588"
+
+# %unassigned kingdom + Phylum 
+100 * (9095909 - 9055588)/9880102
+
+  length(get_taxa_unique(physeq_object,"Order"))
+  physeq_object <- subset_taxa(physeq_object, !Order%in% c(" Chloroplast", "Chloroplast", "chloroplast", " chloroplast"))
+  length(get_taxa_unique(physeq_object,"Order"))
+  
+  length(get_taxa_unique(physeq_object,"Family"))
+  physeq_object <- subset_taxa(physeq_object, !Family%in% c("Mitochondria", " Mitochondria"))
+  length(get_taxa_unique(physeq_object,"Family"))
+
+physeq_decon.2 <- physeq_object 
+
+summarize_phyloseq(physeq_decon.2)
+#"1] Min. number of reads = 7301"
+# "2] Max. number of reads = 539,188"
+#  "3] Total number of reads = 8,819,396"
+#  "4] Average number of reads = 129697"
+# "5] Median number of reads = 100505"
+# "7] Sparsity = 0.9883"
+#  "6] Any OTU sum to 1 or less? YES"
+#  "8] Number of singletons = 48156"
+
+##% Mitochondria and chloroplasts
+100 * (9055588 - 8819396)/9880102
 
 # extract tax table as dataframe
-taxo <- as.data.frame(physeq_decon@tax_table)
+taxo <- as.data.frame(physeq_decon.2@tax_table)
 
 # Loooop
 for (i in 1:nrow(taxo)) {
@@ -151,28 +214,22 @@ for (i in 1:nrow(taxo)) {
 taxo <- tax_table(as.matrix(taxo))
 
 # Merge corrected taxonomy with other elements to create phyloseq object -------------------------------------
-physeq_decon.1 <- merge_phyloseq(otu_table(physeq_decon), taxo, sample_data(physeq_decon)) 
+physeq_decon.3 <- merge_phyloseq(otu_table(physeq_decon.2), taxo, sample_data(physeq_decon.2)) 
 
-summarize_phyloseq(physeq_decon.1)
+summarize_phyloseq(physeq_decon.3)
 #"1] Min. number of reads = 7301"
-# "2] Max. number of reads = 539188"
-#  "3] Total number of reads = 10279736"
-#  "4] Average number of reads = 119531.813953488"
-# "5] Median number of reads = 89666.5"
-# "7] Sparsity = 0.980317379653689"
+# "2] Max. number of reads = 539,188"
+#  "3] Total number of reads = 8,819,396"
+#  "4] Average number of reads = 129697"
+# "5] Median number of reads = 100505"
+# "7] Sparsity = 0.9883"
 #  "6] Any OTU sum to 1 or less? YES"
-#  "8] Number of singletons = 32911"
+#  "8] Number of singletons = 48156"
 
-source("basic_info_physeq_object.R")
-basic_info_physeq_object(physeq_decon.1)
-# "Total taxa is 71573"
-# "Total samples is 86"
-#  "Lowest readnumber is 7301"
-#  "Highest readnumber is 539188"
-# "Lowest taxa sum is 0"
-# "Highest taxa sum is 225095"
+#Yay, still the same amounts. 
 
-saveRDS(physeq_decon.1, "../Analysis/NIOZ164_physeq_object_decontamed_tax.corrected.rds")
+
+saveRDS(physeq_decon.3, "../Analysis/NIOZ164_physeq_object_decontamed_tax.corrected.rds")
 
 # Create and store tidy tibble 16S Data ------------
 source("tidy_tibble_maker.R")

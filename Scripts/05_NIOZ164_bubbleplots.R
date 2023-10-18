@@ -51,10 +51,10 @@ unique(tt.wild$Location)
 unique(tt.wild$Method)
 unique(tt.wild$Polymer)
 
-tt.filt <- tt %>% filter(Phase == "Filter" ) %>% filter(!Treatment == "NA ")
-unique(tt.inc$Location)
-unique(tt.inc$Treatment)
-unique(tt.inc$Polymer)
+# tt.filt <- tt %>% filter(Phase == "Filter" ) %>% filter(!Treatment == "NA ")
+# unique(tt.inc$Location)
+# unique(tt.inc$Treatment)
+# unique(tt.inc$Polymer)
 
 ## Colors for plotting --------------------------------------------------------------------
 pal_isme <- c("#006d77", "#ffddd2", "#00C49A", "#e29578", "#83c5be")
@@ -78,7 +78,7 @@ colors_M1 <- c("#004e64", "#ecc8af", "#F2AF29", "#436436", "#00a5cf",
 
 ## Genus Relative Abundance --------------------------------------------------------------------
 Genus <- tt.inc  %>%  select(Description, Location, Habitat, Polymer, Isotope, Polymer_Isotope, Backbone, Treatment, 
-                             Phylum, Genus, Genus_rel_abund_Sample) %>% 
+                             Phylum, Genus, Genus_rel_abund_Sample, Sample_rel_abund, Sample_st_dev) %>% 
   distinct() 
 
 Genus.pel <- Genus %>% filter(Habitat == "Pelagic")  
@@ -98,7 +98,7 @@ Genus %>%  group_by(Description) %>%  filter(Genus_rel_abund_Sample > 0.01) %>%
 Genus_top_pel <- Genus.pel %>% dplyr::select(Description, Genus, Genus_rel_abund_Sample) %>% 
   filter ( !Genus %in% c("NA", "unassigned")) %>%  #First remove unassigned genera
   mutate(across(c(Description),factor))%>% distinct() %>% 
-  group_by(Description) %>% slice_max(order_by = Genus_rel_abund_Sample, n = 3) %>% ungroup()
+  group_by(Description) %>% slice_max(order_by = Genus_rel_abund_Sample, n = 4) %>% ungroup()
 
 # #Check how much/which genera we find
 # unique(Genus_top$Genus)
@@ -107,18 +107,16 @@ Genus_top_pel <- Genus.pel %>% dplyr::select(Description, Genus, Genus_rel_abund
 
 #Filter genera with RA>1%, to avoid bubbles with 0 value
 top_genus_pel= Genus.pel %>% filter(Genus%in%unique((c(Genus_top_pel$Genus)))) %>%  
-  filter(Genus_rel_abund_Sample > 0.01) %>% distinct()
+  filter(Genus_rel_abund_Sample > 0.005) %>% distinct()
 top.gen.pel <- top_genus_pel %>% select(Genus) %>% unique() 
 
-
-
 top_genus_pel$Genus <- factor(top_genus_pel$Genus, levels=rev(sort(unique(top_genus_pel$Genus))))
-top_genus_pel <- top_genus_pel %>% arrange(Order)
+# top_genus_pel <- top_genus_pel %>% arrange(Order)
 
 Genus_bubble_pel <- ggplot(top_genus_pel,aes(x=interaction(Polymer_Isotope,Backbone),y= Genus)) +
   geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA, alpha = 0.5) +
   scale_fill_manual(values = pal.pols.isotop) +
-  scale_size(range = c(3,10))+
+  scale_size(range = c(3,9))+
   
   ylab("") +
   xlab("") +  
@@ -162,7 +160,7 @@ Genus_bubble_pel
 Genus_top_bent <- Genus.bent %>% dplyr::select(Description, Genus, Genus_rel_abund_Sample) %>% 
   filter ( !Genus %in% c("NA", "unassigned")) %>%  #First remove unassigned genera
   mutate(across(c(Description),factor))%>% distinct() %>% 
-  group_by(Description) %>% slice_max(order_by = Genus_rel_abund_Sample, n = 3) %>% ungroup()
+  group_by(Description) %>% slice_max(order_by = Genus_rel_abund_Sample, n = 4) %>% ungroup()
 
 # #Check how much/which genera we find
 # unique(Genus_top$Genus)
@@ -171,16 +169,16 @@ Genus_top_bent <- Genus.bent %>% dplyr::select(Description, Genus, Genus_rel_abu
 
 #Filter genera with RA>1%, to avoid bubbles with 0 value
 top_genus_bent= Genus.bent %>% filter(Genus%in%unique((c(Genus_top_bent$Genus)))) %>%  
-  filter(Genus_rel_abund_Sample > 0.01) 
+  filter(Genus_rel_abund_Sample > 0.005) 
 top.gen.bent <- top_genus_bent %>% select(Genus) %>% unique() 
 
 top_genus_bent$Genus <- factor(top_genus_bent$Genus, levels=rev(sort(unique(top_genus$Genus))))
-top_genus_bent <- top_genus_bent %>% arrange(Order)
+# top_genus_bent <- top_genus_bent %>% arrange(Order)
 
 Genus_bubble_bent <- ggplot(top_genus_bent,aes(x=interaction(Polymer_Isotope,Backbone),y= Genus)) +
   geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA, alpha = 0.5) +
   scale_fill_manual(values = pal.pols.isotop) +
-  scale_size(range = c(3,10))+
+  scale_size(range = c(2,7))+
   ylab("") +
   xlab("") +  
   facet_nested(Habitat + Phylum  ~ Location + Treatment, drop = T, 
@@ -235,27 +233,29 @@ plot_grid(Genus_bubble_pel + theme( axis.text.x = element_blank(),
           rel_heights = c(1,1.5))
 
 #### Calculate sum_percentage of the top genera per incubation habitat ----------------------------
-top.gen.pel.avg <- Genus_top_pel %>% group_by(Description) %>% 
-  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean = mean(sum)) * 100
+top.gen.pel <- Genus %>% filter(Genus %in% Genus_top_pel$Genus)
+top.gen.pel.avg <- top.gen.pel %>% group_by(Description) %>% 
+            summarise(sum = sum(Sample_rel_abund)) %>% summarise(mean= mean(sum)) *100
 
-top.gen.pel.sd <- Genus_top_pel %>% group_by(Description) %>% 
-  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+top.gen.pel.sd <- top.gen.pel %>% group_by(Description) %>% 
+  summarise(sd = sd(Sample_rel_abund)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
 
 top.gen.pel.avg
 top.gen.pel.sd
 
 
-top.gen.bent.avg <- Genus_top_bent %>% group_by(Description) %>% 
-  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean = mean(sum)) * 100
+top.gen.bent <- Genus %>% filter(Genus %in% Genus_top_bent$Genus)
+top.gen.bent.avg <- top.gen.bent %>% group_by(Description) %>%
+  summarise(sum = sum(Sample_rel_abund)) %>% summarise(mean= mean(sum)) *100
 
-top.gen.bent.sd <- Genus_top_bent %>% group_by(Description) %>% 
-  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+top.gen.bent.sd <- top.gen.ben %>% group_by(Description) %>%
+  summarise(sd = sd(Sample_rel_abund)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
 
 top.gen.bent.avg
 top.gen.bent.sd
 
 ### Wild plastic-----------------------------------------------------------------
-Genus.wild <- tt.wild  %>%  select(Location, Habitat, Description, Phylum, Order, Genus, Genus_rel_abund_Sample)%>% 
+Genus.wild <- tt.wild  %>%  select(Location, Habitat, Description, Phylum, Order, Genus, Genus_rel_abund_Sample, Sample_rel_abund)%>% 
   distinct() 
 
 # select top_n genera per sample Genera for plotting
@@ -317,12 +317,14 @@ Genus_bubble <- ggplot(top_genus_wild,aes(x=Description, y= Genus)) +
 Genus_bubble
 
 #### Calculate sum_percentage of the top genera on wild plastics ----------------------------
-top.gen.wild.avg <- Genus_top_wild %>% group_by(Description) %>% 
-  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean = mean(sum)) * 100
+top.gen.wild <- Genus.wild %>% filter(Genus %in% Genus_top_wild$Genus)
+top.gen.wild.avg <- top.gen.wild %>% group_by(Description) %>% 
+  summarise(sum = sum(Genus_rel_abund_Sample)) %>% summarise(mean = mean(sum)) *100
 
-top.gen.wild.sd <- Genus_top_wild %>% group_by(Description) %>% 
-  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+top.gen.wild.sd <- top.gen.wild %>% group_by(Description) %>% 
+  summarise(sd = sd(Genus_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) * 100 
 
+            
 top.gen.wild.avg
 top.gen.wild.sd
 

@@ -46,8 +46,8 @@ head(meta)
 
 # Import RA tibble to calculate percentages of top taxa
 tt <- read.csv('../Processed-Data/NIOZ164_EUX_discs_RA_tidy_data_decontamed_tax.correct_pruned.csv', row.names = NULL)
-Phyla <- tt %>%  select( Description, Phylum, Phylum_rel_abund_Sample)  %>% distinct()
-Orders<- tt %>%  select( Description, Order, Order_rel_abund_Sample)  %>% distinct()
+Phyla <- tt %>%  select( Description, Location, Phylum, Phylum_rel_abund_Sample, Sample_rel_abund, Sample_st_dev)  %>% distinct()
+Orders<- tt %>%  select( Description, Location, Order, Order_rel_abund_Sample, Sample_rel_abund, Sample_st_dev)  %>% distinct()
 Arch <- tt %>% filter(Kingdom == "Archaea")
   
 
@@ -112,28 +112,31 @@ top_all <-top_taxa(ps.prune.rel.phyl, n = 7)
 # "Proteobacteria"   "Bacteroidota"     "Actinobacteriota" "Firmicutes"       "Desulfobacterota" "Planctomycetota" "Cyanobacteria" 
 
 ### Calculate the percentage of reads belonging to these taxa in the sample set
-top.phyl.wild.avg <- Phyla %>% filter(Phylum %in% top_wild) %>% filter(Phylum_rel_abund_Sample > 0) %>% 
-   group_by(Sample) %>% summarise(mean = mean(Phylum_rel_abund_Sample)) %>% summarise(sum = sum(mean)) *100 
-top.phyl.wild.sd <- Phyla %>% filter(Phylum %in% top_wild) %>% filter(Phylum_rel_abund_Sample > 0) %>% 
-  group_by(Phylum) %>% summarise(sd = sd(Phylum_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+top.phyl.wild <- Phyla %>% filter(Location == "Zeelandia") %>% filter(Phylum %in% top_wild) 
+top.phyl.wild.avg <- top.phyl.wild %>%
+   group_by(Description) %>% summarise(sum = sum(Sample_rel_abund)) %>% summarise(mean= mean(sum)) *100
+top.phyl.wild.sd <- top.phyl.wild %>% 
+  group_by(Description) %>%  summarise(sd = sd(Sample_rel_abund)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
 
 top.phyl.wild.avg
 top.phyl.wild.sd
 
 
-top.phyl.inc.avg <- Phyla %>% filter(Phylum %in% top_inc) %>% filter(Phylum_rel_abund_Sample > 0) %>% 
-  group_by(Phylum) %>% summarise(mean = mean(Phylum_rel_abund_Sample)) %>% summarise(sum = sum(mean)) *100 
-top.phyl.inc.sd <- Phyla %>% filter(Phylum %in% top_inc) %>% filter(Phylum_rel_abund_Sample > 0) %>% 
-  group_by(Phylum) %>% summarise(sd = sd(Phylum_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+top.phyl.inc <- Phyla %>% filter(Location %in% c("Charles Brown", "Crooks Castle")) %>% filter(Phylum %in% top_inc) 
+top.phyl.inc.avg <- top.phyl.inc %>% 
+  group_by(Description) %>% summarise(sum = sum(Sample_rel_abund)) %>% summarise(mean= mean(sum)) *100
+top.phyl.inc.sd <- top.phyl.inc %>% 
+  group_by(Description) %>%  summarise(sd = sd(Sample_rel_abund)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
 
 top.phyl.inc.avg
 top.phyl.inc.sd
 
 
-top.phyl.all.avg <- Phyla %>% filter(Phylum %in% top_all) %>% filter(Phylum_rel_abund_Sample > 0) %>% 
-  group_by(Phylum) %>% summarise(mean = mean(Phylum_rel_abund_Sample)) %>% summarise(sum = sum(mean)) *100 
-top.phyl.all.sd <- Phyla %>% filter(Phylum %in% top_all) %>% filter(Phylum_rel_abund_Sample > 0) %>% 
-  group_by(Phylum) %>% summarise(sd = sd(Phylum_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+top.phyl.all <- Phyla %>% filter(Phylum %in% top_all) 
+top.phyl.all.avg <- top.phyl.all %>% 
+  group_by(Description) %>% summarise(sum = sum(Sample_rel_abund)) %>% summarise(mean= mean(sum)) *100
+top.phyl.all.sd <- top.phyl.all %>% 
+  group_by(Description) %>%  summarise(sd = sd(Sample_rel_abund)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
 
 top.phyl.all.avg
 top.phyl.all.sd
@@ -142,22 +145,21 @@ top.phyl.all.sd
 ### Order ----
 top_ord_wild <- top_taxa(ps.wild.ord.rel, n = 10)
 # [1] "Rhodobacterales"   "Chitinophagales"   "Enterobacterales"  "Flavobacteriales"  "Caulobacterales"   "Staphylococcales"  
-# "Rhizobiales"       "Lactobacillales"   "Burkholderiales"   "Pseudomonadales"   
-
+# "Rhizobiales"       "Lactobacillales"   "Burkholderiales"   "Pseudomonadales"
 
 top_ord_inc <- top_taxa(ps.inc.ord.rel, n = 10)
 # [1] "Rhodobacterales"     "Rhizobiales"         "Enterobacterales"    "Flavobacteriales"    "Chitinophagales"     
 # "Corynebacteriales"   "Staphylococcales"    "Desulfuromonadales" "Pseudomonadales"     "Thiotrichales" 
-     
 
-top_ord_all <-top_taxa(ps.prune.rel.ord, n = 10)
-# 1] "Rhodobacterales"     "Rhizobiales"         "Enterobacterales"    "Chitinophagales"     "Flavobacteriales"    
-# "Corynebacteriales"   "Staphylococcales"    "Caulobacterales" "Pseudomonadales"     "Desulfuromonadales"  
+top_ord_all <-top_taxa(ps.prune.rel.ord, n = 14)
+# [1] "Rhodobacterales"     "Rhizobiales"         "Enterobacterales"    "Chitinophagales"     "Flavobacteriales"    "Corynebacteriales"   
+# "Staphylococcales"    "Caulobacterales"    
+# [9] "Pseudomonadales"     "Desulfuromonadales"  "Thiotrichales"       "Propionibacteriales" "Burkholderiales"     "Steroidobacterales"  
 
-top.ord.all.avg <- Orders %>% filter(Order %in% top_ord_all) %>% filter(Order_rel_abund_Sample > 0) %>% 
-  group_by(Order) %>% summarise(mean = mean(Order_rel_abund_Sample)) %>% summarise(sum = sum(mean)) *100 
-top.ord.all.sd <- Orders %>% filter(Order %in% top_ord_all) %>% filter(Order_rel_abund_Sample > 0) %>% 
-  group_by(Order) %>% summarise(sd = sd(Order_rel_abund_Sample)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
+top.ord.all.avg <- Orders %>% filter(Order %in% top_ord_all) %>% 
+  group_by(Description) %>% summarise(sum = sum(Sample_rel_abund)) %>% summarise(mean= mean(sum)) *100 
+top.ord.all.sd <- Orders %>% filter(Order %in% top_ord_all) %>% 
+  group_by(Description) %>%  summarise(sd = sd(Sample_rel_abund)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
 
 top.ord.all.avg
 top.ord.all.sd

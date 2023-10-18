@@ -32,35 +32,36 @@ library(stringr)
 
 
 ## Import sequencing data ----------------------------------------------------------------------------
-tt <- read.csv('../Processed-Data/NIOZ164_EUX_discs_tidy_data_decontamed_pruned_RA.csv', na.strings = c(""))
+tt.1 <- read.csv('../Processed-Data/NIOZ164_EUX_discs_RA_tidy_data_decontamed_tax.correct_pruned.csv', na.strings = c(""))
 head(tt)
-tt$X <- NULL
+tt.1$X <- NULL
 
-# Remove the _ from the location names and treatments for plotting
-tt.1 <- tt %>%  mutate(Location = ifelse(Location == "Crooks_Castle", "Crooks Castle",
-                                   ifelse(Location == "Charles_Brown", "Charles Brown", Location)))
-tt.1 <- tt.1 %>%  mutate(Treatment = ifelse(Treatment == "no_UV", "no UV", Treatment))
-head(tt.1)
+unique(tt.1$Location)
+unique(tt.1$Method)
+unique(tt.1$Polymer)
+unique(tt.1$Phase)
 
 tt.inc <- tt.1 %>% filter(Phase == "Disc" ) 
 unique(tt.inc$Location)
+unique(tt.inc$Habitat)
 unique(tt.inc$Treatment)
 unique(tt.inc$Polymer)
 
 tt.wild <- tt.1 %>% filter(Method == "Collection") 
 unique(tt.wild$Location)
+unique(tt.wild$Habitat)
 unique(tt.wild$Method)
 unique(tt.wild$Polymer)
 
-tt.i.w. <- tt.1 %>% filter(Phase != "Filter" ) 
-unique(tt.i.w.$Location)
-unique(tt.i.w.$Treatment)
-unique(tt.i.w.$Polymer)
+tt.i.w. <- tt.1 # %>% filter(Phase != "Filter" ) 
+# unique(tt.i.w.$Location)
+# unique(tt.i.w.$Treatment)
+# unique(tt.i.w.$Polymer)
 
-tt.filt <- tt.1 %>% filter(Phase == "Filter" ) %>% filter(!Treatment == "NA ")
-unique(tt.inc$Location)
-unique(tt.inc$Treatment)
-unique(tt.inc$Polymer)
+# tt.filt <- tt.1 %>% filter(Phase == "Filter" ) %>% filter(!Treatment == "NA ")
+# unique(tt.inc$Location)
+# unique(tt.inc$Treatment)
+# unique(tt.inc$Polymer)
 
 ## PDB data ---------------------------------------------------------------------
 PDB_all <- read.delim("../Data/PlasticDB_all_data_20230904.txt", sep = '\t', dec = ".")
@@ -86,7 +87,7 @@ unique(PDB_clean$Phylum)
 unique(PDB_clean$Class)
 
 # What plastics can be found in PlasticDB
-Plastics <- PDB$Plastic %>% unique() %>% sort()
+Plastics <- PDB_all$Plastic %>% unique() %>% sort()
 
 # What genera can be found in PlasticDB
 pdb.gens <- PDB_clean$Genus %>% unique()
@@ -118,19 +119,32 @@ colors_M1 <- c("#004e64", "#ecc8af", "#F2AF29", "#436436", "#00a5cf",
 # PA/map of genera in PlasticDB ------------------------------------------------
 ## Combined data of wild and incubations ---------------------------------------
 Genus <- tt.i.w.  %>%  select(Description, Location, Habitat, Polymer, Isotope, Polymer_Isotope, Backbone, Treatment, 
-                             Phylum, Genus, Genus_rel_abund_Sample)%>% 
+                             Phylum, Genus, Genus_rel_abund_Sample) %>% 
   distinct() 
 
 # Create a unique vector of all genera we found
 found.genera <- Genus$Genus %>% unique() %>%  sort()
 str(found.genera)
 
-# Whih of our found genera are in PlasticDB?
+# Which of our found genera are in PlasticDB?
 gen.in.pdb <- PDB_clean %>% filter(Genus %in% found.genera)
 length(unique(gen.in.pdb$Genus))
 
 hcb.gen <- HCB_only[HCB_only %in% found.genera] 
 length(unique(hcb.gen))
+
+# Which of our found genera are in PlasticDB and HCB w RA> 0.5%
+Genus.filt <- Genus  %>%  filter(Genus_rel_abund_Sample > 0.005)%>% 
+  distinct() 
+
+found.gen.filt <- Genus.filt$Genus %>% unique() %>%  sort()
+
+gen.in.pdb <- PDB_clean %>% filter(Genus %in% found.gen.filt) 
+length(unique(gen.in.pdb$Genus))
+
+hcb.gen <- HCB_only[HCB_only %in% found.gen.filt] 
+length(unique(hcb.gen))
+
 
 #What non-PE Plastics that have the PE string do we find?
 PDB_clean %>% filter(str_detect(Plastic,"PE")) %>% select(Plastic) %>% unique()
@@ -202,16 +216,16 @@ plot.pdb
 # Bubbleplots -----------------------------------------------------------------
 ## Genera sequencing data incubations --------------------------------------------------------------------
 Genus <- tt.inc  %>%  select(Description, Location, Habitat, Polymer, Isotope, Polymer_Isotope, Backbone, Treatment, 
-                             Phylum, Genus, Genus_rel_abund_Sample)%>% 
+                             Phylum, Genus, Genus_rel_abund_Sample) %>% 
   distinct() 
 
 # Create a unique vector of all genera we found
-found.genera <- Genus$Genus %>% unique() %>%  sort()
+found.genera.inc <- Genus$Genus %>% unique() %>%  sort()
 str(found.genera)
 
 # Whih of our found genera are in PlasticDB?
-gen.in.pdb <- PDB_clean %>% filter(Genus %in% found.genera)
-length(unique(gen.in.pdb$Genus))
+gen.in.pdb.inc <- PDB_clean %>% filter(Genus %in% found.genera.inc)
+length(unique(gen.in.pdb.inc$Genus))
 
 #What non-PE Plastics that have the PE string do we find?
 PDB_clean %>% filter(str_detect(Plastic,"PE")) %>% select(Plastic) %>% unique()
@@ -389,16 +403,19 @@ HCB.PDB.Bubble
 
 ## Genera sequencing Wild plastic --------------------------------------------------------------------
 Genus <- tt.wild %>%  select(Description, Location, Habitat, Polymer, Isotope, Polymer_Isotope, Backbone, Treatment, 
-                             Phylum, Genus, Genus_rel_abund_Sample)%>% 
+                             Phylum, Genus, Genus_rel_abund_Sample) %>% 
   distinct() 
 
 # Create a unique vector of all genera we found
-found.genera <- Genus$Genus %>% unique() %>%  sort()
-str(found.genera)
+found.genera.w <- Genus$Genus %>% unique() %>%  sort()
+str(found.genera.w)
 
 # Whih of our found genera are in PlasticDB?
-gen.in.pdb <- PDB_clean %>% filter(Genus %in% found.genera)
-length(unique(gen.in.pdb$Genus))
+gen.in.pdb.w <- PDB_clean %>% filter(Genus %in% found.genera.w)
+length(unique(gen.in.pdb.w$Genus))
+
+intersect(gen.in.pdb.w$Genus, gen.in.pdb.inc$Genus)
+
 
 #What non-PE Plastics that have the PE string do we find?
 PDB_clean %>% filter(str_detect(Plastic,"PE")) %>% select(Plastic) %>% unique()
