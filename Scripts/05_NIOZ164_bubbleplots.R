@@ -15,7 +15,6 @@
 # Date: 2023 - 08 - 23
 # R-version: 4.3.1 
 
-
 ## Set working directory ------------------------------------------------------------------
 setwd("C:/Users/mgoudriaan/Documents/GitHub/Caribbean_discs_longterm/Scripts")
 set.seed(42)
@@ -29,7 +28,6 @@ library(emojifont)
 library(ggthemes)
 library(stringr)
 library(tidyverse)
-
 
 ## Import data ----------------------------------------------------------------------------
 tt <- read.csv('../Processed-Data/NIOZ164_EUX_discs_RA_tidy_data_decontamed_tax.correct_pruned.csv', na.strings = c(""))
@@ -77,7 +75,7 @@ colors_M1 <- c("#004e64", "#ecc8af", "#F2AF29", "#436436", "#00a5cf",
 # Generating bubbleplots --------------------------------------------------------------------
 
 ## Genus Relative Abundance --------------------------------------------------------------------
-Genus <- tt.inc  %>%  select(Description, Location, Habitat, Polymer, Isotope, Polymer_Isotope, Backbone, Treatment, 
+Genus <- tt.inc  %>%  select(Description, Location, Habitat, Polymer, Polymer_Isotope, Backbone, Treatment, 
                              Phylum, Genus, Genus_rel_abund_Sample, Sample_rel_abund, Sample_st_dev) %>% 
   distinct() 
 
@@ -97,8 +95,9 @@ Genus %>%  group_by(Description) %>%  filter(Genus_rel_abund_Sample > 0.01) %>%
 # select top_n genera per sample Genera for plotting
 Genus_top_pel <- Genus.pel %>% dplyr::select(Description, Genus, Genus_rel_abund_Sample) %>% 
   filter ( !Genus %in% c("NA", "unassigned")) %>%  #First remove unassigned genera
-  mutate(across(c(Description),factor))%>% distinct() %>% 
-  group_by(Description) %>% slice_max(order_by = Genus_rel_abund_Sample, n = 4) %>% ungroup()
+  mutate(across(c(Description),factor)) %>% distinct() %>% 
+  group_by(Description) %>% slice_max(order_by = Genus_rel_abund_Sample, n = 3) %>% 
+  ungroup()  
 
 # #Check how much/which genera we find
 # unique(Genus_top$Genus)
@@ -106,17 +105,17 @@ Genus_top_pel <- Genus.pel %>% dplyr::select(Description, Genus, Genus_rel_abund
 # Genus_top %>% filter(Genus_rel_abund_Sample > 0.01) %>% select(Genus) %>%  unique()
 
 #Filter genera with RA>1%, to avoid bubbles with 0 value
-top_genus_pel= Genus.pel %>% filter(Genus%in%unique((c(Genus_top_pel$Genus)))) %>%  
-  filter(Genus_rel_abund_Sample > 0.005) %>% distinct()
+top_genus_pel = Genus.pel %>% filter(Genus%in%unique((c(Genus_top_pel$Genus)))) %>%  
+  filter(Genus_rel_abund_Sample > 0.005)   %>% distinct()
 top.gen.pel <- top_genus_pel %>% select(Genus) %>% unique() 
 
 top_genus_pel$Genus <- factor(top_genus_pel$Genus, levels=rev(sort(unique(top_genus_pel$Genus))))
 # top_genus_pel <- top_genus_pel %>% arrange(Order)
 
 Genus_bubble_pel <- ggplot(top_genus_pel,aes(x=interaction(Polymer_Isotope,Backbone),y= Genus)) +
-  geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA, alpha = 0.5) +
+  geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA) +
   scale_fill_manual(values = pal.pols.isotop) +
-  scale_size(range = c(3,9))+
+  scale_size(range = c(3,8))+
   
   ylab("") +
   xlab("") +  
@@ -144,12 +143,12 @@ Genus_bubble_pel <- ggplot(top_genus_pel,aes(x=interaction(Polymer_Isotope,Backb
     plot.title = element_text(size = 20, hjust = 0.5),
     panel.border = element_rect(color = "grey90", fill = NA),
     ggh4x.axis.nestline.x = element_line(linetype = c(6,1,1), linewidth = 1, color = c("black", "darkgrey")),
-    ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5),
+    ggh4x.axis.nesttext.x = element_blank(),
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
     legend.position = "right") +
   guides( x = "axis_nested",
-  fill = FALSE) +
+  fill = "none") +
   labs(title = "", subtitle = "",
        fill = "Polymer", size = "Relative Abundance") 
 
@@ -160,7 +159,8 @@ Genus_bubble_pel
 Genus_top_bent <- Genus.bent %>% dplyr::select(Description, Genus, Genus_rel_abund_Sample) %>% 
   filter ( !Genus %in% c("NA", "unassigned")) %>%  #First remove unassigned genera
   mutate(across(c(Description),factor))%>% distinct() %>% 
-  group_by(Description) %>% slice_max(order_by = Genus_rel_abund_Sample, n = 4) %>% ungroup()
+  group_by(Description) %>% slice_max(order_by = Genus_rel_abund_Sample, n = 3) %>% 
+  ungroup()
 
 # #Check how much/which genera we find
 # unique(Genus_top$Genus)
@@ -169,16 +169,16 @@ Genus_top_bent <- Genus.bent %>% dplyr::select(Description, Genus, Genus_rel_abu
 
 #Filter genera with RA>1%, to avoid bubbles with 0 value
 top_genus_bent= Genus.bent %>% filter(Genus%in%unique((c(Genus_top_bent$Genus)))) %>%  
-  filter(Genus_rel_abund_Sample > 0.005) 
+  filter(Genus_rel_abund_Sample > 0.005) %>% distinct()
 top.gen.bent <- top_genus_bent %>% select(Genus) %>% unique() 
 
-top_genus_bent$Genus <- factor(top_genus_bent$Genus, levels=rev(sort(unique(top_genus$Genus))))
+top_genus_bent$Genus <- factor(top_genus_bent$Genus, levels=rev(sort(unique(top_genus_bent$Genus))))
 # top_genus_bent <- top_genus_bent %>% arrange(Order)
 
 Genus_bubble_bent <- ggplot(top_genus_bent,aes(x=interaction(Polymer_Isotope,Backbone),y= Genus)) +
-  geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA, alpha = 0.5) +
+  geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA) +
   scale_fill_manual(values = pal.pols.isotop) +
-  scale_size(range = c(2,7))+
+  scale_size(range = c(2.5,7))+
   ylab("") +
   xlab("") +  
   facet_nested(Habitat + Phylum  ~ Location + Treatment, drop = T, 
@@ -186,10 +186,10 @@ Genus_bubble_bent <- ggplot(top_genus_bent,aes(x=interaction(Polymer_Isotope,Bac
                axes = 'margins', as.table = F, 
                nest_line = element_line(),
                strip = strip_nested( size = "variable",
-                                     background_y =  elem_list_rect(color = c("#CC5800FF", rep_len("grey25",10)),
+                                     background_y =  elem_list_rect(color = c("#CC5800FF", rep_len("grey25",12)),
                                                                     fill = "white", linewidth = 1, by_layer_y = F),
-                                     text_y = elem_list_text(size = c(18,rep_len(13,10)), angle = c(270,rep_len(0,10)), 
-                                                             color = c("#CC5800FF",rep_len("grey25",10)), by_layer_y = F),
+                                     text_y = elem_list_text(size = c(18,rep_len(13,12)), angle = c(270,rep_len(0,12)), 
+                                                             color = c("#CC5800FF",rep_len("grey25",12)), by_layer_y = F),
                                      background_x = (element_rect(fill = "grey90", color = "grey90", linetype = 0))
                )) + 
   theme_minimal()+
@@ -205,7 +205,7 @@ Genus_bubble_bent <- ggplot(top_genus_bent,aes(x=interaction(Polymer_Isotope,Bac
     plot.title = element_text(size = 20, hjust = 0.5),
     panel.border = element_rect(color = "grey90", fill = NA),
     ggh4x.axis.nestline.x = element_line(linetype = c(6,1,1), linewidth = 1, color = c("black", "darkgrey")),
-    ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5),
+    ggh4x.axis.nesttext.x = element_blank(),
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
     legend.position = "right") +
@@ -230,7 +230,7 @@ plot_grid(Genus_bubble_pel + theme( axis.text.x = element_blank(),
           nrow = 2,
           align = 'v',
           axis = "ltbr",
-          rel_heights = c(1,1.5))
+          rel_heights = c(1,1.4))
 
 #### Calculate sum_percentage of the top genera per incubation habitat ----------------------------
 top.gen.pel <- Genus %>% filter(Genus %in% Genus_top_pel$Genus)
@@ -248,7 +248,7 @@ top.gen.bent <- Genus %>% filter(Genus %in% Genus_top_bent$Genus)
 top.gen.bent.avg <- top.gen.bent %>% group_by(Description) %>%
   summarise(sum = sum(Sample_rel_abund)) %>% summarise(mean= mean(sum)) *100
 
-top.gen.bent.sd <- top.gen.ben %>% group_by(Description) %>%
+top.gen.bent.sd <- top.gen.bent %>% group_by(Description) %>%
   summarise(sd = sd(Sample_rel_abund)) %>% summarise(sum_sd = sqrt(sum((sd)^2))) *100
 
 top.gen.bent.avg
@@ -261,24 +261,23 @@ Genus.wild <- tt.wild  %>%  select(Location, Habitat, Description, Phylum, Order
 # select top_n genera per sample Genera for plotting
 Genus_top_wild <- Genus.wild %>% dplyr::select(Description, Genus, Genus_rel_abund_Sample) %>% 
   filter ( !Genus %in% c("NA", "unassigned", " ")) %>%  #First remove unassigned genera
-  mutate(across(c(Description),factor))%>% distinct() %>% 
+  mutate(across(c(Description),factor)) %>% distinct() %>% 
   group_by(Description) %>% slice_max(order_by = Genus_rel_abund_Sample, n = 5) %>% ungroup()
 
 #Check how much/which genera we find
 unique(Genus_top_wild$Genus)
 # and with an RA above 1%
-Genus_top_wild %>% filter(Genus_rel_abund_Sample > 0.01) %>% select(Genus) %>%  unique()
+Genus_top_wild %>% filter(Genus_rel_abund_Sample > 0.005) %>% select(Genus) %>%  unique()
 
 #Filter genera with RA>1%, to avoid bubbles with 0 value
 top_genus_wild= Genus.wild %>% filter(Genus%in%unique((c(Genus_top_wild$Genus)))) %>%  
-  filter(Genus_rel_abund_Sample > 0.01) 
+  filter(Genus_rel_abund_Sample > 0.01) %>% distinct()
 top.gen.wild <- top_genus_wild %>% select(Genus) %>% unique() 
 
 top_genus_wild$Genus <- factor(top_genus_wild$Genus, levels=rev(sort(unique(top_genus_wild$Genus))))
-top_genus_wild <- top_genus_wild %>% arrange(Order)
 
 Genus_bubble <- ggplot(top_genus_wild,aes(x=Description, y= Genus)) +
-  geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Phylum)), shape = "circle filled", stroke = NA, alpha = 0.5) +
+  geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Phylum)), shape = "circle filled", stroke = 1, color = "grey25", alpha = 0.5) +
   scale_fill_manual(values = colors_M1) +
   scale_size(range = c(3,10))+
   guides( x = "axis_nested",  fill = FALSE) +
@@ -344,9 +343,9 @@ Family.bent %>% select(Family) %>%  unique() %>% count()
 #### Pelagic -------------------------------------------------------------------
 # select top_n genera per sample Genera for plotting
 Family_top_pel <- Family.pel %>% dplyr::select(Description, Family, Family_rel_abund_Sample) %>% 
-  filter ( !Family %in% c("NA", "unassigned")) %>%  #First remove unassigned genera
+  filter(!Family %in% c("NA", "unassigned")) %>%  #First remove unassigned genera
   mutate(across(c(Description),factor))%>% distinct() %>% 
-  group_by(Description) %>% slice_max(order_by = Family_rel_abund_Sample, n = 5) %>% ungroup()
+  group_by(Description) %>% slice_max(order_by = Family_rel_abund_Sample, n = 3) %>% ungroup()
 
 # #Check how much/which genera we find
 # unique(Family_top$Family)
@@ -355,14 +354,14 @@ Family_top_pel <- Family.pel %>% dplyr::select(Description, Family, Family_rel_a
 
 #Filter genera with RA>1%, to avoid bubbles with 0 value
 top_Family_pel= Family.pel %>% filter(Family%in%unique((c(Family_top_pel$Family)))) %>%  
-  filter(Family_rel_abund_Sample > 0.02) %>% distinct()
-top_Family %>% select(Family) %>% unique() 
+  filter(Family_rel_abund_Sample > 0.01) %>% distinct()
+top_Family_pel %>% select(Family) %>% unique() 
 
 top_Family_pel$Family <- factor(top_Family_pel$Family, levels=rev(sort(unique(top_Family_pel$Family))))
 # top_Family_pel <- top_Family_pel %>% arrange(Class)
 
 Family_bubble_pel <- ggplot(top_Family_pel,aes(x=interaction(Polymer_Isotope,Backbone),y= Family)) +
-  geom_point(aes(size=Family_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA, alpha = 0.75) +
+  geom_point(aes(size=Family_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA) +
   scale_fill_manual(values = pal.pols.isotop) +
   scale_size(range = c(3,10))+
   guides( x = "axis_nested",  fill = guide_legend(override.aes = list(size = 10, color = NA))) +
@@ -391,7 +390,7 @@ Family_bubble_pel <- ggplot(top_Family_pel,aes(x=interaction(Polymer_Isotope,Bac
     plot.title = element_text(size = 20, hjust = 0.5),
     panel.border = element_rect(color = "grey90", fill = NA),
     ggh4x.axis.nestline.x = element_line(linetype = c(6,1,1), linewidth = 1, color = c("black", "darkgrey")),
-    ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5),
+    ggh4x.axis.nesttext.x = element_blank(),
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
     legend.position = "bottom") +
@@ -405,7 +404,7 @@ Family_bubble_pel
 Family_top_bent <- Family.bent %>% dplyr::select(Description, Family, Family_rel_abund_Sample) %>% 
   filter ( !Family %in% c("NA", "unassigned")) %>%  #First remove unassigned genera
   mutate(across(c(Description),factor))%>% distinct() %>% 
-  group_by(Description) %>% slice_max(order_by = Family_rel_abund_Sample, n = 5) %>% ungroup()
+  group_by(Description) %>% slice_max(order_by = Family_rel_abund_Sample, n = 3) %>% ungroup()
 
 # #Check how much/which genera we find
 # unique(Family_top$Family)
@@ -414,14 +413,14 @@ Family_top_bent <- Family.bent %>% dplyr::select(Description, Family, Family_rel
 
 #Filter genera with RA>1%, to avoid bubbles with 0 value
 top_Family_bent= Family.bent %>% filter(Family%in%unique((c(Family_top_bent$Family)))) %>%  
-  filter(Family_rel_abund_Sample > 0.02) 
+  filter(Family_rel_abund_Sample > 0.01) 
 top_Family_bent %>% select(Family) %>% unique() 
 
 top_Family_bent$Family <- factor(top_Family_bent$Family, levels=rev(sort(unique(top_Family_bent$Family))))
 #top_Family_bent <- top_Family_bent %>% arrange(Class)
 
 Family_bubble_bent<- ggplot(top_Family_bent,aes(x=interaction(Polymer_Isotope,Backbone),y= Family)) +
-  geom_point(aes(size=Family_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA, alpha  = 0.75) +
+  geom_point(aes(size=Family_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA) +
   scale_fill_manual(values = pal.pols.isotop) +
   scale_size(range = c(3,10))+
   guides( x = "axis_nested",  fill = guide_legend(override.aes = list(size = 10, color = NA))) +
@@ -450,7 +449,7 @@ Family_bubble_bent<- ggplot(top_Family_bent,aes(x=interaction(Polymer_Isotope,Ba
     plot.title = element_text(size = 20, hjust = 0.5),
     panel.border = element_rect(color = "grey90", fill = NA),
     ggh4x.axis.nestline.x = element_line(linetype = c(6,1,1), linewidth = 1, color = c("black", "darkgrey")),
-    ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5),
+    ggh4x.axis.nesttext.x = element_blank(),
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
     legend.position = "bottom") +
@@ -483,7 +482,7 @@ Family.wild <- tt.wild  %>%  select(Location, Habitat, Description, Phylum, Fami
 Family_top_wild <- Family.wild %>% dplyr::select(Description, Family, Family_rel_abund_Sample) %>% 
   filter ( !Family %in% c("NA", "unassigned")) %>%  #First remove unassigned genera
   mutate(across(c(Description),factor))%>% distinct() %>% 
-  group_by(Description) %>% slice_max(order_by = Family_rel_abund_Sample, n = 8) %>% ungroup()
+  group_by(Description) %>% slice_max(order_by = Family_rel_abund_Sample, n = 5) %>% ungroup()
 
 # #Check how much/which genera we find
 # unique(Family_top$Family)
@@ -496,10 +495,9 @@ top_Family_wild= Family.wild %>% filter(Family%in%unique((c(Family_top_wild$Fami
 top_Family_wild %>% select(Family) %>% unique() 
 
 top_Family_wild$Family <- factor(top_Family_wild$Family, levels=rev(sort(unique(top_Family_wild$Family))))
-top_Family_wild <- top_Family_wild %>% arrange(Class)
 
 Family_bubble_wild <- ggplot(top_Family_wild,aes(x=Description,y= Family)) +
-  geom_point(aes(size=Family_rel_abund_Sample, fill = factor(Phylum)), shape = "circle filled", stroke = NA, alpha = 0.5) +
+  geom_point(aes(size=Family_rel_abund_Sample, fill = factor(Phylum)), shape = "circle filled", stroke = NA, alpha = 0.6) +
   scale_fill_manual(values = colors_M1) +
   scale_size(range = c(3,10))+
   guides( x = "axis_nested",  fill = FALSE) +

@@ -22,7 +22,6 @@ setwd("C:/Users/mgoudriaan/Documents/GitHub/Caribbean_discs_longterm/Scripts")
 # Load libraries -------------------------------------------------------------------------
 library(devtools)
 library(phyloseq)
-library(tidyverse)
 library(vegan)
 library(microbiome)
 library("ggh4x")
@@ -31,12 +30,13 @@ library("ggsci")
 library("cowplot")
 library(rvg)
 library(officer)
+library(tidyverse)
 
 # Import data ----------------------------------------------------------------------------
 physeq_object <- readRDS("../Analysis/NIOZ164_physeq_object_decontamed.rds")
 
 # Colors for plotting --------------------------------------------------------------------
-pal_isme <- c("#006d77", "#ffddd2", "#00C49A", "#e29578", "#83c5be")
+pal.iso <- c( "#00C49A", "#e29578",)
 
 pal.loc <- c("#FF6DB6FF" , "#004949FF",  "#66A61E")
 # CB, CC, Zeelandia
@@ -48,6 +48,7 @@ pal.pols.isotop <- c("#A6CEE3", "#1F78B4","#E5C494","#A6761D", "#7570B3" , "#E31
 # PE;PE-13C;PP;PP-13C;PS;PET;Nylon;Blanco
 pal.uv <- c("#DDCC77","#332288") 
 # UV, noUV
+pal.iso <- c( "#00C49A", "#e29578")
 
 # Calculate alpha diversity indices -----------------------------------------------------
 Alpha.Div <- phyloseq::estimate_richness(physeq_object, measures=c("Observed", "Simpson", "Shannon", "Chao1") )
@@ -238,21 +239,24 @@ Observed <- ggplot(Alpha.Discs,         #Pick data to plot
  geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   theme_pubclean()+
-  theme(legend.position = "top",
-        legend.key = element_rect(fill = "white", colour = "white"),
-        axis.text.x=element_text(size = 15, angle = 60, hjust = 1), 
-        axis.text.y=element_text(size= 15), 
-        legend.text=element_text(size = 15),
+  scale_y_continuous(position = 'right', sec.axis = dup_axis()) +
+  theme_pubclean()+
+  theme(axis.text.x = element_text(size = 13, angle = 60, hjust = 1), 
+        axis.text.y.right=element_text(size= 13), 
+        axis.text.y.left=element_blank(),
+        legend.text=element_text(size = 13),
         legend.title = element_text(size=15, face = "bold"),
-        axis.title.y = element_text(size= 20),
-        strip.text.x = element_text(size = 17),
+        axis.title.x = element_text(size=15),
+        axis.title.y.left = element_text(size=16),
+        axis.title.y.right =  element_blank(),
+        strip.text.x = element_text(size = 14),
+        strip.text.y = element_text(size = 14),
+        plot.title = element_blank(),
         panel.border = element_rect(color = "grey90", fill = NA),
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
-        panel.grid.major.x = element_blank(),
-        ggh4x.axis.nestline.x = element_line(linetype = c(6,1), linewidth = 1, color = c("black", "darkgrey")),
-        ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5)) +
-  scale_colour_manual(values = rev(Pal.plast)) +
-  scale_fill_manual(values = rev(Pal.plast)) +
+        panel.grid.major.x = element_blank()) +
+  scale_colour_manual(values = pal.loc) +
+  scale_fill_manual(values = pal.loc) +
   xlab("") +
   labs( title = "", color = "Location")
 
@@ -264,21 +268,24 @@ Chao1 <- ggplot(Alpha.Discs,         #Pick data to plot
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   theme_pubclean()+
-  theme(legend.position = "top",
-        legend.key = element_rect(fill = "white", colour = "white"),
-        axis.text.x=element_text(size = 15, angle = 60, hjust = 1), 
-        axis.text.y=element_text(size= 15), 
-        legend.text=element_text(size = 15),
+  scale_y_continuous(position = 'right', sec.axis = dup_axis()) +
+  theme_pubclean()+
+  theme(axis.text.x = element_text(size = 13, angle = 60, hjust = 1), 
+        axis.text.y.right=element_text(size= 13), 
+        axis.text.y.left=element_blank(),
+        legend.text=element_text(size = 13),
         legend.title = element_text(size=15, face = "bold"),
-        axis.title.y = element_text(size= 20),
-        strip.text.x = element_text(size = 17),
+        axis.title.x = element_text(size=15),
+        axis.title.y.left = element_text(size=16),
+        axis.title.y.right =  element_blank(),
+        strip.text.x = element_text(size = 14),
+        strip.text.y = element_text(size = 14),
+        plot.title = element_blank(),
         panel.border = element_rect(color = "grey90", fill = NA),
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
-        panel.grid.major.x = element_blank(),
-        ggh4x.axis.nestline.x = element_line(linetype = c(6,1), linewidth = 1, color = c("black", "darkgrey")),
-        ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5)) +
-  scale_colour_manual(values = rev(Pal.plast)) +
-  scale_fill_manual(values = rev(Pal.plast)) +
+        panel.grid.major.x = element_blank()) +
+  scale_colour_manual(values = pal.loc) +
+  scale_fill_manual(values = pal.loc) +
   xlab("") +
   labs( title = "", color = "Location")
 
@@ -289,22 +296,24 @@ Simpson <- ggplot(Alpha.Discs,         #Pick data to plot
                   aes(x= Location, y = Simpson, color = Location)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
+  scale_y_continuous(position = 'right', sec.axis = dup_axis()) +
   theme_pubclean()+
-  theme(legend.position = "top",
-        legend.key = element_rect(fill = "white", colour = "white"),
-        axis.text.x=element_text(size = 15, angle = 60, hjust = 1), 
-        axis.text.y=element_text(size= 15), 
-        legend.text=element_text(size = 15),
+  theme(axis.text.x = element_text(size = 13, angle = 60, hjust = 1), 
+        axis.text.y.right=element_text(size= 13), 
+        axis.text.y.left=element_blank(),
+        legend.text=element_text(size = 13),
         legend.title = element_text(size=15, face = "bold"),
-        axis.title.y = element_text(size= 20),
-        strip.text.x = element_text(size = 17),
+        axis.title.x = element_text(size=15),
+        axis.title.y.left = element_text(size = 16),
+        axis.title.y.right =  element_blank(),
+        strip.text.x = element_text(size = 14),
+        strip.text.y = element_text(size = 14),
+        plot.title = element_blank(),
         panel.border = element_rect(color = "grey90", fill = NA),
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
-        panel.grid.major.x = element_blank(),
-        ggh4x.axis.nestline.x = element_line(linetype = c(6,1), linewidth = 1, color = c("black", "darkgrey")),
-        ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5)) +
-  scale_colour_manual(values = rev(Pal.plast)) +
-  scale_fill_manual(values = rev(Pal.plast)) +
+        panel.grid.major.x = element_blank()) +
+  scale_colour_manual(values = pal.loc) +
+  scale_fill_manual(values = pal.loc) +
   xlab("") +
   labs( title = "", color = "Location")
 
@@ -316,22 +325,26 @@ Shannon <- ggplot(Alpha.Discs,         #Pick data to plot
                   aes(x= Location, y = Shannon, color = Location)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
+  scale_y_continuous(position = 'right', sec.axis = dup_axis()) +
   theme_pubclean()+
-  theme(legend.position = "top",
-        legend.key = element_rect(fill = "white", colour = "white"),
-        axis.text.x=element_text(size = 15, angle = 60, hjust = 1), 
-        axis.text.y=element_text(size= 15), 
-        legend.text=element_text(size = 15),
+  theme(axis.text.x = element_text(size = 13, angle = 60, hjust = 1), 
+        axis.text.y.right=element_text(size= 13), 
+        axis.text.y.left=element_blank(),
+        legend.text=element_text(size = 13),
         legend.title = element_text(size=15, face = "bold"),
-        axis.title.y = element_text(size= 20),
-        strip.text.x = element_text(size = 17),
+        axis.title.x = element_text(size=15),
+        axis.title.y.left = element_text(size=16),
+        axis.title.y.right =  element_blank(),
+        strip.text.x = element_text(size = 14),
+        strip.text.y = element_text(size = 14),
+        plot.title = element_blank(),
         panel.border = element_rect(color = "grey90", fill = NA),
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank(),
-        ggh4x.axis.nestline.x = element_line(linetype = c(6,1), linewidth = 1, color = c("black", "darkgrey")),
-        ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5)) +
-  scale_colour_manual(values = rev(Pal.plast)) +
-  scale_fill_manual(values = rev(Pal.plast)) +
+        legend.position = "bottom",
+        legend.key = element_rect(fill = NA)) +
+  scale_colour_manual(values = pal.loc) +
+  scale_fill_manual(values = pal.loc) +
   xlab("") +
   labs( title = "", color = "Location")
 
@@ -339,19 +352,19 @@ Shannon
 
 ## Combine panels with cowplot -------------------------------------------------- 
 legend.a <- get_legend(Shannon+
-                         theme(legend.direction = "horizontal",
-                               legend.title.align = 0.5))
+                         theme(legend.direction = "horizontal"))
 
-plot_grid(Observed + theme(legend.position ="none"),
+plot_grid(# Observed + theme(legend.position ="none"),
           Chao1 + theme(legend.position ="none"),
           Simpson + theme(legend.position ="none"),
           Shannon + theme(legend.position ="none"),
+          NULL,
           legend.a,
-          ncol = 2,
-          nrow = 3,
+          ncol = 3,
+          nrow = 2,
           align = 'v',
           axis = "l",
-          rel_heights = c(1,1,0.1),
+          rel_heights = c(1,0.1),
           rel_widths = c(1,1))
 
 
@@ -371,8 +384,8 @@ Alpha.Discs.isotopes <- Alpha.Discs %>%  filter( Polymer %in% c("PE", "PP"))
 colnames(Alpha.Discs.isotopes)
 
 ## Observed ----------------------------------------------------------------------------
-Observed <- ggplot(Alpha.Discs.inc,          #Pick data to plot
-                aes(x = Treatment, y = Observed,  color = Treatment)) + #Pick factors to use
+Observed <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
+                aes(x = Isotope, y = Observed,  color = Isotope)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
@@ -386,19 +399,20 @@ Observed <- ggplot(Alpha.Discs.inc,          #Pick data to plot
         axis.title.x = element_text(size=15),
         axis.title.y = element_text(size=15),
         strip.text.x = element_text(size = 13),
+        strip.text.y = element_text(size = 13),
         plot.title = element_blank(),
         panel.border = element_rect(color = "grey90", fill = NA),
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) +
   guides(alpha = "none") +
-  scale_colour_manual(values = pal.uv) +
-  scale_fill_manual(values = pal.uv) 
+  scale_colour_manual(values = pal.iso) +
+  scale_fill_manual(values = pal.iso) 
 
 Observed
 
 ## Chao1 ----------------------------------------------------------------------------
-Chao1 <- ggplot(Alpha.Discs.inc,          #Pick data to plot
-                   aes(x = Treatment, y = Chao1,  color =  Treatment)) + #Pick factors to use
+Chao1 <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
+                   aes(x = Isotope, y = Chao1,  color =  Isotope)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
@@ -412,19 +426,20 @@ Chao1 <- ggplot(Alpha.Discs.inc,          #Pick data to plot
         axis.title.x = element_text(size=15),
         axis.title.y = element_text(size=15),
         strip.text.x = element_text(size = 13),
+        strip.text.y = element_text(size = 13),
         plot.title = element_blank(),
         panel.border = element_rect(color = "grey90", fill = NA),
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) +
   guides(alpha = "none") +
-  scale_colour_manual(values = pal.uv) +
-  scale_fill_manual(values = pal.uv) 
+  scale_colour_manual(values = pal.iso) +
+  scale_fill_manual(values = pal.iso) 
 
 Chao1
 
 ## Simpson ----------------------------------------------------------------------------
-Simpson <- ggplot(Alpha.Discs.inc,          #Pick data to plot
-                aes(x =  Treatment, y = Simpson,  color =  Treatment)) + #Pick factors to use
+Simpson <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
+                aes(x =  Isotope, y = Simpson,  color =  Isotope)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
@@ -438,18 +453,20 @@ Simpson <- ggplot(Alpha.Discs.inc,          #Pick data to plot
         axis.title.x = element_text(size=15),
         axis.title.y = element_text(size=15),
         strip.text.x = element_text(size = 13),
+        strip.text.y = element_text(size = 13),
         plot.title = element_blank(),
         panel.border = element_rect(color = "grey90", fill = NA),
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) +
   guides(alpha = "none") +
-  scale_colour_manual(values = pal.uv) +
-  scale_fill_manual(values = pal.uv) 
+  scale_colour_manual(values = pal.iso) +
+  scale_fill_manual(values = pal.iso) 
+
 Simpson
 
 ## Shannon ----------------------------------------------------------------------------
-Shannon <- ggplot(Alpha.Discs.inc,          #Pick data to plot
-                  aes(x =  Treatment, y = Shannon,  color =  Treatment)) + #Pick factors to use
+Shannon <- ggplot(Alpha.Discs.isotopes,          #Pick data to plot
+                  aes(x =  Isotope, y = Shannon,  color =  Isotope)) + #Pick factors to use
   geom_boxplot(stat = "boxplot", outlier.colour =  NULL, linewidth = 1) +
   geom_point( position = "jitter", size = 3, alpha = 0.8) +
   facet_grid(fct_relevel(Habitat, "Pelagic", "Benthic") ~ Location, 
@@ -463,13 +480,14 @@ Shannon <- ggplot(Alpha.Discs.inc,          #Pick data to plot
         axis.title.x = element_text(size=15),
         axis.title.y = element_text(size=15),
         strip.text.x = element_text(size = 13),
+        strip.text.y = element_text(size = 13),
         plot.title = element_blank(),
         panel.border = element_rect(color = "grey90", fill = NA),
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
         panel.grid.major.x = element_blank()) +
   guides(alpha = "none") +
-  scale_colour_manual(values = pal.uv) +
-  scale_fill_manual(values = pal.uv) 
+  scale_colour_manual(values = pal.iso) +
+  scale_fill_manual(values = pal.iso) 
 
 Shannon
 
@@ -478,15 +496,16 @@ legend.a <- get_legend(Shannon+
                          theme(legend.direction = "horizontal",
                                legend.title.align = 0.5))
 
-plot_grid(Observed + theme(legend.position ="none"),
+plot_grid(#Observed + theme(legend.position ="none"),
           Chao1 + theme(legend.position ="none"),
           Simpson + theme(legend.position ="none"),
           Shannon + theme(legend.position ="none"),
+          NULL,
           legend.a,
-          ncol = 2,
-          nrow = 3,
+          ncol = 3,
+          nrow = 2,
           align = 'v',
           axis = "l",
-          rel_heights = c(1,1,0.1),
+          rel_heights = c(1,0.1),
           rel_widths = c(1,1))
 

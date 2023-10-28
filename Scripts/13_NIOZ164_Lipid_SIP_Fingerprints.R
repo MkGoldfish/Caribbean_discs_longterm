@@ -34,6 +34,9 @@ Areas <- read.delim("../Data/Lipid_areas_corrected_signals.txt", sep = '\t', dec
 d13C <- read.delim("../Data/Lipid_d13C_corrected_signals.txt", sep = '\t', na.strings = c(" "), dec = ".")
 metadata  <- read.delim("../Data/Metadata_lipids_R_plots.txt", sep = '\t')
 Biomass_average <- read.delim("../Data/Abundance_weigthed_average_13c_lipid.txt", sep = '\t')
+dim(Biomass_average)
+
+
 
 # Create one tibble for easy plotting ----------------------------------------------------
 # Remove the row of the standard and pivot
@@ -54,7 +57,7 @@ colnames(df.m)
 df.m$Fatty.Acid <- gsub( "w", "\u{03C9}", df.m$Fatty.Acid)
 # df.m$Variable <- gsub( "Rel.Abund", "Relative Abundance", df.m$Variable)
 unique(df.m$Polymer)
-
+unique(df.m$Fatty.Acid)
 
 # Plot Charles Brown ---------------------------------------------------------------------
 df.cb <- df.m %>% filter(Location == "Charles Brown")
@@ -71,6 +74,8 @@ CB <- ggplot(df.cb) +         #Pick data to plot
            stat="identity", position="stack")+
   geom_point(data = subset(df.cb, Variable =="d13C"), aes(x = Fatty.Acid, y = Value))+
   scale_y_continuous(position = "right") +
+  scale_x_discrete(limits = c("C14:1", "C14:0", "C15-ω5c",  "C15:1","C15:0", "C16:1", "C16:1-ω7c",
+                              "C16:0", "C17:1", "C17:0", "C18:1-ω9c", "C18:1-ω9t", "C18:0 ")) +
   facet_nested(fct_relevel(Habitat, 'Pelagic', 'Benthic')  + Variable ~ Polymer + fct_relevel(Treatment, "UV", "noUV"),
                 drop = T, scale = "free_y",
                 axes = 'margins', switch = "y", 
@@ -135,6 +140,8 @@ CC <- ggplot(df.cc) +         #Pick data to plot
            stat="identity", position="stack")+
   geom_point(data = subset(df.cc, Variable =="d13C"), aes(x = Fatty.Acid, y = Value))+
   scale_y_continuous(position = "right") +
+  scale_x_discrete(limits = c("C14:1", "C14:0", "C15-ω5c",  "C15:1","C15:0", "C16:1", "C16:1-ω7c",
+                             "C16:0", "C17:1", "C17:0", "C18:1-ω9c", "C18:1-ω9t", "C18:0 ")) +
   facet_nested(fct_relevel(Habitat, 'Pelagic', 'Benthic')  + Variable ~ Polymer + fct_relevel(Treatment, "UV", "noUV"),
                drop = T, scale = "free_y",
                axes = 'margins', switch = "y", 
@@ -161,17 +168,23 @@ CC
 
 # Plot average biomass value ---------------------------------------------------------------------
 df.bm.avg <-  inner_join(Biomass_average, metadata, by = "Sample", suffix = c("",".y")) 
+
+summary(df.bm.avg$Description == df.bm.avg$Description.y)
+summary(df.bm.avg$Location == df.bm.avg$Location.y)
 colnames(df.bm.avg)
 df.bm.avg$Description.y <-NULL
 df.bm.avg$Location.y <-NULL
 
 df.bm.avg$Polymer_Treatment <- str_c(df.bm.avg$Polymer, "_", df.bm.avg$Treatment)
+# df.bm.avg$Polymer_Treatment <- gsub( "-13C", "^13*C", df.bm.avg$Polymer_Treatment)
 # 
-pol.treat <- unique(df.bm.avg$Polymer_Treatment) %>% as.character()
-df.bm.avg$Polymer_Treatment <- factor(df.bm.avg$Polymer_Treatment,levels=pol.treat)
-levels(df.bm.avg$Polymer_Treatment) <- c("PE_noUV", "PE_UV", "PE^13*CnoUV", "PE^13*C_UV",
-                                         "PP_noUV", "PP_UV", "PP^13*C_noUV", "PP^13*C_UV", "Si_noUV" )
+# 
+# pol.treat <- unique(df.bm.avg$Polymer_Treatment) %>% as.character()
+# df.bm.avg$Polymer_Treatment <- factor(df.bm.avg$Polymer_Treatment,levels=pol.treat)
+# levels(df.bm.avg$Polymer_Treatment) <- c("PE_noUV", "PE_UV", "PE^13*C_noUV", "PE^13*C_UV",
+#                                          "PP_noUV", "PP_UV", "PP^13*C_noUV", "PP^13*C_UV", "Si_noUV" )
 
+df.bm.avg$Polymer_Treatment <- factor(df.bm.avg$Polymer_Treatment, levels=rev(sort(unique(df.bm.avg$Polymer_Treatment))))
 
 ggplot(df.bm.avg) +
   geom_col(aes(x = Polymer_Treatment, y = d13C.FA)) +
@@ -181,7 +194,7 @@ ggplot(df.bm.avg) +
              axes = 'margins',
              scale = "free",
              as.table = T) +
-  scale_x_discrete(labels = parse(text = levels(df.bm.avg$Polymer_Treatment))) +
+  scale_x_discrete(labels = str2expression(unique(df.bm.avg$Polymer_Treatment))) +
   theme_pubclean() +
   labs(y = expression("Abundance weighted average \u{03b4}"^13* "C fatty acids (\u2030)"), x = " ") +
   theme(axis.text.x=element_text(size = 12, angle = 60, hjust = 1), 

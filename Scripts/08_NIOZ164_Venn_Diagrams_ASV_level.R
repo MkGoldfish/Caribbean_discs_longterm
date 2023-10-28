@@ -25,12 +25,12 @@ set.seed(42)
 library(ggplot2)
 library(ggVennDiagram)
 library(stringr)
-library(tidyverse)
 library(rvg)
 library(officer)
 library(MicEco)
 library(eulerr)
 library(cowplot)
+library(tidyverse)
 
 # Import data ----------------------------------------------------------------------------
 source("basic_info_physeq_object.R")
@@ -40,7 +40,7 @@ summarize_phyloseq(physeq_object)
 basic_info_physeq_object(physeq_object)
 
 # "Lowest readnumber is 7301"
-# "Highest readnumber is 549477"
+# "Highest readnumber is 539184"
 # "Lowest taxa sum is 2"
 # "Highest taxa sum is 225095"
 
@@ -79,11 +79,12 @@ ps_CC <- physeq_object.1%>% subset_samples(Location == "Crooks Castle")
 ps_CB <- physeq_object.1 %>% subset_samples(Location == "Charles Brown") 
 ps_pel <- physeq_object.1 %>% subset_samples(Habitat == "Pelagic") 
 ps_bent <- physeq_object.1 %>% subset_samples(Habitat == "Benthic") 
+ps_pel_beach <- physeq_object.1 %>% subset_samples(Habitat %in% c("Pelagic", "Beach")) 
 
 # Use MicEco to create Euler diagram from physeq objects ----------------------------
 pal.loc <- c("#FF6DB6FF" , "#009292FF",  "#66A61E")
 # CB, CC, Zeelandia
-pal.habs<- c("#CC5800FF", "#51C3CCFF")
+pal.habs<- c()
 # Benthic, Pelagic
 pal.loc.hab <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
 # CB_P, CB_B, CC_P, CB_B, Zeelandia
@@ -102,6 +103,17 @@ venn.3locations <- ps_euler(physeq_object.1, "Location", fraction = 0.01,
                       legend = F)
 
 venn.3locations
+
+venn.3habitats <- ps_euler(ps_pel_beach, "Habitat", fraction = 0.01, 
+                            weight = F, plot = T, relative = F, 
+                            fills = list(fill = c("#66A61E", "#51C3CCFF")),
+                            edges = list(col = "white", lwd = 3), 
+                            labels = list(fontsize = 18, col = "black"),
+                            shape = "ellipse", 
+                            quantities = list(type=c ("percent", "counts"), fontsize = 15, col = "black", fontface = "bold"),
+                            legend = F)
+
+venn.3habitats
 
 venn.inc.loc <- ps_euler(ps_inc, "Location", fraction = 0.01, 
                      weight = F, plot = T, relative = F, 
@@ -171,7 +183,7 @@ venn.CC
 
 ## Plot grid of Venns ----------
 plot_grid(venn.3locations,
-          NULL,
+          venn.3habitats,
           venn.inc.loc,
           venn.inc.hab,
           venn.pelagic,

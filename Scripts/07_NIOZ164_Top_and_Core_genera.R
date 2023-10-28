@@ -236,68 +236,74 @@ top_CC_P <- top_taxa(ps.cc.p.gen.rel, n = 15)
 # determine core taxa
 # detection at least 1.0%, prevalence at least 10 of all the samples samples
 # gives the names of the core genera under given conditions
+core.all <- core_members(ps.pruned.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
+dim(core.all) #15 core taxa
+core.abundance.all <- sample_sums(core(ps.pruned.gen.rel, detection = 0.0025, prevalence = 1/2))
+mean(core.abundance.all) #29.6%
+sd(core.abundance.all) #14.5%
+
 core.wild <- core_members(ps.wild.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
 dim(core.wild) #15 core taxa
 core.abundance.wild <- sample_sums(core(ps.wild.gen.rel, detection = 0.0025, prevalence = 1/2))
-mean(core.abundance.wild)
-sd(core.abundance.wild)
+mean(core.abundance.wild) #44.4%
+sd(core.abundance.wild) #24.7%
 
 # write.table(core.families.taxa , '../core_community/21_core_families_detection0.01_prevalence0.25.txt',
 #             na = "NA", dec = '.', quote = F, sep = "\t")
 
 core.inc <- core_members(ps.inc.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
-dim(core.inc) #17 core taxa
+dim(core.inc) #16 core taxa
 core.abundance.inc <- sample_sums(core(ps.inc.gen.rel, detection = 0.0025, prevalence = 1/2)) 
-mean(core.abundance.inc)
-sd(core.abundance.inc)
+mean(core.abundance.inc) #30.0%
+sd(core.abundance.inc) #14.5%
 
 core.CB <- core_members(ps.cb.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
-dim(core.CB) #17 core taxa
+dim(core.CB) #16 core taxa
 core.abundance.CB <- sample_sums(core(ps.cb.gen.rel, detection = 0.0025, prevalence = 1/2)) 
-mean(core.abundance.CB)
-sd(core.abundance.CB)
+mean(core.abundance.CB) #25.4%
+sd(core.abundance.CB) #9.5%
 
 core.CC <- core_members(ps.cc.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
-dim(core.CC) #23 core taxa
+dim(core.CC) #22 core taxa
 core.abundance.CC <- sample_sums(core(ps.cc.gen.rel, detection = 0.0025, prevalence = 1/2)) 
-mean(core.abundance.CC)
-sd(core.abundance.CC)
+mean(core.abundance.CC) #40.8%
+sd(core.abundance.CC) #14.1%
 
 core.B <- core_members(ps.b.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
-dim(core.B) #38 core taxa
+dim(core.B) #39 core taxa
 core.abundance.B <- sample_sums(core(ps.b.gen.rel, detection = 0.0025, prevalence = 1/2)) 
-mean(core.abundance.B)
-sd(core.abundance.B)
+mean(core.abundance.B) #61.3%
+sd(core.abundance.B) #18.9%
 
 core.P <- core_members(ps.p.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
 dim(core.P) #17 core taxa
 core.abundance.P <- sample_sums(core(ps.p.gen.rel, detection = 0.0025, prevalence = 1/2)) 
-mean(core.abundance.P)
-sd(core.abundance.P)
+mean(core.abundance.P) #45.9%
+sd(core.abundance.P) #22.0%
 
 core.CB.P <- core_members(ps.cb.p.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
-dim(core.CB.P) #24 core taxa
+dim(core.CB.P) #23 core taxa
 core.abundance.CB.P <- sample_sums(core(ps.cb.p.gen.rel, detection = 0.0025, prevalence = 1/2)) 
-mean(core.abundance.CB.P)
-sd(core.abundance.CB.P)
+mean(core.abundance.CB.P) #66.2%
+sd(core.abundance.CB.P) #14.0%
 
 core.CC.P <- core_members(ps.cc.p.gen.rel, detection = 0.001, prevalence = 1/2) %>% enframe(value = "genus")
-dim(core.CC.P) #46 core taxa
-core.abundance.B <- sample_sums(core(ps.b.gen.rel, detection = 0.0025, prevalence = 1/2)) 
-mean(core.abundance.B)
-sd(core.abundance.B)
+dim(core.CC.P) #45 core taxa
+core.abundance.CC.P <- sample_sums(core(ps.cc.p.gen.rel, detection = 0.0025, prevalence = 1/2)) 
+mean(core.abundance.CC.P) #64.3%
+sd(core.abundance.CC.P) #13.8%
 
 core.CB.B <- core_members(ps.cb.b.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
-dim(core.CB.B) #40 core taxa
+dim(core.CB.B) #41 core taxa
 core.abundance.CB.B <- sample_sums(core(ps.cb.b.gen.rel, detection = 0.0025, prevalence = 1/2)) 
-mean(core.abundance.CB.B)
-sd(core.abundance.CB.B)
+mean(core.abundance.CB.B) #66.3%
+sd(core.abundance.CB.B) #13.5%
 
 core.CC.B <- core_members(ps.cc.b.gen.rel, detection = 0.0025, prevalence = 1/2) %>% enframe(value = "genus")
 dim(core.CC.B) #35 core taxa
 core.abundance.CC.B <- sample_sums(core(ps.cc.b.gen.rel, detection = 0.0025, prevalence = 1/2)) 
-mean(core.abundance.CC.B)
-sd(core.abundance.CC.B)
+mean(core.abundance.CC.B) #59.2%
+sd(core.abundance.CC.B) #22.1%
 
 
 
@@ -322,22 +328,22 @@ head(core_wide)
 write.csv(core_wide, "../Analysis/Core_Communites.csv", row.names = F)
 
 ## Compare core communities -------------------------------------
-inc.vs.wild <- setdiff(core.inc, core.wild) #16
-wild.vs.inc <- setdiff(core.wild, core.inc) #14
+inc.vs.wild <- setdiff(core.inc, core.wild) #15
+wild.vs.inc <- setdiff(core.wild, core.inc) #13
 inc.and.wild <- intersect(core.inc, core.wild) #1 
 
 P.vs.B <- setdiff(core.P, core.B) #17
-B.vs.P<- setdiff(core.B, core.P) #38
+B.vs.P<- setdiff(core.B, core.P) #39
 P.and.B <- intersect(core.P, core.B) #0
 
-CB.vs.CC <- setdiff(core.CB, core.CC) #16
-CC.vs.CB<- setdiff(core.CC, core.CB) #22
+CB.vs.CC <- setdiff(core.CB, core.CC) #15
+CC.vs.CB<- setdiff(core.CC, core.CB) #21
 CB.and.CC <- intersect(core.CB, core.CC) #1
 
-P.CB.vs.CC <- setdiff(core.CB.P, core.CC.P) #22
-P.CC.vs.CB<- setdiff(core.CC.P, core.CB.P) #44
+P.CB.vs.CC <- setdiff(core.CB.P, core.CC.P) #21
+P.CC.vs.CB<- setdiff(core.CC.P, core.CB.P) #43
 P.CB.and.CC <- intersect(core.CB.P, core.CC.P) #2
 
 B.CB.vs.CC <- setdiff(core.CB.B, core.CC.B) #38
-B.CC.vs.CB <- setdiff(core.CC.B, core.CB.B) #33
-B.CB.and.CC <- intersect(core.CB.B, core.CC.B) #2
+B.CC.vs.CB <- setdiff(core.CC.B, core.CB.B) #32
+B.CB.and.CC <- intersect(core.CB.B, core.CC.B) #3

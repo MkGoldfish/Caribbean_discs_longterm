@@ -14,6 +14,8 @@ s.b.zmzd	PP-13C_noUV_SD_CB	Charles Brown	Benthic	PP-13C	noUV
 s.b.7nzd	PP-13C_noUV_WC_CB	Charles Brown	Pelagic	PP-13C	noUV
 s.b.bnzd	PP-13C_UV_SD_CB	Charles Brown	Benthic	PP-13C	UV
 s.b.8nzd	PP-13C_UV_WC_CB	Charles Brown	Pelagic	PP-13C	UV
+s.b.tmzd	Si_noUV_SD_CB	Charles Brown	Benthic	Si	noUV
+s.b.1nzd	Si_noUV_WC_CB	Charles Brown	Pelagic	Si	noUV
 s.b.54yd	PE_noUV_SD_CC	Crooks Castle 	Benthic	PE	noUV
 s.b.f0yd	PE_noUV_WC_CC	Crooks Castle 	Pelagic	PE	noUV
 s.b.64yd	PE_UV_SD_CC	Crooks Castle 	Benthic	PE	UV
@@ -28,6 +30,4 @@ s.b.n5yd	PP_UV_WC_CC	Crooks Castle 	Pelagic	PP	UV
 s.b.74yd	PP-13C_noUV_SD_CC	Crooks Castle 	Benthic	PP-13C	noUV
 s.b.l5yd	PP-13C_noUV_WC_CC	Crooks Castle 	Pelagic	PP-13C	noUV
 s.b.84yd	PP-13C_UV_SD_CC	Crooks Castle 	Benthic	PP-13C	UV
-s.b.1nzd	Si_noUV_WC_CB	Charles Brown	Pelagic	Si	noUV
 s.b.j5yd	Si_noUV_WC_CC	Crooks Castle 	Pelagic	Si	noUV
-s.b.tmzd	Si_noUV_SD_CB	Charles Brown	Benthic	Si	noUV
