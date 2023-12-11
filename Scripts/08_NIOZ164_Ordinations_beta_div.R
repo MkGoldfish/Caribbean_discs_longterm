@@ -24,7 +24,6 @@ library(devtools)
 library(phyloseq)
 library(zCompositions)
 library(microbiome)
-library(tidyverse)
 library(vegan)
 library(ggpubr)
 library(ggh4x)
@@ -37,6 +36,7 @@ library(microbiome)
 library(ggpubr)
 library(glue)
 library(cowplot)
+library(tidyverse)
 
 # Colors for plotting --------------------------------------------------------------------
 pal_isme <- c("#006d77", "#ffddd2", "#00C49A", "#e29578", "#83c5be")
@@ -79,9 +79,10 @@ colnames(meta)
 meta.1 <- meta %>%  mutate(Location = ifelse(Location == "Crooks_Castle", "Crooks Castle",
                                               ifelse(Location == "Charles_Brown", "Charles Brown", Location)))
 meta.1$Location_Habitat <- gsub("_", " ", meta.1$Location_Habitat)
-meta.2 <- meta.1 %>%  mutate(Treatment = ifelse(Treatment == "no_UV", "no UV", Treatment)) %>% sample_data()
+meta.2 <- meta.1 %>%  mutate(Treatment = ifelse(Treatment == "no_UV", "no UV", Treatment)) 
+meta.3 <- meta.2 %>%  mutate(Polymer = ifelse(Polymer == "Unknown", "Wild", Polymer)) %>% sample_data()
 
-physeq_object.1 <- merge_phyloseq(otu_table(physeq_object), tax_table(physeq_object), meta.2)
+physeq_object.1 <- merge_phyloseq(otu_table(physeq_object), tax_table(physeq_object), meta.3)
 
 # Trimming and transforming data -----------------------------------------------------
 # Filter to ASVs with at least 10 reads per sample, present in at least 5% of the samples
