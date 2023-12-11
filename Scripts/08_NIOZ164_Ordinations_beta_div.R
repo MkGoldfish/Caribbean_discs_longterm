@@ -64,7 +64,7 @@ pal.uv.2 <- c("#332288","#DDCC77")
 # Import data ----------------------------------------------------------------------------
 source("basic_info_physeq_object.R")
 # Import earlier created physeq object
-physeq_object <- readRDS("../Analysis/NIOZ164_physeq_object_decontamed_filtered.rds")
+physeq_object <- readRDS("../Analysis/NIOZ164_physeq_object_subset_decontamed_tax.corrected_pruned.rds")
 summarize_phyloseq(physeq_object)
 basic_info_physeq_object(physeq_object)
 
@@ -247,29 +247,33 @@ PCoA_plot_all <-
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Location_Habitat, shape = Polymer, stroke = 1, fill = Location_Habitat))  +
+  geom_point(size = 3, aes(color = Location_Habitat, shape = Polymer, stroke = 1, fill = Location_Habitat))  +
   theme_pubr() +
-  theme(axis.text.y = element_text(colour = "black", size = 11),
-        axis.text.x = element_text(colour = "black", size = 11),
-        legend.text = element_text(size = 11, colour ="black"),
+  theme(axis.text.y = element_text(colour = "black", size = 8),
+        axis.text.x = element_text(colour = "black", size = 8),
+        legend.text = element_text(size = 8, colour ="black"),
         legend.position="right", legend.box = "vertical", 
-        axis.title.y = element_text(face = "bold", size = 12),
-        axis.title.x = element_text(face = "bold", size = 12, colour = "black"),
-        legend.title = element_text(size = 12, colour = "black", face = "bold"),
-        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1.2),
+        axis.title.y = element_text(face = "bold", size = 9),
+        axis.title.x = element_text(face = "bold", size = 9, colour = "black"),
+        legend.title = element_text(size = 9, colour = "black", face = "bold"),
+        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),
         legend.key=element_blank(),
-        plot.title = element_text(size = 12, face = "bold", hjust = 0.5, vjust = 1)) +
+        plot.title = element_text(size = 9, face = "bold", hjust = 0.5, vjust = 1)) +
   # Set axislabels and title 
   labs(title = "",
        x = labs[1], y = labs[2])  + 
  scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
   scale_fill_manual(values = pal.loc.hab) +      #<- Pick the correct colorpalette, based on your fill 
   scale_color_manual(values = pal.loc.hab) +     #<- Pick the correctadj colorpalette, based on your fill 
-  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 7)),
+  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 4)),
          color = guide_legend(title = "Location & Habitat"), #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
           shape = guide_legend(override.aes = list(fill = "black", color = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
  
 PCoA_plot_all
+
+ggsave("PCoA_all.tiff", 
+       width = 15, height  = 11, unit = "cm", 
+       dpi = 500, bg = 'white')
 
 # 2. Calculate distances for 2 locations, incubations only --------------------------------------------------------------
 # Aitchison distance it the Euclidean distance of (r)clr transformed data
@@ -326,7 +330,7 @@ PCoA_plot_inc <-
         legend.title = element_text(size = 11, colour = "black", face = "bold"),
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1.2),
         legend.key=element_blank(),
-        plot.title = element_text(size = 12, face = "bold", hjust = 0.5, vjust = 1)) +
+        plot.title = element_text(size = 11, face = "bold", hjust = 0.5, vjust = 1)) +
   # Set axislabels and title 
   labs(x = labs[1], y = labs[2])  + 
   scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
@@ -382,24 +386,24 @@ PCoA_plot_CC <-
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Habitat, shape = Polymer, stroke = 1, fill = Habitat))  +
+  geom_point(size = 3, aes(color = Habitat, shape = Polymer, stroke = 1, fill = Habitat))  +
   theme_pubr() +
-  theme(axis.text.y = element_text(colour = "black", size = 10),
-        axis.text.x = element_text(colour = "black", size = 10),
-        legend.text = element_text(size = 10, colour ="black"),
+  theme(axis.text.y = element_text(colour = "black", size = 8),
+        axis.text.x = element_text(colour = "black", size = 8),
+        legend.text = element_text(size = 8, colour ="black"),
         legend.position="right", legend.box = "vertical", 
-        axis.title.y = element_text(face = "bold", size = 11),
-        axis.title.x = element_text(face = "bold", size = 11, colour = "black"),
-        legend.title = element_text(size = 11, colour = "black", face = "bold"),
-        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1.2),
+        axis.title.y = element_text(face = "bold", size = 9),
+        axis.title.x = element_text(face = "bold", size = 9, colour = "black"),
+        legend.title = element_text(size = 9, colour = "black", face = "bold"),
+        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),
         legend.key=element_blank(),
-        plot.title = element_text(size = 12, face = "bold", hjust = 0.5, vjust = 1)) +
+        plot.title = element_text(size = 9, face = "bold", hjust = 0.5, vjust = 1)) +
   # Set axislabels and title 
   labs(x = labs[1], y = labs[2])  + 
   scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
   scale_fill_manual(values = pal.habs.i) +      #<- Pick the correct colorpalette, based on your fill 
   scale_color_manual(values = pal.habs.i) +     #<- Pick the correct colorpalette, based on your fill 
-  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 7)),
+  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 4)),
          color = guide_legend(title = "Location & Habitat"), #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
          shape = guide_legend(override.aes = list(fill = "black", color = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
 
@@ -449,18 +453,18 @@ PCoA_plot_CB <-
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Habitat, shape = Polymer, stroke = 1, fill = Habitat))  +
+  geom_point(size = 3, aes(color = Habitat, shape = Polymer, stroke = 1, fill = Habitat))  +
   theme_pubr() +
-  theme(axis.text.y = element_text(colour = "black", size = 10),
-        axis.text.x = element_text(colour = "black", size = 10),
-        legend.text = element_text(size = 10, colour ="black"),
+  theme(axis.text.y = element_text(colour = "black", size = 8),
+        axis.text.x = element_text(colour = "black", size = 8),
+        legend.text = element_text(size = 8, colour ="black"),
         legend.position="right", legend.box = "vertical", 
-        axis.title.y = element_text(face = "bold", size = 11),
-        axis.title.x = element_text(face = "bold", size = 11, colour = "black"),
-        legend.title = element_text(size = 11, colour = "black", face = "bold"),
-        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1.2),
+        axis.title.y = element_text(face = "bold", size = 9),
+        axis.title.x = element_text(face = "bold", size = 9, colour = "black"),
+        legend.title = element_text(size = 9, colour = "black", face = "bold"),
+        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),
         legend.key=element_blank(),
-        plot.title = element_text(size = 12, face = "bold", hjust = 0.5, vjust = 1)) +
+        plot.title = element_text(size = 9, face = "bold", hjust = 0.5, vjust = 1)) +
   # Set axislabels and title 
   labs(x = labs[1], y = labs[2])  + 
   scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
@@ -480,9 +484,14 @@ plot_grid(PCoA_plot_CB + theme(legend.position ="none"),
           ncol = 3,
           nrow = 1,
           labels = c('A', '', 'B'),
+          label_size = 9,
           align = 'v',
           axis = "l",
-          rel_widths = c(1,0.2,1))
+          rel_widths = c(1,0.3,1))
+
+ggsave("PCoA_incubations_per_location.tiff", 
+      width = 28, height  = 11, unit = "cm", 
+      dpi = 500, bg = 'white')
 
 # 5. Calculate distances for Pelagic only --------------------------------------------------------------
 # Aitchison distance it the Euclidean distance of (r)clr transformed data
@@ -528,24 +537,24 @@ PCoA_plot_P <-
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Location, shape = Polymer, stroke = 1, fill = Location))  +
+  geom_point(size = 3, aes(color = Location, shape = Polymer, stroke = 1, fill = Location))  +
   theme_pubr() +
-  theme(axis.text.y = element_text(colour = "black", size = 10),
-        axis.text.x = element_text(colour = "black", size = 10),
-        legend.text = element_text(size = 10, colour ="black"),
+  theme(axis.text.y = element_text(colour = "black", size = 8),
+        axis.text.x = element_text(colour = "black", size = 8),
+        legend.text = element_text(size = 8, colour ="black"),
         legend.position="bottom", legend.box = "vertical", 
-        axis.title.y = element_text(face = "bold", size = 11),
-        axis.title.x = element_text(face = "bold", size = 11, colour = "black"),
-        legend.title = element_text(size = 11, colour = "black", face = "bold"),
-        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1.2),
+        axis.title.y = element_text(face = "bold", size = 9),
+        axis.title.x = element_text(face = "bold", size = 9, colour = "black"),
+        legend.title = element_text(size = 9, colour = "black", face = "bold"),
+        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),
         legend.key=element_blank(),
-        plot.title = element_text(size = 12, face = "bold", hjust = 0.5, vjust = 1)) +
+        plot.title = element_text(size = 9, face = "bold", hjust = 0.5, vjust = 1)) +
   # Set axislabels and title 
   labs(x = labs[1], y = labs[2])  + 
   scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
   scale_fill_manual(values = pal.pel) +      #<- Pick the correct colorpalette, based on your fill 
   scale_color_manual(values = pal.pel) +     #<- Pick the correct colorpalette, based on your fill 
-  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 7)),
+  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 5)),
          color = guide_legend(title = "Location & Habitat"), #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
          shape = guide_legend(override.aes = list(fill = "black", color = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
 
@@ -595,36 +604,40 @@ PCoA_plot_B <-
   # Create axis based on both NMDS values in 2 dimensions
   ggplot(data.scores, aes(x = PCo1, y = PCo2)) +  
   #Plot the points of the NMDS, select what you want as shape and color from metadata
-  geom_point(size = 5, aes(color = Location, shape = Polymer, stroke = 1, fill = Location))  +
+  geom_point(size = 3, aes(color = Location, shape = Polymer, stroke = 1, fill = Location))  +
   theme_pubr() +
-  theme(axis.text.y = element_text(colour = "black", size = 10),
-        axis.text.x = element_text(colour = "black", size = 10),
-        legend.text = element_text(size = 10, colour ="black"),
-        legend.position="bottom", legend.box = "vertical", 
-        axis.title.y = element_text(face = "bold", size = 11),
-        axis.title.x = element_text(face = "bold", size = 11, colour = "black"),
-        legend.title = element_text(size = 11, colour = "black", face = "bold"),
-        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1.2),
+  theme(axis.text.y = element_text(colour = "black", size = 8),
+        axis.text.x = element_text(colour = "black", size = 8),
+        legend.text = element_text(size = 8, colour ="black"),
+        legend.position = "bottom", legend.box = "vertical", 
+        axis.title.y = element_text(face = "bold", size = 9),
+        axis.title.x = element_text(face = "bold", size = 9, colour = "black"),
+        legend.title = element_text(size = 9, colour = "black", face = "bold"),
+        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),
         legend.key=element_blank(),
-        plot.title = element_text(size = 12, face = "bold", hjust = 0.5, vjust = 1)) +
+        plot.title = element_text(size = 9, face = "bold", hjust = 0.5, vjust = 1)) +
   # Set axislabels and title 
   labs(x = labs[1], y = labs[2])  + 
   scale_shape_manual(values = shapes) + #<- Specify shapes you want as vector. 
   scale_fill_manual(values = pal.ben) +      #<- Pick the correct colorpalette, based on your fill 
   scale_color_manual(values = pal.ben) +     #<- Pick the correct colorpalette, based on your fill 
-  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 7)),
+  guides(fill = guide_legend(title = "Location & Habitat", override.aes = list(shape = 21, linewidth = 1, color = "black", size = 5)),
          color = guide_legend(title = "Location & Habitat"), #<- Costumize the legend. All color swatches are now squares, to avoid confusion with the other shapes
          shape = guide_legend(override.aes = list(fill = "black", color = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
 PCoA_plot_B
 
 # Grid of both incubation locations w cowpolt ---------------
-legend.a <- get_legend(PCoA_plot_CC)
-
 plot_grid(PCoA_plot_P,
           PCoA_plot_B,
           ncol = 2,
           nrow = 1,
           labels = c('A', 'B'),
+          label_size = 9,
           align = 'v',
           axis = "tb",
           rel_widths = c(1,1))
+
+ggsave("PCoA_habitats.tiff", 
+      width = 25, height  = 15, unit = "cm", 
+      dpi = 500, bg = 'white')
+

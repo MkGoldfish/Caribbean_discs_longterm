@@ -22,14 +22,13 @@ set.seed(42)
 
 ## Load libraries -------------------------------------------------------------------------
 library(devtools)
-library(tidyverse)
 library(ggpubr)
 library(ggh4x)
 library(cowplot)
 library (emojifont)
 library(ggthemes)
 library(stringr)
-
+library(tidyverse)
 
 ## Import sequencing data ----------------------------------------------------------------------------
 tt.1 <- read.csv('../Processed-Data/NIOZ164_EUX_discs_RA_tidy_data_decontamed_tax.correct_pruned.csv', na.strings = c(""))
@@ -360,8 +359,8 @@ HCB.PDB.Genera.pdbpols$Genus.pol <- factor(HCB.PDB.Genera.pdbpols$Genus.pol, lev
 HCB.PDB.Bubble <- ggplot(HCB.PDB.Genera.pdbpols,aes(x=interaction(Polymer_Isotope,Backbone),y= Genus.pol)) +
   geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA) +
   scale_fill_manual(values = pal.pols.isotop) +
-  scale_size(range = c(3,10))+
-  guides( x = "axis_nested",  fill = guide_legend(override.aes = list(size = 10, color = NA))) +
+  scale_size(range = c(1.5,6))+
+  guides( x = "axis_nested",  fill = guide_legend(override.aes = list(size = 6, color = NA))) +
   ylab("") +
   xlab("") +  
   facet_nested(Habitat + Degrading  ~ Location + Treatment, drop = T, 
@@ -373,7 +372,7 @@ HCB.PDB.Bubble <- ggplot(HCB.PDB.Genera.pdbpols,aes(x=interaction(Polymer_Isotop
                                                           "grey10", "grey50", "grey30",
                                                           "grey10", "grey50", "grey30" ),
                                                 fill = "white", linewidth = 1, by_layer_y = F),
-                 text_y = elem_list_text(size = c(16,16,rep_len(13,7)), angle = c(270,270,rep_len(0,7)), 
+                 text_y = elem_list_text(size = c(10,10,rep_len(9,7)), angle = c(270,270,rep_len(0,7)), 
                                          color = c("#51C3CCFF","#CC5800FF", 
                                                           "grey10", "grey50", "grey30",
                                                           "grey10", "grey50", "grey30" ), by_layer_y = F),
@@ -381,25 +380,31 @@ HCB.PDB.Bubble <- ggplot(HCB.PDB.Genera.pdbpols,aes(x=interaction(Polymer_Isotop
                )) + 
   theme_minimal()+
   theme(
-    axis.text.x=element_text( size = 14, angle = 60, hjust = 1), 
-    axis.text.y=element_text(size= 13, color = "black"), 
-    legend.text=element_text(size = 12),
-    legend.title = element_text(size=14),
-    axis.title.x = element_text(size=15),
-    axis.title.y = element_text(size=15),
-    strip.text.x = element_text(size = 13),
-    plot.title = element_text(size = 20, hjust = 0.5),
-    panel.border = element_rect(color = "grey80", fill = NA),
+    axis.text.x=element_text( size = 9, angle = 60, hjust = 1), 
+    axis.text.y=element_text(size= 9, color = "black"), 
+    legend.text=element_text(size = 9),
+    legend.title = element_text(size=10),
+    axis.title.x = element_text(size=10),
+    axis.title.y = element_text(size=10),
+    strip.text.x = element_text(size = 9),
+    plot.title = element_text(size = 10, hjust = 0.5),
+    panel.border = element_rect(color = "grey80", fill = NA, linewidth = 0.5),
     ggh4x.axis.nestline.x = element_line(linetype = c(6,1,1), linewidth = 1, color = c("black", "darkgrey")),
-    ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5),
+    ggh4x.axis.nesttext.x = element_blank(),
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
+    panel.spacing = unit(1.5, 'pt'),
     legend.position = "bottom") +
   labs(title = "", subtitle = "",
        fill = "Polymer", size = "Relative Abundance") 
 
 HCB.PDB.Bubble
 
+showtext::showtext_opts(dpi=500)
+
+ggsave("NIOZ164_PDB_HCB_incubations_bubble.eps", 
+       width = 19.5, height  = 26, unit = "cm", 
+       dpi = 500, bg='white')
 
 ## Genera sequencing Wild plastic --------------------------------------------------------------------
 Genus <- tt.wild %>%  select(Description, Location, Habitat, Polymer, Isotope, Polymer_Isotope, Backbone, Treatment, 
@@ -514,7 +519,7 @@ HCB.PDB.Genera.pdbpols$Genus.pol <- factor(HCB.PDB.Genera.pdbpols$Genus.pol, lev
 HCB.PDB.Bubble <- ggplot(HCB.PDB.Genera.pdbpols,aes(x=Description,y= Genus.pol)) +
   geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Degrading)), shape = "circle filled", stroke = NA, alpha = 0.7) +
   scale_fill_manual(values = c("#149911","#A29F15","#436436")) +
-  scale_size(range = c(3,9))+
+  scale_size(range = c(1.5,6))+
   guides( x = "axis_nested",  fill = FALSE) +
   ylab("") +
   xlab("") +  
@@ -525,29 +530,34 @@ HCB.PDB.Bubble <- ggplot(HCB.PDB.Genera.pdbpols,aes(x=Description,y= Genus.pol))
                strip = strip_nested( size = "variable",
                                      background_y =  elem_list_rect(color = c("grey10", "grey50", "grey30"),
                                                                     fill = "white", linewidth = 1, by_layer_y = F),
-                                     text_y = elem_list_text(size = rep_len(13,7), angle = rep_len(0,7), 
+                                     text_y = elem_list_text(size = rep_len(8,7), angle = rep_len(270,7), 
                                                              color = c("grey10", "grey50", "grey30"), by_layer_y = F),
                                      background_x = (element_rect(fill = "grey90", color = "grey90", linetype = 0))
                )) + 
   theme_minimal()+
   theme(
-    axis.text.x=element_text( size = 14, angle = 60, hjust = 1), 
-    axis.text.y=element_text(size= 13, color = "black"), 
-    legend.text=element_text(size = 12),
-    legend.title = element_text(size=14),
-    axis.title.x = element_text(size=15),
-    axis.title.y = element_text(size=15),
-    strip.text.x = element_text(size = 13),
-    plot.title = element_text(size = 20, hjust = 0.5),
+    axis.text.x=element_text( size = 9, angle = 60, hjust = 1), 
+    axis.text.y=element_text(size= 9, color = "black"), 
+    legend.text=element_text(size = 9),
+    legend.title = element_text(size=10),
+    axis.title.x = element_text(size=9),
+    axis.title.y = element_text(size=9),
+    strip.text.x = element_text(size = 8),
+    plot.title = element_text(size = 10, hjust = 0.5),
     panel.border = element_rect(color = "grey80", fill = NA),
     ggh4x.axis.nestline.x = element_line(linetype = c(6,1,1), linewidth = 1, color = c("black", "darkgrey")),
-    ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5),
+    ggh4x.axis.nesttext.x = element_blank(),
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
-    legend.position = "bottom") +
+    panel.spacing = unit(1.5, 'pt'),
+    legend.position = "right") +
   labs(title = "", subtitle = "",
        fill = "Polymer", size = "Relative Abundance") 
 
 HCB.PDB.Bubble
-          
-                                                                   
+
+showtext::showtext_opts(dpi=500)
+
+ggsave("NIOZ164_PDB_HCB_wild_bubble.eps", 
+       width = 14, height  = 15, unit = "cm", 
+       dpi = 500, bg='white')

@@ -19,7 +19,6 @@
 setwd("C:/Users/mgoudriaan/Documents/Github/Carribean_foils_1week/Scripts")
 
 # Load libraries -------------------------------------------------------------------------
-library("ggplot2")
 library("ggspatial") 
 library("sf")
 library("ggpp")
@@ -27,18 +26,21 @@ library("rnaturalearth")
 library("rnaturalearthdata")
 library("rnaturalearthhires")
 library(cowplot)
-require(rgdal)
 library(broom)
+library(svglite)
+library(tidyverse)
 
 # Create area map of the Caribbean ------------------------------------------------------
 ## Import geographical data from Natural Earth database
-sf_use_s2(FALSE)
 carrib <- ne_countries(scale = 10, returnclass = "sf")
 world_points<- st_centroid(carrib)
 world_points <- cbind(carrib, st_coordinates(st_centroid(carrib$geometry)))
 
 ## Provide coordinates of EUX to indicate position in map
 st.eux <- data.frame(longitude = -62.9666628, latitude = 17.499998)
+
+## Colors to use
+pal.loc <- c("#FF6DB6FF" , "#004949FF",  "#66A61E")
 
 ## Plot the Caribbean overview w EUX indicated. 
 # Also put labels for the different Carribean islands
@@ -50,7 +52,7 @@ carrib.p <- ggplot(data=carrib) +
                          pad_x = unit(0, "cm"), pad_y = unit(0, "cm"),
                          style = north_arrow_fancy_orienteering) +
   geom_point(data = st.eux, aes(x = longitude, y = latitude),  
-             size = 6, shape = "diamond filled", fill = "turquoise", stroke = 2)+
+             size = 6, shape = "diamond filled", fill = "#332288", stroke = 2)+
   annotate(geom = "text", x = -71, y = 15.5, label = "Carribean Sea", 
            fontface = "italic", color = "grey20", size = 10) +
   annotate(geom = "text", x = -69.4, y = 20.5, label = "Greater Antilles", 
@@ -63,10 +65,10 @@ carrib.p <- ggplot(data=carrib) +
            fontface = "bold.italic", color = "black", size = 5.5, angle = 350) +
   theme(panel.grid.major = element_line(color = gray(.4), linetype = "dashed", linewidth = 0.5), 
         panel.background = element_rect(fill = "white"),
-        axis.text.y = element_text(colour = "black", size = 20),
-        axis.text.x = element_text(colour = "black", size = 20),
-        axis.title.x = element_text(face = "bold", size = 25, colour = "black"),
-        axis.title.y = element_text(face = "bold", size = 25, colour = "black"),
+        axis.text.y = element_text(colour = "black", size = 10),
+        axis.text.x = element_text(colour = "black", size = 10),
+        axis.title.x = element_text(face = "bold", size = 12, colour = "black"),
+        axis.title.y = element_text(face = "bold", size = 12, colour = "black"),
         plot.title = element_text(size = 16)) +
    xlab("Longitude") + ylab("Latitude")
 
@@ -75,10 +77,12 @@ carrib.p
 # Create map of Sint Eustatius with Samplesites ------------------------------------------------------
 # Import datafiles, doawnloaded from Dutch Caribbean Biodiversity Database
 # https://www.dcbd.nl/document/topography-steustatius
-steux <- readOGR("../topographyStatia/Contours_20n.shp") %>% broom::tidy(region = "NAME")
-roads <- readOGR("../topographyStatia/main_road_20n.shp") %>% broom::tidy()   
+steux <- sf::st_read("topographyStatia/Contours_20n.shp")
+roads <- readOGR("../topographyStatia/main_road_20n.shp") %>% broom::tidy(region = "NAME")
 sites <- readOGR("../topographyStatia/EUX_DiveSites_Moorings_from_coords.shp")  %>% data.frame() %>% filter(Depth_m > 6)
-map <- readOGR("../topographyStatia/referenceStatia_AerialPhotos.shp", stringsAsFactors = F) 
+map <-  system.file("topographyStatia/referenceStatia_AerialPhotos.shp", package="sf")
+map <- sf::st_read("./topographyStatia/referenceStatia_AerialPhotos.shp")
+
 unique(sites$Name)
 summary(map@data)
 
@@ -90,7 +94,7 @@ sites.d  <- data.frame(Name = c("Crook's Castle", "The Charles L Brown", "Zeelan
 EUX <- ggplot() + 
   geom_polygon(data=map,aes(x = long, y = lat, group = group),fill= "grey30", color = "black") +
   geom_point(data = sites.d, aes(x = longitude, y = latitude),  
-             size = 6, shape = "diamond filled", fill = "turquoise", stroke = 2) +
+             size = 6, shape = "diamond filled", fill = pal.loc, stroke = 2) +
   annotate(geom = "text", x = -62.9975, y = 17.474, label = "Crook's\nCastle",
            fontface = "bold", color = "black", size = 6) +
   annotate(geom = "text", x = -62.97, y = 17.464, label = "Charles Brown",
@@ -128,7 +132,11 @@ plot_grid(carrib.p, EUX,
           rel_widths =c(1,0.3),
           align = 'h',
           axis = "tb")
-# 
+
+ggsave("Genus_bubble.tiff", 
+       width = 25, height  = 19, unit = "cm", 
+       dpi = 500, bg = 'white')
+
 # ggplot(data=carrib) + 
 #   geom_sf(fill= "grey30")+
 #   coord_sf(xlim = c(-61, -71), ylim = c(9,19)) +
