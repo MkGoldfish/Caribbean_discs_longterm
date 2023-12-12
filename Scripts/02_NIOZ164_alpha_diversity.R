@@ -36,13 +36,18 @@ library(tidyverse)
 physeq_object <- readRDS("../Analysis/NIOZ164_physeq_object_decontamed.rds")
 
 # Colors for plotting --------------------------------------------------------------------
-pal.loc <- c("#FF6DB6FF" , "#004949FF",  "#66A61E")
+pal.loc <- c("#6A3D9A" , "#33A02C", "#51C3CCFF")
 # CB, CC, Zeelandia
-pal.habs<- c("#FF8E32FF", "#51C3CCFF")
+pal.habs<- c("#FF8E32FF", "#009292FF")
 # Benthic, Pelagic
-pal.loc.hab <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
+
+[1] "#A6CEE3" "#1F78B4" "#B2DF8A" "#33A02C" "#FB9A99" "#E31A1C" "#FDBF6F" "#FF7F00" "#CAB2D6" "#6A3D9A" "#FFFF99" "#B15928"
+[1] "#1B9E77" "#D95F02" "#7570B3" "#E7298A" "#66A61E" "#E6AB02" "#A6761D" "#666666"
+[1] "#66C2A5" "#FC8D62" "#8DA0CB" "#E78AC3" "#A6D854" "#FFD92F" "#E5C494" "#B3B3B3"
+
+pal.loc.hab <- c("#6A3D9A", "#CAB2D6", "#33A02C","#B2DF8A", "#51C3CCFF")
 # CB_P, CB_B, CC_P, CB_B, Zeelandia
-pal.pols.isotop <- c("#A6CEE3", "#1F78B4","#E5C494","#A6761D", "#7570B3" , "#E31A1C", "#E6AB02", "#1B9E77")
+pal.pols.isotop <- c("#A6CEE3", "#1F78B4","#E5C494","#A6761D", "#E7298A" , "#E31A1C", "#E6AB02", "#1B9E77")
 # PE;PE-13C;PP;PP-13C;PS;PET;Nylon;Blanco
 pal.uv <- c("#DDCC77","#332288") 
 # UV, noUV
