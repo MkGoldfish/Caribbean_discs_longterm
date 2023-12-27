@@ -82,101 +82,115 @@ ps_bent <- physeq_object.1 %>% subset_samples(Habitat == "Benthic")
 ps_pel_beach <- physeq_object.1 %>% subset_samples(Habitat %in% c("Pelagic", "Beach")) 
 
 # Use MicEco to create Euler diagram from physeq objects ----------------------------
-pal.loc <- c("#FF6DB6FF" , "#009292FF",  "#66A61E")
+# Colors for plotting --------------------------------------------------------------------
+pal.loc <- c("#6A3D9A" , "#33A02C", "#51C3CCFF")
 # CB, CC, Zeelandia
-pal.habs<- c()
+pal.habs<- c("#FF8E32FF", "#009292FF")
 # Benthic, Pelagic
-pal.loc.hab <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
+pal.loc.hab <- c("#6A3D9A", "#CAB2D6", "#33A02C","#B2DF8A", "#51C3CCFF")
 # CB_P, CB_B, CC_P, CB_B, Zeelandia
-pal.pols.isotop <- c("#E31A1C", "#7570B3", "#1F78B4","#A6CEE3", "#E6AB02","#A6761D", "#E5C494","#1B9E77")
-# Blanco;Nylon;PE;PE-13C;PET;PP;PP-13C;PS;
+pal.pols.isotop <- c("#A6CEE3", "#1F78B4","#E5C494","#A6761D", "#E7298A" , "#E31A1C", "#E6AB02", "#1B9E77")
+# PE;PE-13C;PP;PP-13C;PS;PET;Nylon;Blanco
 pal.uv <- c("#DDCC77","#332288") 
+# UV, noUV
+pal.iso <- c( "#00C49A", "#e29578")
+# # 
+# pal.loc <- c("#FF6DB6FF" , "#009292FF",  "#66A61E")
+# # CB, CC, Zeelandia
+# pal.habs<- c()
+# # Benthic, Pelagic
+# pal.loc.hab <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
+# # CB_P, CB_B, CC_P, CB_B, Zeelandia
+# pal.pols.isotop <- c("#E31A1C", "#7570B3", "#1F78B4","#A6CEE3", "#E6AB02","#A6761D", "#E5C494","#1B9E77")
+# # Blanco;Nylon;PE;PE-13C;PET;PP;PP-13C;PS;
+# pal.uv <- c("#DDCC77","#332288") 
 
+showtext::showtext_opts(dpi=500)
 
 venn.3locations <- ps_euler(physeq_object.1, "Location", fraction = 0.01, 
                       weight = F, plot = T, relative = F, 
-                      fills = list(fill = c("#FF6DB6FF" , "#009292FF",  "#66A61E")),
+                      fills = list(fill = c("#6A3D9A" , "#33A02C", "#51C3CCFF")),
                       edges = list(col = "white", lwd = 3), 
-                      labels = list(fontsize = 18, col = "black"),
-                      shape = "ellipse", 
-                      quantities = list(type=c ("percent", "counts"), fontsize = 15, col = "black", fontface = "bold"),
+                      labels = list(fontsize = 12, col = "black"),
+                      shape = "circle", 
+                      quantities = list(type=c ("percent"), fontsize = 10, col = "black"),
                       legend = F)
 
 venn.3locations
 
 venn.3habitats <- ps_euler(ps_pel_beach, "Habitat", fraction = 0.01, 
                             weight = F, plot = T, relative = F, 
-                            fills = list(fill = c("#66A61E", "#51C3CCFF")),
+                            fills = list(fill = c("#009292FF", "#e29578")),
                             edges = list(col = "white", lwd = 3), 
-                            labels = list(fontsize = 18, col = "black"),
+                            labels = list(fontsize = 12, col = "black"),
                             shape = "ellipse", 
-                            quantities = list(type=c ("percent", "counts"), fontsize = 15, col = "black", fontface = "bold"),
+                            quantities = list(type=c ("percent"), fontsize = 10, col = "black"),
                             legend = F)
 
 venn.3habitats
 
 venn.inc.loc <- ps_euler(ps_inc, "Location", fraction = 0.01, 
                      weight = F, plot = T, relative = F, 
-                     fills = list(fill = c( "#FF6DB6FF" , "#009292FF")),
+                     fills = list(fill = c( "#6A3D9A" , "#33A02C")),
                      edges = list(col = "white", lwd = 3), 
-                     labels = list(fontsize = 18, col = "black"),
+                     labels = list(fontsize = 12, col = "black"),
                      shape = "ellipse", 
-                     quantities = list(type=c ("percent", "counts"), fontsize = 15, col = "black", fontface = "bold"),
+                     quantities = list(type=c("percent"), fontsize = 10, col = "black"),
                      legend = F)
 
 venn.inc.loc
 
 venn.inc.hab <- ps_euler(ps_inc, "Habitat", fraction = 0.01, 
                          weight = F, plot = T, relative = F, 
-                         fills = list(fill = c( "#CC5800FF", "#51C3CCFF")),
+                         fills = list(fill = c("#FF8E32FF", "#009292FF")),
                          edges = list(col = "white", lwd = 3), 
-                         labels = list(fontsize = 18, col = "black"),
+                         labels = list(fontsize = 12, col = "black"),
                          shape = "ellipse", 
-                         quantities = list(type=c ("percent", "counts"), fontsize = 15, col = "black", fontface = "bold"),
+                         quantities = list(type=c("percent"), fontsize = 10, col = "black"),
                          legend = F)
 
 venn.inc.hab
 
 venn.pelagic <- ps_euler(ps_pel, "Location", fraction = 0.01, 
                          weight = F, plot = T, relative = F, 
-                         fills = list(fill = c("#FFB6DBFF", "#009292FF")),
+                         fills = list(fill = c("#CAB2D6", "#B2DF8A")),
                          edges = list(col = "white", lwd = 3), 
-                         labels = list(fontsize = 18, col = "black"),
+                         labels = list(fontsize = 12, col = "black"),
                          shape = "ellipse", 
-                         quantities = list(type=c ("percent", "counts"), fontsize = 15, col = "black", fontface = "bold"),
+                         quantities = list(type=c("percent"), fontsize = 10, col = "black"),
                          legend = F)
 
 venn.pelagic
 
 venn.benthic <- ps_euler(ps_bent, "Location", fraction = 0.01, 
                          weight = F, plot = T, relative = F, 
-                         fills = list(fill = c("#FF6DB6FF" , "#004949FF")),
+                         fills = list(fill = c("#6A3D9A" , "#33A02C")),
                          edges = list(col = "white", lwd = 3), 
-                         labels = list(fontsize = 18, col = "black"),
+                         labels = list(fontsize = 12, col = "black"),
                          shape = "ellipse", 
-                         quantities = list(type=c ("percent", "counts"), fontsize = 15, col = "black", fontface = "bold"),
+                         quantities = list(type=c("percent"), fontsize = 10, col = "black"),
                          legend = F)
 
 venn.benthic
 
 venn.CB <- ps_euler(ps_CB, "Habitat", fraction = 0.01, 
                     weight = F, plot = T, relative = F, 
-                    fills = list(fill = c("#FF6DB6FF","#FFB6DBFF")),
+                    fills = list(fill = c("#6A3D9A", "#CAB2D6")),
                     edges = list(col = "white", lwd = 3), 
-                    labels = list(fontsize = 18, col = "black"),
+                    labels = list(fontsize = 12, col = "black"),
                     shape = "ellipse", 
-                    quantities = list(type=c ("percent", "counts"), fontsize = 15, col = "black", fontface = "bold"),
+                    quantities = list(type=c("percent"), fontsize = 10, col = "black"),
                     legend = F)
 
 venn.CB
 
 venn.CC <- ps_euler(ps_CC, "Habitat", fraction = 0.01, 
                    weight = F, plot = T, relative = F, 
-                   fills = list(fill = c("#004949FF", "#009292FF")),
+                   fills = list(fill = c("#33A02C","#B2DF8A")),
                    edges = list(col = "white", lwd = 3), 
-                   labels = list(fontsize = 18, col = "black"),
+                   labels = list(fontsize = 12, col = "black"),
                    shape = "ellipse", 
-                   quantities = list(type=c ("percent", "counts"), fontsize = 15, col = "black", fontface = "bold"),
+                   quantities = list(type=c ("percent"), fontsize = 10, col = "black"),
                    legend = F)
 
 venn.CC
@@ -193,8 +207,12 @@ plot_grid(venn.3locations,
           ncol = 2,
           align = 'v',
           axis = "tbrl",
-          labels = c("A", " ", "B", "C", "D", "E", "F", "G"),
+          labels = c("A", "B", "C", "D", "E", "F", "G", "H"),
           label_size = 15,
           rel_heights = c(1.5,1,1,1),
           rel_widths = c(1,1,1))
+
+ggsave("NIOZ164_Venns.pdf", 
+       width = 20, height  = 30, unit = "cm", 
+       dpi = 500, bg='white')
 

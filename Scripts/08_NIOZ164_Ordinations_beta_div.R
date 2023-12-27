@@ -25,7 +25,6 @@ library(phyloseq)
 library(zCompositions)
 library(microbiome)
 library(vegan)
-library(ggpubr)
 library(ggh4x)
 library(compositions)
 library(ade4)
@@ -39,28 +38,45 @@ library(cowplot)
 library(tidyverse)
 
 # Colors for plotting --------------------------------------------------------------------
-pal_isme <- c("#006d77", "#ffddd2", "#00C49A", "#e29578", "#83c5be")
+showtext::showtext_opts(dpi=500)
+# 
+# pal.loc <- c("#FF6DB6FF" , "#004949FF",  "#66A61E")
+# # CB, CC, Zeelandia"
+# pal.habs<- c("#66A61E","#FF8E32FF", "#51C3CCFF")
+pal.habs <- c("#FF8E32FF", "#009292FF", "#51C3CCFF")
+# # Beach, Benthic, Pelagic
+# pal.loc.hab <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
+# # CB_P, CB_B, CC_P, CB_B, Zeelandia
 
-pal.loc <- c("#FF6DB6FF" , "#004949FF",  "#66A61E")
-# CB, CC, Zeelandia"
-pal.habs<- c("#66A61E","#FF8E32FF", "#51C3CCFF")
-pal.habs.i<- c("#FF8E32FF", "#51C3CCFF")
-# Beach, Benthic, Pelagic
-pal.loc.hab <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
+pal.loc <- c("#6A3D9A" , "#33A02C", "#51C3CCFF")
+# CB, CC, Zeelandia
+pal.habs.i<- c("#FF8E32FF", "#009292FF")
+# Benthic, Pelagic
+pal.loc.hab <- c("#6A3D9A", "#CAB2D6", "#33A02C","#B2DF8A", "#51C3CCFF")
+
 # CB_P, CB_B, CC_P, CB_B, Zeelandia
-pal.CB <- c("#FF6DB6FF", "#FFB6DBFF")
-pal.CC <- c("#004949FF", "#009292FF")
-pal.ben <- c("#FF6DB6FF", "#004949FF")
-pal.pel <- c("#FFB6DBFF", "#009292FF")
+pal.CB <- c("#6A3D9A", "#CAB2D6")
+pal.CC <- c("#33A02C","#B2DF8A")
+pal.ben <- c("#6A3D9A","#33A02C")
+pal.pel <- c("#CAB2D6", "#B2DF8A")
 
-pal.pols.isotop <- c("#E31A1C", "#7570B3", "#1F78B4","#A6CEE3", "#E6AB02","#A6761D", "#E5C494","#1B9E77","#882255")
-pal.pols <- c("#E31A1C", "#7570B3" ,"#1F78B4","#E6AB02", "#A6761D", "#1B9E77","#882255")
+# pal.pols.isotop <- c("#E31A1C", "#7570B3", "#1F78B4","#A6CEE3", "#E6AB02","#A6761D", "#E5C494","#1B9E77","#882255")
+# pal.pols <- c("#E31A1C", "#7570B3" ,"#1F78B4","#E6AB02", "#A6761D", "#1B9E77","#882255")
+# # PE;PE-13C;PP;PP-13C;PS;PET;Nylon;Blanco
+# pal.uv <- c("#332288","#DDCC77", "grey") 
+# # UV, noUV, NA
+# pal.uv.2 <- c("#332288","#DDCC77") 
+
+pal.pols.isotop <- c("#E31A1C", "#E7298A", "#1F78B4","#A6CEE3", "#E6AB02","#A6761D", "#E5C494","#1B9E77","#882255")
+pal.pols <- c("#E31A1C", "#E7298A" ,"#1F78B4","#E6AB02", "#A6761D", "#1B9E77","#882255")
 # PE;PE-13C;PP;PP-13C;PS;PET;Nylon;Blanco
 pal.uv <- c("#332288","#DDCC77", "grey") 
 # UV, noUV, NA
 pal.uv.2 <- c("#332288","#DDCC77") 
+pal.iso <- c( "#00C49A", "#e29578")
 
- 
+pal_isme <- c("#006d77", "#ffddd2", "#00C49A", "#e29578", "#83c5be")
+
 # Import data ----------------------------------------------------------------------------
 source("basic_info_physeq_object.R")
 # Import earlier created physeq object
@@ -241,7 +257,7 @@ data.scores$Treatment = samp_i.w$Treatment
 
 head(data.scores)
 
-shapes <- c(6,18,20,15,17,8,4)
+shapes <- c(6,18,20,15,17,8,14)
 
 ## Create NMDS ordination plot
 PCoA_plot_all <- 
@@ -272,7 +288,7 @@ PCoA_plot_all <-
  
 PCoA_plot_all
 
-ggsave("PCoA_all.tiff", 
+ggsave("PCoA_all.pdf", 
        width = 15, height  = 11, unit = "cm", 
        dpi = 500, bg = 'white')
 
@@ -409,6 +425,11 @@ PCoA_plot_CC <-
          shape = guide_legend(override.aes = list(fill = "black", color = "black")))  #<- Make ure shapes are same as the ones you picked, and are all filled and black
 
 PCoA_plot_CC
+
+ggsave("PCoA_all.tiff", 
+       width = 15, height  = 11, unit = "cm", 
+       dpi = 500, bg = 'white')
+
 
 # 4. Calculate distances for CB only --------------------------------------------------------------
 # Aitchison distance it the Euclidean distance of (r)clr transformed data
@@ -638,7 +659,7 @@ plot_grid(PCoA_plot_P,
           axis = "tb",
           rel_widths = c(1,1))
 
-ggsave("PCoA_habitats.tiff", 
+ggsave("PCoA_habitats.pdf", 
       width = 25, height  = 15, unit = "cm", 
       dpi = 500, bg = 'white')
 

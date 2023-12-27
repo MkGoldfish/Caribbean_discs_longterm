@@ -36,7 +36,7 @@ metadata  <- read.delim("../Data/Metadata_lipids_R_plots.txt", sep = '\t')
 Biomass_average <- read.delim("../Data/Abundance_weigthed_average_13c_lipid.txt", sep = '\t')
 dim(Biomass_average)
 
-
+showtext::showtext_opts(dpi=500)
 
 # Create one tibble for easy plotting ----------------------------------------------------
 # Remove the row of the standard and pivot
@@ -62,7 +62,7 @@ unique(df.m$Fatty.Acid)
 # Plot Charles Brown ---------------------------------------------------------------------
 df.cb <- df.m %>% filter(Location == "Charles Brown")
 
-var.labs <- as_labeller(c(Rel.Abund = "Relative~Abundance", d13C = "\u{03b4}^13~C", 
+var.labs <- as_labeller(c(Rel.Abund = "Fractional~Abundance", d13C = "\u{03b4}^13~C", 
                           Pelagic = "Pelagic", Benthic = "Benthic",
                           UV = "UV", noUV = "noUV",
                           PE = "phantom()^12~C -PE", "PE-13C" = "phantom()^13~C -PE", Si = "Si~disc",
@@ -83,21 +83,25 @@ CB <- ggplot(df.cb) +         #Pick data to plot
                 nest_line = element_line(),
                labeller = var.labs)+
                  theme_pubclean()+
-   theme(axis.text.x=element_text(size = 12, angle = 60, hjust = 1), 
-        axis.text.y=element_text(size= 13), 
-        legend.text=element_text(size = 12),
-        legend.title = element_text(size=15, face = "bold"),
-        axis.title.x = element_text(size=15),
-        axis.title.y = element_text(size=15),
-        strip.text.x = element_text(size = 14),
-        strip.text.y = element_text(size = 14),
+   theme(axis.text.x=element_text(size = 8, angle = 60, hjust = 1), 
+        axis.text.y=element_text(size = 10), 
+        axis.title.x = element_text(size = 11),
+        axis.title.y = element_text(size = 11),
+        strip.text.x = element_text(size = 10, margin = margin(0.075,0.1,0.075,0.1, "cm")),
+        strip.text.y = element_text(size = 10, margin = margin(0.075,0.1,0.075,0.1, "cm")),
         plot.title = element_blank(),
         panel.border = element_rect(color = "grey90", fill = NA),
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
-        panel.grid.major.x = element_blank()) +
+        panel.grid.major.x = element_blank(),
+        panel.spacing = unit(1, 'pt')) +
   labs (y = " ", x = "Fatty Acid")
 
 CB
+
+ggsave("CharlesBrown_lipid_fingerprint.pdf", 
+       width = 35, height  = 18, unit = "cm", 
+       dpi = 500, bg = 'white')
+
 
 # #ratio for logarithmic d13C y-axis
 # ylim.prim = c(0,0.5)
@@ -149,21 +153,24 @@ CC <- ggplot(df.cc) +         #Pick data to plot
                nest_line = element_line(),
                labeller = var.labs)+
   theme_pubclean()+
-  theme(axis.text.x=element_text(size = 12, angle = 60, hjust = 1), 
-        axis.text.y=element_text(size= 13), 
-        legend.text=element_text(size = 12),
-        legend.title = element_text(size=15, face = "bold"),
-        axis.title.x = element_text(size=15),
-        axis.title.y = element_text(size=15),
-        strip.text.x = element_text(size = 14),
-        strip.text.y = element_text(size = 14),
+  theme(axis.text.x=element_text(size = 8, angle = 60, hjust = 1), 
+        axis.text.y=element_text(size = 10), 
+        axis.title.x = element_text(size = 11),
+        axis.title.y = element_text(size = 11),
+        strip.text.x = element_text(size = 10, margin = margin(0.075,0.1,0.075,0.1, "cm")),
+        strip.text.y = element_text(size = 10, margin = margin(0.075,0.1,0.075,0.1, "cm")),
         plot.title = element_blank(),
         panel.border = element_rect(color = "grey90", fill = NA),
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
-        panel.grid.major.x = element_blank()) +
+        panel.grid.major.x = element_blank(),
+        panel.spacing = unit(1, 'pt')) +
   labs (y = " ", x = "Fatty Acid")
 
 CC
+
+ggsave("CrooksCastle_lipid_fingerprint.pdf", 
+       width = 35, height  = 18, unit = "cm", 
+       dpi = 500, bg = 'white')
 
 
 # Plot average biomass value ---------------------------------------------------------------------
@@ -188,26 +195,28 @@ df.bm.avg$Polymer_Treatment <- factor(df.bm.avg$Polymer_Treatment, levels=rev(so
 
 ggplot(df.bm.avg) +
   geom_col(aes(x = Polymer_Treatment, y = d13C.FA)) +
-  geom_hline(yintercept = 0,linewidth = 1, colour = "black") +
+  geom_hline(yintercept = 0,linewidth = 0.5, colour = "black") +
     coord_flip() +
     facet_nested(Location + fct_relevel(Habitat, 'Pelagic', 'Benthic') ~., drop = T,
              axes = 'margins',
              scale = "free",
              as.table = T) +
-  scale_x_discrete(labels = str2expression(unique(df.bm.avg$Polymer_Treatment))) +
+  
   theme_pubclean() +
   labs(y = expression("Abundance weighted average \u{03b4}"^13* "C fatty acids (\u2030)"), x = " ") +
-  theme(axis.text.x=element_text(size = 12, angle = 60, hjust = 1), 
-        axis.text.y=element_text(size= 13), 
-        legend.text=element_text(size = 12),
-        legend.title = element_text(size=15, face = "bold"),
-        axis.title.x = element_text(size=15),
-        axis.title.y = element_text(size=15),
-        strip.text.x = element_text(size = 14),
-        strip.text.y = element_text(size = 14),
+  theme(axis.text.x=element_text(size = 10, angle = 60, hjust = 1), 
+        axis.text.y=element_text(size = 9), 
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        strip.text.x = element_text(size = 10, margin = margin(0.075,0.1,0.075,0.1, "cm")),
+        strip.text.y = element_text(size = 10, margin = margin(0.075,0.1,0.075,0.1, "cm")),
         plot.title = element_blank(),
         panel.border = element_rect(color = "grey90", fill = NA),
         panel.grid.major.y = element_line(color = "grey90", linetype = 3),
-        panel.grid.major.x = element_blank()) 
+        panel.grid.major.x = element_blank(),
+        panel.spacing = unit(1, 'pt')) 
 
+ggsave("Avg_d13C_biomass.eps", 
+       width = 10, height  = 16, unit = "cm", 
+       dpi = 500, bg = 'white')
   

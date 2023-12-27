@@ -55,24 +55,24 @@ unique(tt.wild$Polymer)
 # unique(tt.inc$Polymer)
 
 ## Colors for plotting --------------------------------------------------------------------
-pal_isme <- c("#006d77", "#ffddd2", "#00C49A", "#e29578", "#83c5be")
-
-pal.loc <- c("#FF6DB6FF" , "#004949FF",  "#66A61E")
+pal.loc <- c("#6A3D9A" , "#33A02C", "#51C3CCFF")
 # CB, CC, Zeelandia
-pal.habs<- c("#CC5800FF", "#51C3CCFF")
+pal.habs<- c("#FF8E32FF", "#009292FF")
 # Benthic, Pelagic
-pal.loc.hab <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
+pal.loc.hab <- c("#6A3D9A", "#CAB2D6", "#33A02C","#B2DF8A", "#51C3CCFF")
 # CB_P, CB_B, CC_P, CB_B, Zeelandia
-pal.pols.isotop <- c("#E31A1C", "#7570B3", "#1F78B4","#A6CEE3", "#E6AB02","#A6761D", "#E5C494","#1B9E77")
-# Blanco;Nylon;PE;PE-13C;PET;PP;PP-13C;PS;
+pal.pols.isotop <- c("#E31A1C","#E7298A", "#1F78B4","#A6CEE3","#E6AB02", "#A6761D", "#E5C494","#1B9E77")
+# PE;PE-13C;PP;PP-13C;PS;PET;Nylon;Blanco
 pal.uv <- c("#DDCC77","#332288") 
-# UV, noUV
+
+
 colors_M1 <- c("#004e64", "#ecc8af", "#F2AF29", "#436436", "#00a5cf", 
                "#c18c5d", "#5f0f40", "#DC602E", "#495867", "#A29F15", 
                "#570000", "#FFF5B2", "#20221B", "#9fffcb", "#c08497", 
                "#8D6346", "#FF4B3E", "#149911", "#472d30")
 
-pal.phylum.w <- c('#44AA99', '#999933', '#CC6677','#332288', '#DDCC77') 
+# pal.phylum.w <- c('#44AA99', '#999933', '#CC6677','#332288', '#DDCC77') 
+pal.phylum.w <- c('#44AA99', '#CC6677','#332288', '#DDCC77') 
 
 
 # Generating bubbleplots --------------------------------------------------------------------
@@ -118,7 +118,7 @@ top_genus_pel$Genus <- factor(top_genus_pel$Genus, levels=rev(sort(unique(top_ge
 Genus_bubble_pel <- ggplot(top_genus_pel,aes(x=interaction(Polymer_Isotope,Backbone),y= Genus)) +
   geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Polymer_Isotope)), shape = "circle filled", stroke = NA) +
   scale_fill_manual(values = pal.pols.isotop) +
-  scale_size(range = c(2,5.5))+
+  scale_size(range = c(2,5))+
   # ylab("") +
   # xlab("") +  
   facet_nested(Habitat + Phylum  ~ Location + Treatment, drop = T, 
@@ -126,16 +126,16 @@ Genus_bubble_pel <- ggplot(top_genus_pel,aes(x=interaction(Polymer_Isotope,Backb
                axes = 'margins', as.table = F, 
                nest_line = element_line(),
                strip = strip_nested( size = "variable",
-                 background_y =  elem_list_rect(color = c("#51C3CCFF", rep_len("grey25",7)),
+                 background_y =  elem_list_rect(color = c("#009292FF", rep_len("grey25",7)),
                                                 fill = "white", linewidth = 1, by_layer_y = F),
                  text_y = elem_list_text(size = c(10,rep_len(9,7)), angle = c(270,rep_len(0,7)), 
-                                         color = c("#51C3CCFF",rep_len("grey25",7)), by_layer_y = F),
+                                         color = c("#009292FF",rep_len("grey25",7)), by_layer_y = F),
                  background_x = (element_rect(fill = "grey90", color = "grey90", linetype = 0)),
                  text_x = elem_list_text(size = 9)
                )) + 
   theme_minimal()+
   theme(
-    axis.text.x=element_text(size = 9, angle = 60, hjust = 1), 
+    axis.text.x=element_text(size = 8, angle = 60, hjust = 1), 
     axis.text.y=element_text(size= 9, face = "italic", color = "black"), 
     axis.ticks = element_line(color = "grey50"),
     legend.text=element_text(size = 9),
@@ -147,14 +147,14 @@ Genus_bubble_pel <- ggplot(top_genus_pel,aes(x=interaction(Polymer_Isotope,Backb
     axis.title.y = element_blank(),
     plot.title = element_text(size = 5, hjust = 0.5),
     panel.border = element_rect(color = "grey90", fill = NA),
-    ggh4x.axis.nestline.x = element_line(linetype = c(6,1,1), linewidth = 1, color = c("black", "darkgrey")),
+    ggh4x.axis.nestline.x = element_line(linetype = c(6,1,1), linewidth = 1.5, color = c("black", "darkgrey", "white")),
     ggh4x.axis.nesttext.x = element_blank(),
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
     panel.spacing = unit(1, 'pt')) +
   guides( x = "axis_nested", fill = "none") +
   labs(title = "", subtitle = "",
-       fill = "Polymer", size = "Relative Abundance") 
+       fill = "Polymer", size = "Relative \nAbundance") 
 
 Genus_bubble_pel
 
@@ -194,16 +194,16 @@ Genus_bubble_bent <- ggplot(top_genus_bent,aes(x=interaction(Polymer_Isotope,Bac
                axes = 'margins', as.table = F, 
                nest_line = element_line(),
                strip = strip_nested( size = "variable",
-                                     background_y =  elem_list_rect(color = c("#CC5800FF", rep_len("grey25",12)),
+                                     background_y =  elem_list_rect(color = c("#FF8E32FF", rep_len("grey25",12)),
                                                                     fill = "white", linewidth = 1, by_layer_y = F),
                                      text_y = elem_list_text(size = c(10,rep_len(9,12)), angle = c(270,rep_len(0,12)), 
-                                                             color = c("#CC5800FF",rep_len("grey25",12)), by_layer_y = F),
+                                                             color = c("#FF8E32FF",rep_len("grey25",12)), by_layer_y = F),
                                      background_x = (element_rect(fill = "grey90", color = "grey90", linetype = 0)),
                                      text_x = elem_list_text(size = 9)
                )) + 
   theme_minimal()+
   theme(
-    axis.text.x=element_text(size = 9, angle = 60, hjust = 1), 
+    axis.text.x=element_text(size = 8, angle = 60, hjust = 1), 
     axis.text.y=element_text(size= 9, face = "italic", color = "black"), 
     axis.ticks = element_line(color = "grey50"),
     legend.text=element_text(size = 9),
@@ -215,7 +215,7 @@ Genus_bubble_bent <- ggplot(top_genus_bent,aes(x=interaction(Polymer_Isotope,Bac
     axis.title.y = element_blank(),
     plot.title = element_text(size = 5, hjust = 0.5),
     panel.border = element_rect(color = "grey90", fill = NA),
-    ggh4x.axis.nestline.x = element_line(linetype = c(6,1,1), linewidth = 1, color = c("black", "darkgrey")),
+    ggh4x.axis.nestline.x = element_line(linetype = c(6,1,1), linewidth = 1.5, color = c("black", "darkgrey", "white")),
     ggh4x.axis.nesttext.x = element_blank(),
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
@@ -224,7 +224,7 @@ Genus_bubble_bent <- ggplot(top_genus_bent,aes(x=interaction(Polymer_Isotope,Bac
           size  = guide_legend(order = 1),
          color = guide_legend(order = 2)) +
   labs(title = "", subtitle = "",
-       fill = "Polymer", size = "Relative Abundance") 
+       fill = "Polymer", size = "Relative \nAbundance") 
 
 Genus_bubble_bent
 
@@ -232,8 +232,6 @@ Genus_bubble_bent
 # legend.a <- get_legend(Genus_bubble_bent+
 #                          theme(legend.direction = "horizontal",
 #                                legend.title.align = 0.5))
-
-showtext::showtext_opts(dpi=500)
 
 plot_grid(Genus_bubble_pel + theme( axis.text.x = element_blank(),
                                    axis.title.x = element_blank(),ggh4x.axis.nestline.x = element_blank(),
@@ -245,7 +243,7 @@ plot_grid(Genus_bubble_pel + theme( axis.text.x = element_blank(),
           axis = "ltr",
           rel_heights = c(1,1.4))
 
-ggsave("NIOZ164_Genus_bubble.eps", 
+ggsave("NIOZ164_Genus_bubble.pdf", 
        width = 20, height  = 30, unit = "cm", 
        dpi = 500, bg='white')
 
@@ -294,7 +292,7 @@ top.gen.wild <- top_genus_wild %>% select(Genus) %>% unique()
 top_genus_wild$Genus <- factor(top_genus_wild$Genus, levels=rev(sort(unique(top_genus_wild$Genus))))
 
 Genus_bubble <- ggplot(top_genus_wild,aes(x=Description, y= Genus)) +
-  geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Phylum)), shape = "circle filled", stroke = 0.25, color = "grey40") +
+  geom_point(aes(size=Genus_rel_abund_Sample, fill = factor(Phylum)), shape = "circle filled", stroke = 0.25) +
   scale_fill_manual(values = rev(pal.phylum.w)) +
   scale_size(range = c(1.5,5.5))+
   guides( x = "axis_nested",  fill = "none") +
@@ -321,7 +319,7 @@ Genus_bubble <- ggplot(top_genus_wild,aes(x=Description, y= Genus)) +
     axis.title.y = element_text(size=10),
     plot.title = element_text(size = 10, hjust = 0.5),
     panel.border = element_rect(color = "grey90", fill = NA),
-    ggh4x.axis.nestline.x = element_line(linetype = c(6,1), linewidth = 1, color = c("black", "darkgrey")),
+    ggh4x.axis.nestline.x = element_line(linetype = c(6,1), linewidth = 1.5, color = c("black", "darkgrey", "white")),
     ggh4x.axis.nesttext.x = element_text(angle = 0, color = c("black", "darkgrey"), hjust = 0.5),
     panel.grid.major.y = element_line(color = "grey90", linetype = 3),
     panel.grid.major.x = element_blank(),
@@ -334,9 +332,8 @@ Genus_bubble <- ggplot(top_genus_wild,aes(x=Description, y= Genus)) +
 
 Genus_bubble
 
-showtext::showtext_opts(dpi=500)
 
-ggsave("NIOZ164_Genus_bubble_wild.eps", 
+ggsave("NIOZ164_Genus_bubble_wild.pdf", 
        width = 13, height  = 15, unit = "cm", 
        dpi = 500, bg='white')
 

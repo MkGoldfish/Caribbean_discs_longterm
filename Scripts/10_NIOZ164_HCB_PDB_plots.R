@@ -100,20 +100,23 @@ plast.hcb.intersect <- intersect(pdb.gens, HCB)
 plast.hcb <- c(HCB_only, pdb.gens)
 
 ## Colors for plotting --------------------------------------------------------------------
-pal.loc <- c("#FF6DB6FF" , "#004949FF",  "#66A61E")
+pal.loc <- c("#6A3D9A" , "#33A02C", "#51C3CCFF")
 # CB, CC, Zeelandia
-pal.habs<- c("#CC5800FF", "#51C3CCFF")
+pal.habs<- c("#FF8E32FF", "#009292FF")
 # Benthic, Pelagic
-pal.loc.hab <- c("#FF6DB6FF","#FFB6DBFF", "#004949FF", "#009292FF", "#66A61E")
+pal.loc.hab <- c("#6A3D9A", "#CAB2D6", "#33A02C","#B2DF8A", "#51C3CCFF")
 # CB_P, CB_B, CC_P, CB_B, Zeelandia
-pal.pols.isotop <- c("#E31A1C", "#7570B3", "#1F78B4","#A6CEE3", "#E6AB02","#A6761D", "#E5C494","#1B9E77")
-# Blanco;Nylon;PE;PE-13C;PET;PP;PP-13C;PS;
+pal.pols.isotop <- c("#E31A1C","#E7298A", "#1F78B4","#A6CEE3","#E6AB02", "#A6761D", "#E5C494","#1B9E77")
+# PE;PE-13C;PP;PP-13C;PS;PET;Nylon;Blanco
 pal.uv <- c("#DDCC77","#332288") 
 # UV, noUV
+
 colors_M1 <- c("#004e64", "#ecc8af", "#F2AF29", "#436436", "#00a5cf", 
                "#c18c5d", "#5f0f40", "#DC602E", "#495867", "#A29F15", 
                "#570000", "#FFF5B2", "#20221B", "#9fffcb", "#c08497", 
                "#8D6346", "#FF4B3E", "#149911", "#472d30")
+
+showtext::showtext_opts(dpi=500)
 
 # PA/map of genera in PlasticDB ------------------------------------------------
 ## Combined data of wild and incubations ---------------------------------------
@@ -216,6 +219,7 @@ plot.pdb
 ## Genera sequencing data incubations --------------------------------------------------------------------
 Genus <- tt.inc  %>%  select(Description, Location, Habitat, Polymer, Isotope, Polymer_Isotope, Backbone, Treatment, 
                              Phylum, Genus, Genus_rel_abund_Sample, Sample_rel_abund) %>% 
+                             filter(Genus_rel_abund_Sample > 0.005) %>% 
   distinct() 
 
 # Create a unique vector of all genera we found
@@ -225,6 +229,14 @@ str(found.genera)
 # Whih of our found genera are in PlasticDB?
 gen.in.pdb.inc <- PDB_clean %>% filter(Genus %in% found.genera.inc)
 length(unique(gen.in.pdb.inc$Genus))
+
+# Which of our found genera are HCB?
+gen.hcb.only.inc<-HCB_only[HCB_only %in% found.genera.inc]
+unique(gen.hcb.only.inc) #12
+
+gen.in.hcb.inc<-HCB[HCB%in% found.genera.inc]
+unique(gen.in.hcb.inc) #23
+
 
 #What non-PE Plastics that have the PE string do we find?
 PDB_clean %>% filter(str_detect(Plastic,"PE")) %>% select(Plastic) %>% unique()
@@ -368,12 +380,12 @@ HCB.PDB.Bubble <- ggplot(HCB.PDB.Genera.pdbpols,aes(x=interaction(Polymer_Isotop
                axes = 'margins', as.table = F, 
                nest_line = element_line(),
                strip = strip_nested( size = "variable",
-                 background_y =  elem_list_rect(color = c("#51C3CCFF","#CC5800FF", 
+                 background_y =  elem_list_rect(color = c("#009292FF", "#FF8E32FF",
                                                           "grey10", "grey50", "grey30",
                                                           "grey10", "grey50", "grey30" ),
                                                 fill = "white", linewidth = 1, by_layer_y = F),
                  text_y = elem_list_text(size = c(10,10,rep_len(9,7)), angle = c(270,270,rep_len(0,7)), 
-                                         color = c("#51C3CCFF","#CC5800FF", 
+                                         color = c("#009292FF", "#FF8E32FF",
                                                           "grey10", "grey50", "grey30",
                                                           "grey10", "grey50", "grey30" ), by_layer_y = F),
                  background_x = (element_rect(fill = "grey90", color = "grey90", linetype = 0))
@@ -400,26 +412,37 @@ HCB.PDB.Bubble <- ggplot(HCB.PDB.Genera.pdbpols,aes(x=interaction(Polymer_Isotop
 
 HCB.PDB.Bubble
 
-showtext::showtext_opts(dpi=500)
 
-ggsave("NIOZ164_PDB_HCB_incubations_bubble.eps", 
+ggsave("NIOZ164_PDB_HCB_incubations_bubble.tiff", 
        width = 19.5, height  = 26, unit = "cm", 
        dpi = 500, bg='white')
 
 ## Genera sequencing Wild plastic --------------------------------------------------------------------
 Genus <- tt.wild %>%  select(Description, Location, Habitat, Polymer, Isotope, Polymer_Isotope, Backbone, Treatment, 
-                             Phylum, Genus, Genus_rel_abund_Sample, Sample_rel_abund) %>% 
+                             Phylum, Genus, Genus_rel_abund_Sample, Sample_rel_abund) %>%  
+  filter(Genus_rel_abund_Sample > 0.005) %>% 
   distinct() 
 
 # Create a unique vector of all genera we found
 found.genera.w <- Genus$Genus %>% unique() %>%  sort()
 str(found.genera.w)
 
-# Whih of our found genera are in PlasticDB?
+# Which of our found genera are in PlasticDB?
 gen.in.pdb.w <- PDB_clean %>% filter(Genus %in% found.genera.w)
 length(unique(gen.in.pdb.w$Genus))
 
 intersect(gen.in.pdb.w$Genus, gen.in.pdb.inc$Genus)
+
+# Which of our found genera are HCB?
+gen.hcb.only.w<-HCB_only[HCB_only %in% found.genera.w]
+unique(gen.hcb.only.w) #12
+
+gen.in.hcb.w<-HCB[HCB%in% found.genera.w]
+unique(gen.in.hcb.w) #21
+
+intersect(gen.in.hcb.w, gen.in.hcb.inc) #15
+setdiff(gen.in.hcb.w, gen.in.hcb.inc) #6
+setdiff( gen.in.hcb.inc, gen.in.hcb.w) #8
 
 
 #What non-PE Plastics that have the PE string do we find?
@@ -456,7 +479,7 @@ HCB.PDB.Genera <- Genus_plastoil  %>% dplyr::select(Description, Genus, Genus_re
 
 unique(HCB.PDB.Genera$Genus) %>% length()
 
-### Calculate abundanof HCB and PDB ------------------------
+### Calculate abundance of HCB and PDB ------------------------
 #### Beach HCB reads
 Samp.HCB.beach.avg <- Genus_HCBonly  %>% select(Description, Sample_rel_abund) %>% group_by(Description) %>% 
   summarise(sum = sum(Sample_rel_abund)) %>% summarise(mean = mean(sum)) *100
